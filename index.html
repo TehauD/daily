@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>THE DAILY — reflective intake system</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A calm, private, clinical-grade journal for anyone, anywhere. No account. No cloud. Just you and the day.">
+<meta name="theme-color" content="#1a4b8c">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="The Daily — reflective intake system">
+<meta property="og:description" content="A calm, private, clinical-grade journal for anyone, anywhere.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a4b8c'/%3E%3Crect x='6.5' y='6.5' width='19' height='19' rx='4' fill='none' stroke='%232f7dd1' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230bb4c4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ffffff; --ink:#0e2238; --soft:#4a6483; --faint:#8ba3bf;
+  --line:rgba(26,75,140,.16); --line2:rgba(26,75,140,.08);
+  --grid:rgba(26,75,140,.07); --grid-major:rgba(26,75,140,.13);
+  --accent:#1a4b8c; --accent2:#2f7dd1; --cyan:#0bb4c4; --accent-soft:rgba(47,125,209,.10);
+  --ok:#1c9e77; --warn:#c98a1e; --err:#d24b4b;
+  --sans:'Inter',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --fsize:18px; --content-op:1; --radius:14px;
+  --bg:#eef3f9; --bg2:#e4edf6; --glow1:rgba(47,125,209,.10); --glow2:rgba(11,180,196,.07);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+body.dark{
+  --paper:#0c1826; --ink:#dce9f7; --soft:#8aa6c6; --faint:#5b769a;
+  --line:rgba(120,170,230,.18); --line2:rgba(120,170,230,.09);
+  --grid:rgba(120,170,230,.08); --grid-major:rgba(120,170,230,.15);
+  --accent:#4f9fe6; --accent2:#6fb6f0; --cyan:#22c9d8; --accent-soft:rgba(79,159,230,.14);
+  --bg:#060d16; --bg2:#0a1420;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:var(--bg);font-size:var(--fsize);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background 1.2s var(--ease),color .4s}
+.ambient{position:fixed;inset:0;z-index:-2;pointer-events:none;transition:background 1.2s var(--ease);background:radial-gradient(50% 44% at 15% 4%, var(--glow1), transparent 66%),radial-gradient(48% 44% at 88% 8%, var(--glow2), transparent 66%),linear-gradient(180deg,var(--bg),var(--bg2));}
+.ambient:before{content:'';position:absolute;inset:0;opacity:.4;background-image:linear-gradient(var(--grid-major) 1px,transparent 1px),linear-gradient(90deg,var(--grid-major) 1px,transparent 1px);background-size:128px 128px,128px 128px;mask-image:radial-gradient(120% 90% at 50% 0%,rgba(0,0,0,.5),transparent 75%);}
+a{color:var(--accent2);text-decoration:none}
+.wrap{max-width:760px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono);font-variant-ligatures:none}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes ripple{from{transform:scale(0);opacity:.4}to{transform:scale(2.6);opacity:0}}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+@keyframes typing{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.rise{opacity:0;animation:rise .6s var(--ease) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.2s}.d4{animation-delay:.28s}
+.top{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 80%,transparent);border-bottom:1px solid var(--line)}
+.top-in{max-width:760px;margin:0 auto;padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .sig{width:30px;height:30px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;position:relative;color:var(--accent)}
+.brand .sig:before{content:'';position:absolute;width:6px;height:6px;background:var(--cyan);border-radius:50%;box-shadow:0 0 8px var(--cyan)}
+.brand .txt{line-height:1}
+.brand .txt b{font-family:var(--mono);font-weight:600;font-size:14px;letter-spacing:2px;display:block}
+.brand .txt span{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--faint)}
+.tnav{display:flex;gap:2px}
+.tnav button{background:transparent;border:1px solid transparent;color:var(--soft);font-family:var(--mono);font-size:11px;letter-spacing:.5px;padding:7px 11px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s var(--ease);text-transform:uppercase}
+.tnav button:hover{color:var(--accent);border-color:var(--line);background:var(--paper)}
+.tnav button .t{display:inline}
+@media(max-width:680px){.tnav button .t{display:none}.tnav button{padding:7px 9px}}
+.hero{padding:34px 0 6px}
+.readout{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--faint);text-transform:uppercase}
+.readout .live{color:var(--cyan);display:inline-flex;align-items:center;gap:6px}
+.readout .live:before{content:'';width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pop 1.4s ease-in-out infinite alternate}
+.hero .greet{font-family:var(--serif);font-weight:500;font-size:clamp(30px,6vw,44px);letter-spacing:-.5px;margin:10px 0 0;line-height:1.1}
+.hero .greet em{font-style:italic;color:var(--accent2)}
+.telem{display:flex;gap:0;margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);box-shadow:0 16px 40px -30px rgba(14,34,56,.6)}
+.tcell{flex:1;padding:12px 14px;border-right:1px solid var(--line2);display:flex;flex-direction:column;gap:3px;min-width:0}
+.tcell:last-child{border-right:none}
+.tcell .k{font-family:var(--mono);font-size:9px;letter-spacing:1.2px;color:var(--faint);text-transform:uppercase}
+.tcell .v{font-family:var(--mono);font-weight:600;font-size:18px;color:var(--ink);display:flex;align-items:center;gap:6px}
+.tcell .v b{color:var(--accent2)}
+.weekring{display:flex;gap:5px;margin-top:3px}
+.wd{width:9px;height:9px;border-radius:2px;background:var(--line);transition:.4s var(--ease)}
+.wd.on{background:var(--accent2);box-shadow:0 0 0 2px var(--accent-soft)}
+.wd.today{outline:1.5px solid var(--cyan);outline-offset:1px}
+.aiCell{display:none}
+.canvas{position:relative;background:var(--paper);opacity:var(--content-op);border:1px solid var(--line);border-radius:var(--radius);margin:20px 0;padding:0;transition:background 1.2s var(--ease),border-color .3s;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 26px 50px -34px var(--glow1),0 16px 40px -34px rgba(14,34,56,.5)}
+.canvas:before{content:'';position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;opacity:.45;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px;mask-image:linear-gradient(180deg,transparent 60px,rgba(0,0,0,.6) 120px,rgba(0,0,0,.35) 380px,transparent 560px)}
+.canvas-head{position:relative;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--accent-soft),transparent);font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--soft);text-transform:uppercase}
+.canvas-head .id{color:var(--accent2);font-weight:600}
+.canvas-body{position:relative;padding:22px 24px 20px}
+@media(max-width:560px){.canvas-body{padding:18px 16px}}
+.mlabel-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.field-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase}
+.mood-strip{display:flex;gap:8px}
+.mood{position:relative;flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 4px 7px;cursor:pointer;text-align:center;transition:.25s var(--ease);font:inherit;overflow:hidden;opacity:0;animation:pop .45s var(--ease) forwards}
+.mood:nth-child(1){animation-delay:.12s}.mood:nth-child(2){animation-delay:.18s}.mood:nth-child(3){animation-delay:.24s}.mood:nth-child(4){animation-delay:.3s}.mood:nth-child(5){animation-delay:.36s}
+.mood .emo{font-size:24px;display:block;filter:grayscale(.5);transition:.25s var(--ease)}
+.mood .lbl{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:4px;letter-spacing:.5px;text-transform:uppercase;transition:.2s}
+.mood:hover{border-color:var(--accent2)}
+.mood:hover .emo{filter:none;transform:translateY(-2px)}
+.mood.sel{border-color:var(--accent2);background:var(--accent-soft)}
+.mood.sel .emo{filter:none;transform:scale(1.12)}
+.mood.sel .lbl{color:var(--accent2)}
+.mood .rip{position:absolute;left:50%;top:40%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:var(--accent2);pointer-events:none;animation:ripple .6s var(--ease) forwards}
+.prompt-line{display:flex;align-items:center;gap:10px;margin:20px 0 6px;color:var(--soft);font-family:var(--serif);font-style:italic;font-size:16px}
+.prompt-line .qm{font-family:var(--mono);font-style:normal;color:var(--cyan);font-size:11px}
+#promptText{transition:opacity .3s}
+.prompt-line .refresh{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:7px;padding:4px 10px;font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;transition:.2s var(--ease);text-transform:uppercase}
+.prompt-line .refresh:hover{border-color:var(--accent2);color:var(--accent2)}
+.writer{position:relative;margin-top:4px}
+#entry{width:100%;min-height:190px;border:none;outline:none;resize:vertical;background:transparent;color:var(--ink);font-family:var(--serif);font-size:1.16rem;line-height:22px;padding:0;letter-spacing:.1px;caret-color:var(--cyan)}
+#entry::placeholder{color:var(--faint);font-style:italic}
+.ghost{position:absolute;inset:0;padding:0;font-family:var(--serif);font-size:1.16rem;line-height:22px;letter-spacing:.1px;white-space:pre-wrap;word-wrap:break-word;pointer-events:none;color:transparent}
+.ghost .gt{color:var(--faint);opacity:.75;font-style:italic}
+.count{display:flex;justify-content:space-between;align-items:center;color:var(--faint);font-family:var(--mono);font-size:10.5px;letter-spacing:.5px;margin-top:8px;border-top:1px solid var(--line2);padding-top:9px;text-transform:uppercase}
+#autosave{display:inline-flex;align-items:center;gap:7px}
+.savedot{width:7px;height:7px;border-radius:2px;background:var(--faint);transition:.3s}
+.savedot.saved{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent)}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;align-items:center}
+.tool{background:var(--paper);border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:7px 11px;font-family:var(--mono);font-size:10.5px;letter-spacing:.5px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:6px;text-transform:uppercase}
+.tool:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-1px)}
+.tool.ai{border-color:var(--accent-soft);background:linear-gradient(90deg,var(--accent-soft),transparent)}
+.tool.ai[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.tool.hero-tool{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tool.hero-tool:hover{background:var(--accent2);color:#fff}
+.tool.rec.live{background:var(--err);color:#fff;border-color:var(--err)}
+.tool .kbd{font-size:9px;opacity:.6;border:1px solid var(--line);border-radius:4px;padding:1px 4px}
+.spacer{flex:1}
+.slash{position:absolute;z-index:30;min-width:250px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 50px -24px rgba(14,34,56,.6);padding:5px;display:none;animation:rise .16s var(--ease)}
+.slash.open{display:block}
+.slash .si{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13.5px}
+.slash .si .em{width:20px;text-align:center}
+.slash .si .desc{color:var(--faint);font-family:var(--mono);font-size:9px;margin-left:auto}
+.slash .si.act,.slash .si:hover{background:var(--accent-soft)}
+.reflect{display:none;margin-top:14px;padding:0;border-radius:12px;background:var(--paper);border:1px solid var(--accent-soft);overflow:hidden;animation:rise .4s var(--ease)}
+.reflect .rh{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#fff;font-weight:600;background:var(--accent);padding:7px 14px;display:flex;align-items:center;gap:8px}
+.reflect .rb{padding:14px 16px;font-family:var(--serif);font-size:1.0rem;line-height:1.7}
+.sec{display:flex;align-items:center;gap:10px;margin:22px 4px 10px}
+.sec .ln{flex:1;height:1px;background:var(--line)}
+.sec .t{font-family:var(--mono);font-size:9.5px;letter-spacing:1.8px;color:var(--faint);text-transform:uppercase}
+.sec .t .n{color:var(--soft)}
+.feelings{display:flex;flex-wrap:wrap;gap:6px}
+.feel{background:var(--paper);border:1px solid var(--line);color:var(--soft);border-radius:6px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:.2s var(--ease);letter-spacing:.3px}
+.feel:hover{border-color:var(--cyan)}
+.feel.sel{background:color-mix(in srgb,var(--cyan) 14%,transparent);border-color:var(--cyan);color:var(--ink);font-weight:600}
+.moment{display:flex;align-items:flex-start;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line2)}
+.moment .mi{font-size:16px;flex:none;margin-top:6px;width:20px;text-align:center;color:var(--accent2)}
+.moment .mlabel{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:1px;text-transform:uppercase}
+.moment input{width:100%;border:none;outline:none;background:transparent;color:var(--ink);font-family:var(--serif);font-size:1.0rem;padding:2px 0;margin-top:1px}
+.moment input::placeholder{color:var(--faint);font-style:italic}
+.tagbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;cursor:text}
+.tag{background:var(--accent-soft);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-family:var(--mono);font-size:11px;display:inline-flex;align-items:center;gap:6px;animation:pop .3s var(--ease)}
+.tag button{background:none;border:none;color:var(--faint);cursor:pointer;font-size:12px;padding:0;line-height:1}
+#tagInput{border:none;outline:none;background:transparent;color:var(--ink);font-family:var(--mono);font-size:12px;min-width:120px;flex:1}
+.tuck{margin:8px 0}
+.tuck>summary{list-style:none;cursor:pointer;color:var(--soft);font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;padding:10px 2px;display:flex;align-items:center;gap:8px}
+.tuck>summary::-webkit-details-marker{display:none}
+.tuck>summary:before{content:'▸';transition:.2s}
+.tuck[open]>summary:before{transform:rotate(90deg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+label.f{display:block;font-family:var(--mono);font-size:9.5px;color:var(--soft);letter-spacing:1px;text-transform:uppercase;margin:10px 0 5px}
+input.f,select.f{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:10px 12px;font:inherit;font-size:14px;outline:none}
+input.f:focus,select.f:focus{border-color:var(--accent2)}
+.ritual-wrap{text-align:center;margin:22px 0 8px}
+.ritual{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 28px;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 34px -16px var(--accent);transition:.25s var(--ease);display:inline-flex;align-items:center;gap:10px}
+.ritual:hover{transform:translateY(-2px);background:var(--accent2)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}
+.btn{background:var(--paper);color:var(--soft);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-1px)}
+.btn.primary{background:var(--accent);color:#fff;border:none}
+.btn.primary:hover{background:var(--accent2);color:#fff}
+.btn.sm{padding:7px 11px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.status{font-family:var(--mono);font-size:11px;min-height:16px;margin-top:6px;text-align:center;word-break:break-word}
+.status.ok{color:var(--ok)}.status.err{color:var(--err)}.status.info{color:var(--accent2)}
+.muted{color:var(--faint);font-size:12px}
+.ls-row{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.ls-row .k{flex:0 0 30%;font-family:var(--mono);font-size:10px;color:var(--soft);word-break:break-all;padding-top:9px}
+.ls-row textarea{flex:1;min-height:34px;font-family:var(--mono);font-size:11px;background:var(--paper);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:8px}
+.foot{text-align:center;color:var(--faint);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:22px 0 44px}
+.drawer{position:fixed;top:0;right:-440px;width:420px;max-width:92vw;height:100vh;z-index:120;background:var(--paper);border-left:1px solid var(--line);padding:22px;overflow-y:auto;transition:right .4s var(--ease);box-shadow:-24px 0 60px -30px rgba(0,0,0,.4)}
+.drawer.open{right:0}
+.drawer h2{font-family:var(--mono);font-weight:600;font-size:14px;letter-spacing:2px;text-transform:uppercase;margin:0 0 2px}
+.drawer .sub{color:var(--soft);font-family:var(--mono);font-size:10px;letter-spacing:.5px;margin-bottom:16px}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+legend{padding:0 8px;font-family:var(--mono);font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint)}
+.close-x{position:absolute;top:16px;right:18px;background:var(--bg);border:1px solid var(--line);color:var(--ink);width:32px;height:32px;border-radius:8px;cursor:pointer}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer;margin:10px 0;position:relative;font-size:13px}
+.switch input{position:absolute;opacity:0}
+.switch .tk{width:44px;height:24px;background:var(--line);border-radius:6px;position:relative;transition:.25s var(--ease);flex:none}
+.switch .tk:after{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:4px;transition:.25s var(--ease);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked + .tk{background:var(--accent2)}
+.switch input:checked + .tk:after{transform:translateX(20px)}
+.seg{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:66px;background:var(--bg);border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:8px;font-family:var(--mono);font-size:10px;letter-spacing:.5px;cursor:pointer;transition:.15s;text-transform:uppercase}
+.seg button.sel{border-color:var(--accent2);color:var(--accent2);background:var(--accent-soft);font-weight:600}
+.mback{position:fixed;inset:0;z-index:200;background:rgba(6,13,22,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .25s}
+.mback.open{display:flex;opacity:1}
+.modal{background:var(--paper);border:1px solid var(--line);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 40px 90px -40px rgba(0,0,0,.6);transform:translateY(14px) scale(.98);transition:transform .3s var(--ease)}
+.mback.open .modal{transform:none}
+.mhero{padding:22px 28px 18px;border-bottom:1px solid var(--line);position:relative;background:linear-gradient(180deg,var(--accent-soft),transparent)}
+.mhero .mt{font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin:0}
+.mhero .ms{color:var(--soft);font-family:var(--mono);font-size:10px;letter-spacing:.5px;margin-top:4px;text-transform:uppercase}
+.mclose{position:absolute;top:16px;right:18px;background:var(--bg);border:1px solid var(--line);color:var(--ink);width:32px;height:32px;border-radius:8px;cursor:pointer}
+.mbody{padding:22px 28px 26px}
+.mbody p{color:var(--soft);font-size:14px}
+.mbody h4{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin:18px 0 8px;color:var(--ink)}
+.feature{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.feature .fi{font-size:18px;flex:none;width:24px;text-align:center}
+.feature b{font-size:14px}.feature span{display:block;color:var(--soft);font-size:12.5px}
+.warnbox{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--ink);margin-top:12px}
+.tipbox{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--ink);margin-top:12px}
+.tipbox code{font-family:var(--mono);background:var(--bg);padding:1px 5px;border-radius:4px;font-size:11px}
+.provider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+@media(max-width:480px){.provider-grid{grid-template-columns:1fr}}
+.provider{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px;cursor:pointer;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;transition:.2s var(--ease);text-transform:uppercase}
+.provider:hover{border-color:var(--accent2)}.provider.sel{border-color:var(--accent2);background:var(--accent-soft);color:var(--accent2)}
+.azure-only{display:none}
+/* COMPOSE */
+.cx-intro{color:var(--soft);font-size:14px;margin:0 0 16px}
+.cx-chat{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.cx-msg{max-width:88%;padding:11px 14px;border-radius:14px;font-size:14.5px;line-height:1.5;animation:rise .3s var(--ease)}
+.cx-msg.ai{align-self:flex-start;background:var(--accent-soft);border:1px solid var(--line);border-bottom-left-radius:4px;font-family:var(--serif)}
+.cx-msg.me{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.cx-msg.think{align-self:flex-start;color:var(--faint);font-family:var(--mono);font-size:12px}
+.cx-msg.think span{animation:typing 1.2s infinite}.cx-msg.think span:nth-child(2){animation-delay:.2s}.cx-msg.think span:nth-child(3){animation-delay:.4s}
+.cx-inrow{display:flex;gap:8px;align-items:flex-end}
+.cx-inrow textarea{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;resize:none;min-height:46px;max-height:140px}
+.cx-inrow textarea:focus{border-color:var(--accent2)}
+.cx-mic{flex:none;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--soft);cursor:pointer;font-size:16px;transition:.2s}
+.cx-mic:hover{border-color:var(--accent2);color:var(--accent2)}
+.cx-mic.live{background:var(--err);color:#fff;border-color:var(--err)}
+.cx-send{flex:none;width:46px;height:46px;border-radius:12px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:16px;transition:.2s}
+.cx-send:hover{background:var(--accent2)}
+.cx-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:space-between}
+.cx-progress{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.5px;text-transform:uppercase;align-self:center}
+.cx-draft{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-family:var(--serif);font-size:1.05rem;line-height:1.7;white-space:pre-wrap;margin-bottom:12px;animation:rise .4s var(--ease)}
+.pn-summary{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;font-family:var(--serif);font-size:1.02rem;line-height:1.7}
+.pn-summary .pnh{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px}
+.pn-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:520px){.pn-stats{grid-template-columns:1fr 1fr}}
+.pn-stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.pn-stat .n{font-family:var(--mono);font-weight:600;font-size:22px;color:var(--accent2)}
+.pn-stat .l{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.moodchart{display:flex;align-items:flex-end;gap:4px;height:70px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.mc-bar{flex:1;background:linear-gradient(180deg,var(--accent2),var(--accent));border-radius:3px 3px 0 0;min-height:3px;transition:.4s var(--ease)}
+.mc-bar.empty{background:var(--line)}
+.freqrow{display:flex;align-items:center;gap:10px;margin:7px 0}
+.freqrow .fl{font-family:var(--mono);font-size:12px;width:110px;text-align:right;color:var(--soft)}
+.freqrow .fbar{flex:1;height:10px;background:var(--line2);border-radius:5px;overflow:hidden}
+.freqrow .fbar i{display:block;height:100%;background:var(--cyan);border-radius:5px}
+.freqrow .fn{font-family:var(--mono);font-size:11px;color:var(--faint);width:26px}
+.pn-empty{text-align:center;color:var(--faint);padding:30px;font-family:var(--serif);font-style:italic}
+.ritual-overlay{position:fixed;inset:0;z-index:300;background:radial-gradient(circle at 50% 36%,var(--bg2),var(--bg));display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:30px;opacity:0;transition:opacity .8s var(--ease)}
+.ritual-overlay.open{display:flex;opacity:1}
+.ritual-overlay .lamp{font-size:50px;animation:pop .7s var(--ease)}
+.ritual-overlay h2{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5vw,38px);margin:16px 0 6px;font-style:italic;opacity:0;animation:rise .8s var(--ease) .3s forwards}
+.ritual-overlay p{color:var(--soft);font-family:var(--mono);font-size:12px;letter-spacing:.5px;opacity:0;animation:rise .8s var(--ease) .5s forwards}
+.ritual-overlay .aff{font-family:var(--serif);font-size:1.1rem;color:var(--ink);margin:16px 0 24px;opacity:0;animation:rise .8s var(--ease) .7s forwards}
+.ritual-overlay .done{opacity:0;animation:rise .8s var(--ease) .9s forwards}
+.confetti{position:fixed;inset:0;z-index:310;pointer-events:none;overflow:hidden}
+.cf{position:absolute;width:8px;height:12px;top:-20px;animation:fall linear forwards}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001s!important;animation-delay:0s!important;transition-duration:.05s!important}.rise,.mood{opacity:1!important}}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}
+@media print{.top,.toolbar,.bar,.telem,.tuck,.ritual-wrap,.prompt-line .refresh,.drawer,.mback{display:none!important}body{background:#fff;color:#000}.canvas{box-shadow:none;border:1px solid #ccc}.canvas:before{display:none}#entry{font-size:12pt}}
+</style>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif;text-align:center;color:#0e2238"><h1>The Daily</h1><p>This journal needs JavaScript to run. It's fully private and works entirely in your browser — please enable JavaScript to begin.</p></div></noscript>
+<div class="ambient" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><span class="sig"></span><span class="txt"><b>THE DAILY</b><span>REFLECTIVE INTAKE SYS · v4.2</span></span></div>
+    <nav class="tnav" aria-label="Main">
+      <button onclick="openPatterns()" aria-label="Patterns">◫<span class="t">Patterns</span></button>
+      <button onclick="openModal('aboutModal')" aria-label="About">ⓘ<span class="t">About</span></button>
+      <button onclick="openModal('aiModal')" aria-label="AI settings">✦<span class="t">AI</span></button>
+      <button onclick="openModal('githubModal')" aria-label="Sync settings">⟲<span class="t">Sync</span></button>
+      <button onclick="openDrawer()" aria-label="Configure">⚙<span class="t">Config</span></button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <div class="readout rise d1"><span class="live">SESSION ACTIVE</span><span id="stardate"></span><span id="phaseTag"></span></div>
+  <h1 class="greet rise d2" id="greet">Hello.</h1>
+  <div class="telem rise d3">
+    <div class="tcell"><span class="k">Streak</span><span class="v"><b id="streak">0</b> days</span><div class="weekring" id="weekring"></div></div>
+    <div class="tcell"><span class="k">Words today</span><span class="v" id="wordcount">0</span></div>
+    <div class="tcell"><span class="k">Entries logged</span><span class="v" id="totalEntries">0</span></div>
+    <div class="tcell aiCell" id="aiCell"><span class="k">AI link</span><span class="v" style="color:var(--cyan)">● ONLINE</span></div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="canvas rise d4">
+    <div class="canvas-head"><span>ENTRY · <span class="id" id="entryId">—</span></span><span id="locTag">◎ —</span></div>
+    <div class="canvas-body">
+      <div class="mlabel-row"><span class="field-tag">Field 01 · Affective state</span><span class="field-tag" id="moodVal">—</span></div>
+      <div class="mood-strip" id="moodStrip" role="group" aria-label="Affective state">
+        <button class="mood" data-m="1" onclick="setMood(1,event)" aria-label="Rough"><span class="emo" aria-hidden="true">😔</span><span class="lbl">Rough</span></button>
+        <button class="mood" data-m="2" onclick="setMood(2,event)" aria-label="Low"><span class="emo" aria-hidden="true">😕</span><span class="lbl">Low</span></button>
+        <button class="mood" data-m="3" onclick="setMood(3,event)" aria-label="Neutral"><span class="emo" aria-hidden="true">😐</span><span class="lbl">Neutral</span></button>
+        <button class="mood" data-m="4" onclick="setMood(4,event)" aria-label="Good"><span class="emo" aria-hidden="true">🙂</span><span class="lbl">Good</span></button>
+        <button class="mood" data-m="5" onclick="setMood(5,event)" aria-label="Great"><span class="emo" aria-hidden="true">😄</span><span class="lbl">Great</span></button>
+      </div>
+
+      <div class="prompt-line" id="promptLine"><span class="qm">?&gt;</span><span id="promptText">What's on your mind today?</span><button class="refresh" onclick="nextPrompt()">↻ new</button></div>
+
+      <div class="writer" id="writer">
+        <div class="ghost" id="ghost" aria-hidden="true"></div>
+        <textarea id="entry" aria-label="Journal entry" placeholder="Begin transcript. Type “/” for tools, tap ✎ Compose to write it together, or just let the day spill out…" spellcheck="true"></textarea>
+        <div class="slash" id="slash"></div>
+      </div>
+      <div class="count"><span id="autosave"><span class="savedot" id="savedot"></span><span>saved</span></span><span><span id="wc2">0</span> WORDS · <span id="readtime">0</span> MIN</span></div>
+
+      <div class="toolbar">
+        <button class="tool hero-tool" data-ai onclick="composeOpen()">✎ Compose with me</button>
+        <button class="tool" onclick="insertStarter()">✚ Starter</button>
+        <button class="tool" onclick="usePrompt()">↳ Prompt</button>
+        <button class="tool rec" id="micBtn" onclick="toggleDictation()">◉ Speak</button>
+        <button class="tool ai" data-ai onclick="aiUnstick()">✦ Unstick <span class="kbd">Tab</span></button>
+        <button class="tool ai" data-ai onclick="aiReflect()">✦ Reflect</button>
+        <span class="spacer"></span>
+        <button class="tool" onclick="openSlash()">/ Cmd</button>
+      </div>
+      <div class="reflect" id="reflect"></div>
+
+      <div class="sec"><span class="t">Field 02 · Affect tags <span class="n">// tap any</span></span><span class="ln"></span></div>
+      <div class="feelings" id="feelings"></div>
+
+      <div class="sec"><span class="t">Field 03 · Daily markers</span><span class="ln"></span></div>
+      <div class="moment"><div class="mi">◇</div><div style="flex:1"><div class="mlabel">Grateful for</div><input id="grateful" aria-label="Grateful for" placeholder="one thing, big or small"></div></div>
+      <div class="moment"><div class="mi">◆</div><div style="flex:1"><div class="mlabel">Highlight of the day</div><input id="highlight" aria-label="Highlight of the day" placeholder="a moment worth logging"></div></div>
+      <div class="moment"><div class="mi">▷</div><div style="flex:1"><div class="mlabel">Intention for tomorrow</div><input id="intention" aria-label="Intention for tomorrow" placeholder="one small step forward"></div></div>
+
+      <div class="sec"><span class="t">Field 04 · Index tags</span><span class="ln"></span></div>
+      <div class="tagbar" id="tagbar" onclick="document.getElementById('tagInput').focus()"><input id="tagInput" aria-label="Add tag" placeholder="type a tag, press Enter"></div>
+
+      <details class="tuck"><summary>Metadata · date &amp; location</summary>
+        <div class="grid2" style="padding:8px 2px 6px"><div><label class="f">Date</label><input type="date" id="date" class="f"></div><div><label class="f">Location</label><input type="text" id="location" class="f" placeholder="coordinates / place"></div></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="ritual-wrap"><button class="ritual" onclick="closeTheDay()">🌙 Close the day</button></div>
+  <div class="bar">
+    <button class="btn primary" onclick="saveToGitHub()">⟲ Sync</button>
+    <button class="btn" onclick="saveJournal()">↓ MD</button>
+    <button class="btn" onclick="saveJournalAsJson()">↓ JSON</button>
+    <button class="btn" onclick="saveJournalAsDocx()">↓ DOCX</button>
+    <button class="btn" onclick="saveJournalAsEmail()">✉ Email</button>
+  </div>
+  <div id="ghStatus" class="status"></div>
+
+  <details class="tuck"><summary>◈ Local data store</summary>
+    <div style="padding:8px 2px"><p class="muted">100% private. Everything lives in this browser — no account, no server. Nothing leaves your device unless you sync or export.</p>
+      <div id="ls-list"></div>
+      <div class="bar" style="justify-content:flex-start;margin-top:10px"><button class="btn sm" onclick="loadLocalStorage()">↻ Refresh</button><button class="btn sm" onclick="clearLocalStorage()">✕ Clear all</button></div>
+    </div>
+  </details>
+
+  <div class="foot">THE DAILY · REFLECTIVE INTAKE SYSTEM · WRITE A LITTLE · UNDERSTAND A LOT</div>
+</main>
+
+<aside id="drawer" class="drawer">
+  <button class="close-x" onclick="closeDrawer()">✖</button>
+  <h2>Config</h2><div class="sub">LOCAL · PERSISTED TO DEVICE</div>
+  <fieldset><legend>Appearance</legend><label class="f">Theme mode</label>
+    <div class="seg" id="themeSeg"><button data-th="auto" onclick="setTheme('auto')">Auto</button><button data-th="light" onclick="setTheme('light')">Light</button><button data-th="dark" onclick="setTheme('dark')">Dark</button></div>
+    <p class="muted mono" style="margin:8px 0 0;font-size:10px">AUTO SHIFTS HUE WITH TIME OF DAY</p></fieldset>
+  <fieldset><legend>Reading comfort</legend><label class="f">Text size <span id="fontSizeValue">18px</span></label>
+    <input type="range" id="fontSizeRange" min="15" max="24" value="18" style="width:100%;accent-color:var(--accent2)">
+    <label class="f">Interface font</label><select id="fontSelect" class="f"><option value="'Inter',system-ui,sans-serif">Inter (default)</option><option value="'IBM Plex Mono',monospace">IBM Plex Mono</option><option value="Georgia,serif">Georgia</option><option value="'Fraunces',serif">Fraunces</option></select></fieldset>
+  <fieldset><legend>Accent</legend><label class="f">Accent color</label><input type="color" id="accentPicker" value="#1a4b8c" class="f" style="height:42px"><p class="muted mono" style="margin:8px 0 0;font-size:10px">LEAVE FOR ADAPTIVE BLUE</p></fieldset>
+  <fieldset><legend>Writing</legend>
+    <label class="switch"><input type="checkbox" id="promptsToggle" checked><span class="tk"></span> Show daily prompt</label>
+    <label class="switch"><input type="checkbox" id="ghostToggle" checked><span class="tk"></span> AI ghost hints (Tab)</label>
+    <label class="f">Compose voice</label><select id="composeVoice" class="f"><option value="mine">Sound like me (plain &amp; honest)</option><option value="warm">Warm &amp; reflective</option><option value="brief">Brief &amp; clipped</option><option value="poetic">Poetic</option></select></fieldset>
+  <fieldset><legend>Reset</legend><label class="switch"><input type="checkbox" id="confirmResetToggle"><span class="tk"></span> Enable reset</label><button class="btn" style="margin-top:10px" id="resetSettingsBtn">✕ Clear everything</button></fieldset>
+</aside>
+
+<!-- COMPOSE MODAL -->
+<div class="mback" id="composeModal" onclick="mbd(event,'composeModal')"><div class="modal">
+  <div class="mhero"><button class="mclose" onclick="closeModal('composeModal')">✖</button>
+    <h3 class="mt">✎ Compose with me</h3><div class="ms">I ASK · YOU ANSWER · WE DRAFT — IN YOUR VOICE</div></div>
+  <div class="mbody">
+    <p class="cx-intro">Answer a few quick questions (type or speak — short is fine). I'll weave <b>your own words</b> into a first draft you can drop in and edit. I never invent your day.</p>
+    <div class="cx-chat" id="cxChat"></div>
+    <div id="cxInputWrap">
+      <div class="cx-inrow">
+        <textarea id="cxInput" rows="1" placeholder="Type your answer… (Enter to send, Shift+Enter for a new line)"></textarea>
+        <button class="cx-mic" id="cxMic" onclick="cxDictate()" title="Speak">◉</button>
+        <button class="cx-send" onclick="cxSend()" title="Send">➤</button>
+      </div>
+      <div class="cx-actions">
+        <button class="btn sm" onclick="cxSkip()">Skip question</button>
+        <span class="cx-progress" id="cxProgress">Question 1</span>
+        <button class="btn sm primary" onclick="cxDraftNow()">✎ Draft it now</button>
+      </div>
+    </div>
+    <div id="cxDraftWrap" style="display:none">
+      <div class="cx-draft" id="cxDraft"></div>
+      <div class="bar" style="justify-content:flex-start">
+        <button class="btn primary" onclick="cxUseDraft()">✓ Use this draft</button>
+        <button class="btn" onclick="cxAppendDraft()">＋ Append to entry</button>
+        <button class="btn" onclick="cxRegenerate()">↻ Rewrite</button>
+        <button class="btn" onclick="cxBackToQuestions()">← More questions</button>
+      </div>
+    </div>
+    <div id="cxStatus" class="status" style="text-align:left"></div>
+  </div>
+</div></div>
+
+<div class="mback" id="patternsModal" onclick="mbd(event,'patternsModal')"><div class="modal">
+  <div class="mhero"><button class="mclose" onclick="closeModal('patternsModal')">✖</button><h3 class="mt">◫ Patterns</h3><div class="ms">LONGITUDINAL ANALYSIS · YOUR ENTRIES OVER TIME</div></div>
+  <div class="mbody" id="patternsBody"></div>
+</div></div>
+
+<div class="mback" id="aboutModal" onclick="mbd(event,'aboutModal')"><div class="modal">
+  <div class="mhero"><button class="mclose" onclick="closeModal('aboutModal')">✖</button><h3 class="mt">About</h3><div class="ms">A JOURNAL THAT ALMOST WRITES ITSELF</div></div>
+  <div class="mbody">
+    <p>The Daily is a calm, private reflective intake system — for anyone, anywhere. No sign‑up, no subscription, no cloud required. Prompts, moods, and gentle structure remove the blank‑page fear so starting is effortless.</p>
+    <h4>What makes it work</h4>
+    <div class="feature"><div class="fi">✎</div><div><b>Compose with me</b><span>Answer a few questions; the AI drafts your entry from your own words.</span></div></div>
+    <div class="feature"><div class="fi">🎭</div><div><b>Signal your state</b><span>One tap logs your mood — no typing.</span></div></div>
+    <div class="feature"><div class="fi">◫</div><div><b>Patterns over time</b><span>Trends across your history — what you can't see day‑to‑day.</span></div></div>
+    <div class="feature"><div class="fi">/</div><div><b>Slash commands &amp; voice</b><span>Type “/” for tools, or dictate hands‑free.</span></div></div>
+    <div class="feature"><div class="fi">🔐</div><div><b>Truly private</b><span>Everything stays in your browser.</span></div></div>
+    <h4>Free &amp; open</h4><p>Self‑contained in a single file. Save it, share it, host it anywhere. Your words belong to you.</p>
+  </div>
+</div></div>
+
+<div class="mback" id="aiModal" onclick="mbd(event,'aiModal')"><div class="modal">
+  <div class="mhero"><button class="mclose" onclick="closeModal('aiModal')">✖</button><h3 class="mt">✦ AI Link</h3><div class="ms">OPTIONAL · ANY OPENAI-COMPATIBLE MODEL</div></div>
+  <div class="mbody">
+    <p>AI is optional. It helps you <b>compose from your own answers</b>, reflects your writing back, and surfaces <b>patterns across time</b>. Works with OpenAI, Azure OpenAI, or a local model (Ollama / LM Studio).</p>
+    <label class="f">Provider</label>
+    <div class="provider-grid"><div class="provider" data-prov="openai" onclick="pickProvider('openai')">OpenAI</div><div class="provider" data-prov="azure" onclick="pickProvider('azure')">Azure</div><div class="provider" data-prov="local" onclick="pickProvider('local')">Local</div></div>
+    <label class="f">Base URL</label><input type="text" id="aiBaseUrl" class="f" placeholder="https://api.openai.com/v1">
+    <label class="f">Model <span class="muted" id="modelHint"></span></label><input type="text" id="aiModel" class="f" placeholder="gpt-4o-mini">
+    <div class="azure-only" id="azureVerWrap"><label class="f">Azure API version</label><input type="text" id="aiApiVersion" class="f" placeholder="2024-02-15-preview"></div>
+    <label class="f">API key <span class="muted">(blank for local)</span></label><input type="password" id="aiKey" class="f" placeholder="sk-…">
+    <div class="tipbox" id="localTip" style="display:none">💡 <b>LM Studio:</b> Base URL like <code>http://localhost:1234/v1</code>. Start the <b>Server</b>, <b>load</b> the model, and in <b>Server Settings enable CORS</b>, then restart the server. Open this page locally (an <code>https://</code> page can't call <code>http://</code>).</div>
+    <div class="warnbox">⚠ Your key is stored only in this browser and calls go straight from your device to the endpoint you set. Prefer a local model or a scoped, low‑limit key. For production, proxy through a backend.</div>
+    <div class="bar" style="justify-content:flex-start;margin-top:16px"><button class="btn primary" onclick="saveAIConfig()">Save</button><button class="btn" onclick="testAI()">Test link</button><button class="btn" onclick="debugAI()">🐞 Debug</button></div>
+    <div id="aiStatus" class="status" style="text-align:left"></div>
+    <pre id="aiDebug" style="display:none;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px;color:var(--soft)"></pre>
+  </div>
+</div></div>
+
+<div class="mback" id="githubModal" onclick="mbd(event,'githubModal')"><div class="modal">
+  <div class="mhero"><button class="mclose" onclick="closeModal('githubModal')">✖</button><h3 class="mt">⟲ Sync</h3><div class="ms">GITHUB · ONE MARKDOWN FILE PER DAY</div></div>
+  <div class="mbody">
+    <div class="grid2"><div><label class="f">Owner / user</label><input type="text" id="ghOwner" class="f" placeholder="your-username"></div><div><label class="f">Repository</label><input type="text" id="ghRepo" class="f" placeholder="my-journal"></div></div>
+    <div class="grid2"><div><label class="f">Branch</label><input type="text" id="ghBranch" class="f" placeholder="main"></div><div><label class="f">Folder</label><input type="text" id="ghPath" class="f" placeholder="journal"></div></div>
+    <label class="f">Personal access token</label><input type="password" id="ghToken" class="f" placeholder="github_pat_… or ghp_…">
+    <div class="warnbox">🔐 Use a fine‑grained token scoped to one repo with <b>Contents: Read &amp; write</b>. Stored only in this browser.</div>
+    <div class="bar" style="justify-content:flex-start;margin-top:16px"><button class="btn primary" onclick="saveGitHubConfig()">Save</button><button class="btn" onclick="testGitHubConnection()">Test</button></div>
+    <div id="ghConfigStatus" class="status" style="text-align:left"></div>
+  </div>
+</div></div>
+
+<div class="ritual-overlay" id="ritualOverlay" onclick="closeRitual()">
+  <div class="lamp">🌙</div><h2 id="ritualTitle">The day is complete.</h2><p id="ritualStats"></p><div class="aff" id="ritualAff"></div>
+  <button class="btn primary done" onclick="closeRitual(event)">Rest well →</button>
+</div>
+<div class="confetti" id="confetti"></div>
+
+<script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+<script>
+/* ============================================================ THE DAILY engine v4.2 ============================================================ */
+const LS={entry:d=>'thedaily:entry:'+d,settings:'thedaily:settings',github:'thedaily:github',ai:'thedaily:ai',prompt:'thedaily:promptIdx'};
+const $=id=>document.getElementById(id);
+const val=id=>(($(id)&&$(id).value)||'').trim();
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+let MEM={};
+const store={get(k){try{return localStorage.getItem(k);}catch{return MEM[k]??null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch(e){MEM[k]=v;if(e&&e.name==='QuotaExceededError')toast('Storage full — export to keep your data safe.');return false;}},remove(k){try{localStorage.removeItem(k);}catch{delete MEM[k];}},keys(){try{return Object.keys(localStorage);}catch{return Object.keys(MEM);}},clear(){try{localStorage.clear();}catch{}MEM={};}};
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function escLines(s){return esc(s).replace(/\n/g,'<br>');}
+function toast(msg){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');t.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:400;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:12px;padding:10px 16px;border-radius:8px;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);max-width:90vw;text-align:center';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._h);t._h=setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';},3200);}
+function status(el,m,c){const e=$(el);if(!e)return;e.className='status '+(c||'');e.innerHTML=m;}
+function download(n,c,t){const b=c instanceof Blob?c:new Blob([c],{type:t||'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);}
+
+const PALETTES={dawn:{bg:'#eef4fb',bg2:'#e3eef8',g1:'rgba(47,125,209,.12)',g2:'rgba(11,180,196,.09)',accent:'#1f5aa0'},day:{bg:'#eef3f9',bg2:'#e4edf6',g1:'rgba(47,125,209,.10)',g2:'rgba(11,180,196,.07)',accent:'#1a4b8c'},dusk:{bg:'#e9eef7',bg2:'#dfe6f2',g1:'rgba(70,90,180,.13)',g2:'rgba(47,125,209,.09)',accent:'#26407e'},night:{bg:'#060d16',bg2:'#0a1420',g1:'rgba(79,159,230,.14)',g2:'rgba(34,201,216,.10)',accent:'#4f9fe6'}};
+function phaseNow(){const h=new Date().getHours();return h<8?'dawn':h<17?'day':h<21?'dusk':'night';}
+function applyPalette(){const s=getS();const th=s.theme||'auto';let phase=phaseNow();let dark=false;if(th==='dark'){dark=true;phase='night';}else if(th==='light'){dark=false;if(phase==='night')phase='dusk';}else{dark=(phase==='night');}document.body.classList.toggle('dark',dark);const p=PALETTES[phase];const r=document.documentElement.style;r.setProperty('--bg',p.bg);r.setProperty('--bg2',p.bg2);r.setProperty('--glow1',p.g1);r.setProperty('--glow2',p.g2);if(!s.accent){r.setProperty('--accent',p.accent);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=p.accent;}if($('phaseTag'))$('phaseTag').textContent='PHASE: '+phase.toUpperCase();}
+
+const PROMPTS_BASE=["What's on your mind today?","What challenged you — and how did you meet it?","Who did you connect with, and how did it feel?","What's one thing you're grateful for right now?","Describe a small moment you want to remember.","What gave you energy today? What drained it?","What did you learn about yourself today?","If today had a title, what would it be?","What's weighing on you? Let it out here.","When did you feel most like yourself today?","What's something you're proud of, however small?","What's a thought you keep returning to?","What felt hard, and what got you through it?","Where did you notice beauty today?","What would make tomorrow feel good?"];
+const PROMPTS_MORNING=["What are you hoping for today?","How do you want to feel by tonight?","What's one thing that would make today good?","What are you carrying into today?"];
+const PROMPTS_EVENING=["How did today actually go?","What are you letting go of tonight?","What was the best part of today?","What do you want to leave behind before sleep?"];
+function promptPool(){const h=new Date().getHours();return h<11?PROMPTS_MORNING.concat(PROMPTS_BASE):h>=18?PROMPTS_EVENING.concat(PROMPTS_BASE):PROMPTS_BASE;}
+const STARTERS=["Today I ","I felt ","Right now I'm noticing ","I'm grateful that ","A small win was ","I keep thinking about ","What surprised me was ","I want to remember ","Tomorrow I hope to ","Honestly, "];
+const FEELINGS=["Calm","Happy","Grateful","Tired","Anxious","Excited","Sad","Proud","Hopeful","Stressed","Content","Loved","Lonely","Motivated","Overwhelmed","Peaceful"];
+const AFFIRMATIONS=["You showed up. That's what matters.","One honest page is enough.","Rest is part of the work.","Tomorrow gets a fresh page.","You met the day. Be proud.","Small steps still move you forward."];
+let selectedFeelings=new Set(),tags=[],mood=0,promptIdx=0,POOL=PROMPTS_BASE;
+const MOOD_LABELS=['—','ROUGH','LOW','NEUTRAL','GOOD','GREAT'];
+function renderFeelings(){const c=$('feelings');c.innerHTML='';FEELINGS.forEach(f=>{const b=document.createElement('button');b.className='feel'+(selectedFeelings.has(f)?' sel':'');b.textContent=f;b.onclick=()=>{selectedFeelings.has(f)?selectedFeelings.delete(f):selectedFeelings.add(f);renderFeelings();scheduleSave();};c.appendChild(b);});}
+function setMood(m,ev){mood=m;document.querySelectorAll('.mood').forEach(x=>x.classList.toggle('sel',+x.dataset.m===m));if($('moodVal'))$('moodVal').textContent=MOOD_LABELS[m]||'—';if(ev&&!RM){const btn=ev.currentTarget;const r=document.createElement('span');r.className='rip';btn.appendChild(r);setTimeout(()=>r.remove(),600);}scheduleSave();}
+function showPrompt(fade){const el=$('promptText');const txt=POOL[promptIdx%POOL.length];if(fade&&!RM){el.style.opacity=0;setTimeout(()=>{el.textContent=txt;el.style.opacity=1;},180);}else el.textContent=txt;}
+function nextPrompt(){promptIdx=(promptIdx+1)%POOL.length;store.set(LS.prompt,promptIdx);showPrompt(true);}
+function usePrompt(){const e=$('entry');const p=POOL[promptIdx%POOL.length];e.value=(e.value?e.value.replace(/\s*$/,'')+'\n\n':'')+p+'\n';e.focus();caretEnd(e);updateCounts();scheduleSave();}
+function insertStarter(){const e=$('entry');const s=STARTERS[Math.floor(Math.random()*STARTERS.length)];const pre=e.value&&!/\n$/.test(e.value)?'\n':'';e.value+=pre+s;e.focus();caretEnd(e);updateCounts();scheduleSave();}
+function caretEnd(el){el.selectionStart=el.selectionEnd=el.value.length;el.scrollTop=el.scrollHeight;}
+function renderTags(){const bar=$('tagbar');bar.querySelectorAll('.tag').forEach(t=>t.remove());tags.forEach((t,i)=>{const el=document.createElement('span');el.className='tag';el.innerHTML=`#${esc(t)} <button onclick="removeTag(${i})">✕</button>`;bar.insertBefore(el,$('tagInput'));});}
+function removeTag(i){tags.splice(i,1);renderTags();scheduleSave();}
+function addTag(v){v=v.replace(/^#/,'').trim();if(v&&!tags.includes(v))tags.push(v);renderTags();scheduleSave();}
+function greeting(){const h=new Date().getHours();const w=h<5?'Still awake?':h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Winding down';$('greet').innerHTML=w+', <em>friend</em>.';}
+function updateCounts(){const words=(val('entry').match(/\S+/g)||[]).length;$('wordcount').textContent=words;$('wc2').textContent=words;$('readtime').textContent=Math.max(0,Math.ceil(words/200));}
+function dayHasEntry(iso){const raw=store.get(LS.entry(iso));if(!raw)return false;try{const j=JSON.parse(raw);return !!(j&&((j.entry&&j.entry.trim())||j.mood||(j.feelings&&j.feelings.length)));}catch{return false;}}
+function computeStreak(){let n=0;const d=new Date();for(;;){const iso=d.toISOString().slice(0,10);if(dayHasEntry(iso)){n++;d.setDate(d.getDate()-1);}else{if(n===0&&iso===todayISO()){d.setDate(d.getDate()-1);continue;}break;}}$('streak').textContent=n;return n;}
+function renderWeekRing(){const c=$('weekring');c.innerHTML='';const today=new Date();for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const iso=d.toISOString().slice(0,10);const dot=document.createElement('div');dot.className='wd'+(dayHasEntry(iso)?' on':'')+(i===0?' today':'');dot.title=d.toLocaleDateString(undefined,{weekday:'short'});c.appendChild(dot);}}
+function allEntries(){const arr=[];store.keys().forEach(k=>{if(k.startsWith('thedaily:entry:')){try{const j=JSON.parse(store.get(k));if(j)arr.push(j);}catch{}}});return arr.sort((a,b)=>(a.date||'').localeCompare(b.date||''));}
+function updateTotals(){const n=allEntries().filter(e=>(e.entry&&e.entry.trim())||e.mood||(e.feelings&&e.feelings.length)).length;if($('totalEntries'))$('totalEntries').textContent=n;}
+function collectEntry(){return {savedAt:new Date().toISOString(),date:val('date')||todayISO(),location:val('location'),mood,feelings:[...selectedFeelings],entry:val('entry'),grateful:val('grateful'),highlight:val('highlight'),intention:val('intention'),tags:[...tags]};}
+function restoreEntry(e){if(!e)return;if($('location'))$('location').value=e.location||'';if($('entry'))$('entry').value=e.entry||'';['grateful','highlight','intention'].forEach(f=>{if($(f))$(f).value=e[f]||'';});mood=e.mood||0;setMood(mood);selectedFeelings=new Set(e.feelings||[]);renderFeelings();tags=e.tags||[];renderTags();updateCounts();if($('locTag'))$('locTag').textContent=e.location?'◎ '+e.location.toUpperCase():'◎ —';}
+let saveTimer=null;
+function scheduleSave(){clearTimeout(saveTimer);const sd=$('savedot');sd.classList.remove('saved');$('autosave').lastChild.textContent='logging…';saveTimer=setTimeout(()=>{const d=val('date')||todayISO();store.set(LS.entry(d),JSON.stringify(collectEntry()));sd.classList.add('saved');$('autosave').lastChild.textContent='saved';computeStreak();renderWeekRing();updateTotals();},500);}
+function loadEntry(d){try{return JSON.parse(store.get(LS.entry(d)));}catch{return null;}}
+function flushSave(){clearTimeout(saveTimer);const d=val('date')||todayISO();store.set(LS.entry(d),JSON.stringify(collectEntry()));const sd=$('savedot');if(sd)sd.classList.add('saved');const a=$('autosave');if(a&&a.lastChild)a.lastChild.textContent='saved';}
+function buildMarkdown(){const e=collectEntry();const moods=['—','😔 Rough','😕 Low','😐 Neutral','🙂 Good','😄 Great'];const feel=e.feelings.length?e.feelings.join(', '):'—';const tg=e.tags.length?e.tags.map(t=>'#'+t).join(' '):'—';
+  return `# ${e.date}${e.location?` · ${e.location}`:''}
+
+**Mood:** ${moods[e.mood]||'—'}  
+**Feelings:** ${feel}
+
+${e.entry||'_(no entry)_'}
+
+---
+
+◇ **Grateful for:** ${e.grateful||'—'}  
+◆ **Highlight:** ${e.highlight||'—'}  
+▷ **Tomorrow:** ${e.intention||'—'}  
+🏷 **Tags:** ${tg}
+
+_The Daily · ${new Date().toLocaleString()}_
+`;}
+function saveJournal(){download(`the-daily-${val('date')||todayISO()}.md`,buildMarkdown(),'text/markdown');}
+function saveJournalAsJson(){download(`the-daily-${val('date')||todayISO()}.json`,JSON.stringify(collectEntry(),null,2),'application/json');}
+function saveJournalAsEmail(){const d=val('date')||todayISO();location.href=`mailto:?subject=${encodeURIComponent('The Daily — '+d)}&body=${encodeURIComponent(buildMarkdown())}`;}
+function saveJournalAsDocx(){if(typeof docx==='undefined'){toast('DOCX library not loaded.');return;}const {Document,Packer,Paragraph,HeadingLevel,TextRun}=docx;const e=collectEntry();const d=e.date;const moods=['—','Rough','Low','Neutral','Good','Great'];const P=(t,o={})=>new Paragraph(Object.assign({children:[new TextRun(t||'—')]},o));const H=(t,l)=>new Paragraph({text:t,heading:l});const body=(e.entry||'').split(/\n+/).filter(Boolean).map(p=>P(p));
+  const doc=new Document({sections:[{children:[H(`${d}${e.location?' · '+e.location:''}`,HeadingLevel.TITLE),P(`Mood: ${moods[e.mood]||'—'}`),P(`Feelings: ${e.feelings.join(', ')||'—'}`),H('Entry',HeadingLevel.HEADING_1),...(body.length?body:[P('—')]),H('Markers',HeadingLevel.HEADING_1),P(`Grateful for: ${e.grateful||'—'}`),P(`Highlight: ${e.highlight||'—'}`),P(`Tomorrow: ${e.intention||'—'}`),P(`Tags: ${e.tags.map(t=>'#'+t).join(' ')||'—'}`)]}]});
+  Packer.toBlob(doc).then(b=>download(`the-daily-${d}.docx`,b));}
+
+/* ============================================================ COMPOSE WITH ME ============================================================ */
+const CX_FALLBACK_Q=["What's the first thing that comes to mind about today?","What actually happened — walk me through a moment or two.","How did that leave you feeling?","Was there anything hard, or anything you're proud of?","Anything you want tomorrow-you to remember?"];
+let cxQA=[], cxIdx=0, cxRecog=null, cxRecActive=false, cxLastDraft='';
+function composeOpen(){
+  if(!aiReady()){openModal('aiModal');toast('Connect AI first to compose together.');return;}
+  cxQA=[];cxIdx=0;cxLastDraft='';$('cxChat').innerHTML='';$('cxInputWrap').style.display='';$('cxDraftWrap').style.display='none';$('cxStatus').textContent='';
+  openModal('composeModal');
+  // seed context from what's already selected
+  const seedbits=[];if(mood)seedbits.push('mood '+MOOD_LABELS[mood].toLowerCase());if(selectedFeelings.size)seedbits.push('feeling '+[...selectedFeelings].join(', ').toLowerCase());
+  cxAddAI(seedbits.length?`Let's write today together. I see you're ${seedbits.join(' and ')}. `+CX_FALLBACK_Q[0]:CX_FALLBACK_Q[0]);
+  cxUpdateProgress();setTimeout(()=>$('cxInput').focus(),120);
+}
+function cxAddAI(text){const c=$('cxChat');const d=document.createElement('div');d.className='cx-msg ai';d.textContent=text;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function cxAddMe(text){const c=$('cxChat');const d=document.createElement('div');d.className='cx-msg me';d.textContent=text;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function cxThinking(on){const c=$('cxChat');let t=$('cxThink');if(on){if(!t){t=document.createElement('div');t.id='cxThink';t.className='cx-msg think';t.innerHTML='thinking<span>.</span><span>.</span><span>.</span>';c.appendChild(t);c.scrollTop=c.scrollHeight;}}else if(t)t.remove();}
+function cxUpdateProgress(){$('cxProgress').textContent='Question '+(cxQA.length+1);}
+function cxCurrentQuestion(){const msgs=[...$('cxChat').querySelectorAll('.cx-msg.ai')];return msgs.length?msgs[msgs.length-1].textContent:CX_FALLBACK_Q[0];}
+async function cxSend(){const t=$('cxInput').value.trim();if(!t)return;cxAddMe(t);cxQA.push({q:cxCurrentQuestion(),a:t});$('cxInput').value='';$('cxInput').style.height='auto';cxUpdateProgress();
+  if(cxQA.length>=5){cxDraftNow();return;}
+  cxThinking(true);
+  try{const q=await cxNextQuestion();cxThinking(false);cxAddAI(q);}
+  catch(e){cxThinking(false);cxAddAI(CX_FALLBACK_Q[Math.min(cxQA.length,CX_FALLBACK_Q.length-1)]);}
+  setTimeout(()=>$('cxInput').focus(),60);
+}
+function cxSkip(){if(cxQA.length>=4){cxDraftNow();return;}cxThinking(true);cxNextQuestion().then(q=>{cxThinking(false);cxAddAI(q);}).catch(()=>{cxThinking(false);cxAddAI(CX_FALLBACK_Q[Math.min(cxQA.length+1,CX_FALLBACK_Q.length-1)]);});}
+async function cxNextQuestion(){
+  const sys='You are a warm, curious journaling interviewer. Ask ONE short, specific follow-up question (max 20 words) that helps the person reflect on their day. Build on what they just said. Do not summarize, do not give advice, do not use quotes. Just the question.';
+  const convo=cxQA.map(x=>`Q: ${x.q}\nA: ${x.a}`).join('\n');
+  const r=await aiChat([{role:'system',content:sys},{role:'user',content:`Context — mood ${mood||'?'}/5; feelings: ${[...selectedFeelings].join(', ')||'none'}.\n\nSo far:\n${convo}\n\nAsk the next question.`}],{max:50,temp:0.8});
+  return (r||'').replace(/^["“]|["”]$/g,'')||CX_FALLBACK_Q[Math.min(cxQA.length,CX_FALLBACK_Q.length-1)];
+}
+async function cxDraftNow(){
+  // capture any unsent text as a final answer
+  const pending=$('cxInput').value.trim();if(pending){cxAddMe(pending);cxQA.push({q:cxCurrentQuestion(),a:pending});$('cxInput').value='';}
+  if(!cxQA.length){toast('Answer at least one question first.');return;}
+  $('cxInputWrap').style.display='none';$('cxDraftWrap').style.display='block';$('cxDraft').textContent='';status('cxStatus','Weaving your words into a draft…','info');
+  try{cxLastDraft=await cxGenerate();$('cxDraft').textContent=cxLastDraft;status('cxStatus','','');}
+  catch(e){$('cxDraftWrap').style.display='none';$('cxInputWrap').style.display='';status('cxStatus','Draft failed: '+esc(e.message),'err');}
+}
+async function cxRegenerate(){$('cxDraft').textContent='';status('cxStatus','Rewriting…','info');try{cxLastDraft=await cxGenerate(true);$('cxDraft').textContent=cxLastDraft;status('cxStatus','','');}catch(e){status('cxStatus','Rewrite failed: '+esc(e.message),'err');}}
+async function cxGenerate(vary){
+  const voice=(getS().composeVoice)||'mine';
+  const voiceMap={mine:'plain, honest, first-person — the way an ordinary person writes to themselves',warm:'warm, reflective, and gentle',brief:'brief and clipped — short sentences',poetic:'lightly poetic and evocative, but still grounded'};
+  const answers=cxQA.filter(x=>x.a).map(x=>`- (asked: ${x.q}) ${x.a}`).join('\n');
+  const sys=`You are a journaling scribe. Turn the person's OWN answers into a first-person journal entry. Rules: use ONLY what they told you — do not invent events, names, or feelings they didn't mention. Write in a ${voiceMap[voice]} voice. 1-3 short paragraphs. No headings, no bullet points, no salutations. Present tense or past tense as natural. It must read like THEY wrote it.`;
+  const ctx=`Date: ${val('date')||todayISO()}. Mood: ${mood?MOOD_LABELS[mood].toLowerCase():'unspecified'}. Feelings: ${[...selectedFeelings].join(', ')||'unspecified'}.`;
+  const r=await aiChat([{role:'system',content:sys},{role:'user',content:`${ctx}\n\nMy answers:\n${answers}\n\nWrite my journal entry from these.`}],{max:420,temp:vary?0.9:0.7});
+  return (r||'').trim();
+}
+function cxUseDraft(){const e=$('entry');e.value=cxLastDraft;updateCounts();scheduleSave();closeModal('composeModal');toast('Draft added — yours to edit now.');e.focus();caretEnd(e);}
+function cxAppendDraft(){const e=$('entry');e.value=(e.value?e.value.replace(/\s*$/,'')+'\n\n':'')+cxLastDraft;updateCounts();scheduleSave();closeModal('composeModal');toast('Appended to your entry.');e.focus();caretEnd(e);}
+function cxBackToQuestions(){$('cxDraftWrap').style.display='none';$('cxInputWrap').style.display='';cxThinking(true);cxNextQuestion().then(q=>{cxThinking(false);cxAddAI(q);}).catch(()=>{cxThinking(false);cxAddAI(CX_FALLBACK_Q[Math.min(cxQA.length,CX_FALLBACK_Q.length-1)]);});setTimeout(()=>$('cxInput').focus(),80);}
+function cxDictate(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Voice input needs Chrome or Edge.');return;}if(cxRecActive){cxRecog&&cxRecog.stop();return;}cxRecog=new SR();cxRecog.continuous=true;cxRecog.interimResults=true;cxRecog.lang=navigator.language||'en-US';let base=$('cxInput').value;
+  cxRecog.onstart=()=>{cxRecActive=true;$('cxMic').classList.add('live');};cxRecog.onend=()=>{cxRecActive=false;$('cxMic').classList.remove('live');};cxRecog.onerror=()=>{cxRecActive=false;$('cxMic').classList.remove('live');};
+  cxRecog.onresult=ev=>{let fin='',int='';for(let i=ev.resultIndex;i<ev.results.length;i++){const t=ev.results[i][0].transcript;ev.results[i].isFinal?fin+=t:int+=t;}if(fin)base=(base?base.replace(/\s*$/,'')+' ':'')+fin.trim();$('cxInput').value=base+(int?' '+int:'');};cxRecog.start();}
+
+/* ============================================================ PATTERNS ============================================================ */
+function openPatterns(){const body=$('patternsBody');const entries=allEntries().filter(e=>(e.entry&&e.entry.trim())||e.mood||(e.feelings&&e.feelings.length));
+  if(entries.length<2){body.innerHTML='<div class="pn-empty">Not enough entries yet.<br>Log a few days and your patterns will emerge here.<br><br><span class="mono" style="font-size:11px">MINIMUM 2 ENTRIES REQUIRED</span></div>';openModal('patternsModal');return;}
+  const moods=entries.filter(e=>e.mood).map(e=>e.mood);const avg=moods.length?(moods.reduce((a,b)=>a+b,0)/moods.length):0;
+  const words=entries.reduce((a,e)=>a+((e.entry||'').match(/\S+/g)||[]).length,0);
+  const feelFreq={};entries.forEach(e=>(e.feelings||[]).forEach(f=>feelFreq[f]=(feelFreq[f]||0)+1));
+  const tagFreq={};entries.forEach(e=>(e.tags||[]).forEach(t=>tagFreq[t]=(tagFreq[t]||0)+1));
+  const topFeel=Object.entries(feelFreq).sort((a,b)=>b[1]-a[1]).slice(0,6);const topTag=Object.entries(tagFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const last14=[];const today=new Date();for(let i=13;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const iso=d.toISOString().slice(0,10);const en=entries.find(e=>e.date===iso);last14.push({iso,mood:en?en.mood:0});}
+  const dow=[[],[],[],[],[],[],[]];entries.forEach(e=>{if(e.mood&&e.date){const wd=new Date(e.date+'T12:00').getDay();dow[wd].push(e.mood);}});const dowAvg=dow.map(a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0);const dowNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let bestDow=-1,worstDow=-1,bv=-1,wv=99;dowAvg.forEach((v,i)=>{if(dow[i].length){if(v>bv){bv=v;bestDow=i;}if(v<wv){wv=v;worstDow=i;}}});
+  const mc=last14.map(d=>`<div class="mc-bar ${d.mood?'':'empty'}" style="height:${d.mood?(d.mood/5*100):6}%" title="${d.iso}: ${d.mood?MOOD_LABELS[d.mood]:'no entry'}"></div>`).join('');
+  const maxFeel=topFeel.length?topFeel[0][1]:1;const feelRows=topFeel.map(([f,n])=>`<div class="freqrow"><span class="fl">${esc(f)}</span><span class="fbar"><i style="width:${n/maxFeel*100}%"></i></span><span class="fn">${n}</span></div>`).join('')||'<p class="muted">No feelings tagged yet.</p>';
+  const tagLine=topTag.length?topTag.map(([t,n])=>`#${esc(t)} <span class="muted">×${n}</span>`).join(' &nbsp; '):'<span class="muted">No tags yet.</span>';
+  const insights=[];if(bestDow>=0&&worstDow>=0&&bestDow!==worstDow)insights.push(`Your mood tends to run highest on <b>${dowNames[bestDow]}s</b> and lowest on <b>${dowNames[worstDow]}s</b>.`);if(topFeel.length)insights.push(`Your most-named feeling is <b>${esc(topFeel[0][0])}</b> (${topFeel[0][1]}×).`);if(topTag.length)insights.push(`<b>#${esc(topTag[0][0])}</b> shows up most across your entries.`);
+  const recent=moods.slice(-5),older=moods.slice(0,5);if(recent.length>=3&&older.length>=3){const ra=recent.reduce((a,b)=>a+b,0)/recent.length,oa=older.reduce((a,b)=>a+b,0)/older.length;if(ra-oa>=.6)insights.push('Your recent entries trend <b>more positive</b> than your earlier ones.');else if(oa-ra>=.6)insights.push('Your recent mood has dipped a little — <b>be gentle with yourself</b>.');}
+  body.innerHTML=`<div class="pn-stats"><div class="pn-stat"><div class="n">${entries.length}</div><div class="l">Entries</div></div><div class="pn-stat"><div class="n">${avg?avg.toFixed(1):'—'}</div><div class="l">Avg mood</div></div><div class="pn-stat"><div class="n">${words.toLocaleString()}</div><div class="l">Words</div></div><div class="pn-stat"><div class="n">${computeStreak()}</div><div class="l">Streak</div></div></div>
+    <div class="pn-summary"><div class="pnh">◫ What your data suggests</div>${insights.length?insights.map(i=>'• '+i).join('<br>'):'Keep logging — trends will sharpen with more entries.'}</div>
+    <h4>Mood · last 14 days</h4><div class="moodchart">${mc}</div><p class="muted mono" style="font-size:10px;text-align:center">◄ 14 DAYS AGO ———————————— TODAY ►</p>
+    <h4>Most-named feelings</h4>${feelRows}<h4>Recurring tags</h4><p style="font-family:var(--mono);font-size:13px">${tagLine}</p>
+    <h4>Deeper synthesis</h4><p class="muted">Optional AI can read your recent entries and write a warm reflection — patterns you can't see day to day.</p>
+    <div class="bar" style="justify-content:flex-start"><button class="btn primary" onclick="aiSynthesis()">✦ Generate synthesis</button></div><div id="synthOut" class="pn-summary" style="display:none"></div>`;
+  openModal('patternsModal');}
+async function aiSynthesis(){if(!aiReady()){closeModal('patternsModal');openModal('aiModal');return;}const out=$('synthOut');out.style.display='block';out.innerHTML='<div class="pnh">✦ Synthesis</div>reading your entries…';const entries=allEntries().filter(e=>e.entry&&e.entry.trim()).slice(-21);const digest=entries.map(e=>`[${e.date}] mood ${e.mood||'?'}/5; feelings: ${(e.feelings||[]).join('/')||'-'}; ${(e.entry||'').slice(0,280)}`).join('\n');
+  try{const r=await aiChat([{role:'system',content:'You are a compassionate reflective companion analyzing a person\'s journal across time. In 3-4 warm sentences, surface genuine patterns: recurring themes, emotional trends, and one gentle observation they might not see themselves. Reference specifics. Never diagnose or give medical advice. Speak directly to them ("you").'},{role:'user',content:'My recent entries:\n'+digest}],{max:280,temp:0.6});out.innerHTML='<div class="pnh">✦ Synthesis</div>'+escLines(r);}catch(e){out.innerHTML='<div class="pnh">✦ Synthesis</div>AI error: '+esc(e.message);}}
+
+/* ============================================================ SLASH ============================================================ */
+const SLASH_CMDS=[{em:'✎',label:'Compose with me',desc:'',run:()=>{closeSlash();composeOpen();}},{em:'✚',label:'Sentence starter',desc:'',run:insertStarter},{em:'↳',label:"Use today's prompt",desc:'',run:usePrompt},{em:'◉',label:'Dictate with voice',desc:'',run:toggleDictation},{em:'✦',label:'AI: unstick me',desc:'Tab',run:()=>aiUnstick()},{em:'✦',label:'AI: reflect back',desc:'',run:()=>aiReflect()},{em:'◫',label:'Open Patterns',desc:'',run:()=>{closeSlash();openPatterns();}},{em:'📅',label:"Insert today's date",desc:'',run:()=>{const e=$('entry');e.value+=new Date().toLocaleDateString();caretEnd(e);updateCounts();scheduleSave();}},{em:'—',label:'Insert divider',desc:'',run:()=>{const e=$('entry');e.value+=(e.value&&!/\n$/.test(e.value)?'\n':'')+'\n———\n';caretEnd(e);updateCounts();scheduleSave();}}];
+let slashActive=-1;
+function openSlash(){const box=$('slash');box.innerHTML='';SLASH_CMDS.forEach((c,i)=>{const d=document.createElement('div');d.className='si'+(i===0?' act':'');d.innerHTML=`<span class="em">${c.em}</span><span>${esc(c.label)}</span>${c.desc?`<span class="desc">${c.desc}</span>`:''}`;d.onmousedown=e=>{e.preventDefault();c.run();closeSlash();};box.appendChild(d);});slashActive=0;const e=$('entry');box.style.left='0px';box.style.top=(e.offsetTop+40)+'px';box.classList.add('open');}
+function closeSlash(){$('slash').classList.remove('open');slashActive=-1;}
+function slashNav(dir){const items=[...$('slash').querySelectorAll('.si')];if(!items.length)return;slashActive=(slashActive+dir+items.length)%items.length;items.forEach((it,i)=>it.classList.toggle('act',i===slashActive));}
+function slashRun(){if(slashActive>=0&&SLASH_CMDS[slashActive]){SLASH_CMDS[slashActive].run();}closeSlash();}
+
+/* ============================================================ VOICE ============================================================ */
+let recog=null,recActive=false;
+function toggleDictation(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Voice input isn\'t supported here. Try Chrome or Edge.');return;}if(recActive){recog&&recog.stop();return;}recog=new SR();recog.continuous=true;recog.interimResults=true;recog.lang=navigator.language||'en-US';let base=$('entry').value;recog.onstart=()=>{recActive=true;$('micBtn').classList.add('live');$('micBtn').innerHTML='■ Stop';};recog.onend=()=>{recActive=false;$('micBtn').classList.remove('live');$('micBtn').innerHTML='◉ Speak';scheduleSave();};recog.onerror=()=>{recActive=false;$('micBtn').classList.remove('live');$('micBtn').innerHTML='◉ Speak';};recog.onresult=ev=>{let fin='',int='';for(let i=ev.resultIndex;i<ev.results.length;i++){const t=ev.results[i][0].transcript;ev.results[i].isFinal?fin+=t:int+=t;}if(fin)base=(base?base.replace(/\s*$/,'')+' ':'')+fin.trim();$('entry').value=base+(int?' '+int:'');updateCounts();};recog.start();}
+
+/* ============================================================ AI — OpenAI · Azure · Local ============================================================ */
+const PROVIDERS={openai:{base:'https://api.openai.com/v1',model:'gpt-4o-mini'},azure:{base:'https://YOUR-RESOURCE.openai.azure.com',model:'YOUR-DEPLOYMENT'},local:{base:'http://localhost:1234/v1',model:'local-model'}};
+function getAI(){try{return JSON.parse(store.get(LS.ai))||{};}catch{return {};}}
+function fillAI(){const c=getAI();if($('aiBaseUrl'))$('aiBaseUrl').value=c.base||'';if($('aiModel'))$('aiModel').value=c.model||'';if($('aiKey'))$('aiKey').value=c.key||'';if($('aiApiVersion'))$('aiApiVersion').value=c.apiVersion||'';if(c.provider){document.querySelectorAll('.provider').forEach(p=>p.classList.toggle('sel',p.dataset.prov===c.provider));providerUI(c.provider);}reflectAIReady();}
+function providerUI(p){if($('azureVerWrap'))$('azureVerWrap').style.display=(p==='azure')?'block':'none';if($('localTip'))$('localTip').style.display=(p==='local')?'block':'none';if($('modelHint'))$('modelHint').textContent=p==='azure'?'(deployment name)':p==='local'?'(loaded model id)':'';}
+function pickProvider(p){const d=PROVIDERS[p];$('aiBaseUrl').value=d.base;$('aiModel').value=d.model;if(p==='azure'&&$('aiApiVersion')&&!$('aiApiVersion').value)$('aiApiVersion').value='2024-02-15-preview';document.querySelectorAll('.provider').forEach(x=>x.classList.toggle('sel',x.dataset.prov===p));providerUI(p);}
+function saveAIConfig(){const sel=document.querySelector('.provider.sel');store.set(LS.ai,JSON.stringify({provider:sel?sel.dataset.prov:'',base:val('aiBaseUrl').replace(/\/+$/,''),model:val('aiModel'),key:val('aiKey'),apiVersion:val('aiApiVersion')}));status('aiStatus','Saved ✓','ok');reflectAIReady();}
+function aiReady(){const c=getAI();return !!(c.base&&c.model);}
+function reflectAIReady(){const on=aiReady();if($('aiCell'))$('aiCell').style.display=on?'flex':'none';document.querySelectorAll('[data-ai]').forEach(b=>{b.disabled=!on;b.title=on?'':'Connect AI first (✦ in the top bar)';});}
+function aiResolve(){const c=getAI();const isAzure=(c.provider==='azure')||/\.openai\.azure\.com/i.test(c.base)||/\/openai\/deployments\//i.test(c.base);const isLocal=(c.provider==='local')||/localhost|127\.0\.0\.1|192\.168\.|10\.\d|:1234|:11434/i.test(c.base);let url,headers={'Content-Type':'application/json'};
+  if(isAzure){if(c.key)headers['api-key']=c.key;const apiVersion=c.apiVersion||'2024-02-15-preview';let path=c.base.replace(/\/+$/,'').split('?')[0];if(!/\/chat\/completions$/.test(path)){if(/\/openai\/deployments\/[^/]+$/.test(path))path+='/chat/completions';else path+='/openai/deployments/'+encodeURIComponent(c.model)+'/chat/completions';}url=path+'?api-version='+encodeURIComponent(apiVersion);}
+  else{if(c.key)headers['Authorization']='Bearer '+c.key;let base=c.base.replace(/\/+$/,'').split('?')[0];base=base.replace(/\/chat\/completions\/?$/i,'');if(!/\/v\d+$/.test(base)){if(isLocal){try{base=new URL(base).origin+'/v1';}catch{base=base.replace(/\/.*$/,'')+'/v1';}}else base+='/v1';}url=base+'/chat/completions';}
+  return {url,headers,isAzure,isLocal};}
+async function aiChat(messages,opts={}){const c=getAI();if(!c.base||!c.model)throw new Error('AI not configured');const {url,headers,isAzure}=aiResolve();const body={messages,temperature:opts.temp??0.8,max_tokens:opts.max??240};if(!isAzure)body.model=c.model;
+  let res;try{res=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});}catch(e){throw new Error('Could not reach '+url+'. Most likely CORS is OFF — in LM Studio open Server Settings, enable CORS, and restart the server. Also confirm the server is Running with the model loaded, and open this page locally (https pages block http:// calls).');}
+  if(!res.ok){const t=await res.text().catch(()=>'');throw new Error('HTTP '+res.status+(t?': '+t.slice(0,180):''));}const j=await res.json();return (j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||'').trim();}
+async function testAI(){status('aiStatus','Testing…','info');try{const r=await aiChat([{role:'user',content:'Reply with one word: connected'}],{max:10,temp:0});status('aiStatus','Link OK ✓ “'+esc(r.slice(0,40))+'”','ok');}catch(e){status('aiStatus','Failed: '+esc(e.message),'err');}}
+function debugAI(){const c=getAI();const pre=$('aiDebug');pre.style.display='block';let info='(save your settings first)';try{const {url,headers,isAzure,isLocal}=aiResolve();info=`resolved endpoint:\n${url}\n\ndialect: ${isAzure?'Azure':isLocal?'Local':'OpenAI'}\nauth header: ${headers['api-key']?'api-key':headers['Authorization']?'Bearer':'(none)'}\nmodel: ${c.model||'(unset)'}\npage origin: ${location.origin} (${location.protocol})`;if(location.protocol==='https:'&&/^http:/i.test(url))info+='\n\n⚠ MIXED CONTENT: this https page cannot call an http:// endpoint. Open the file locally instead.';}catch(e){info='error: '+e.message;}pre.textContent=info;}
+async function aiUnstick(){if(!aiReady()){openModal('aiModal');return;}const btn=document.querySelector('[onclick="aiUnstick()"]');if(btn){btn.disabled=true;btn.innerHTML='✦ …';}try{const cur=val('entry');const feel=[...selectedFeelings].join(', ');const r=await aiChat([{role:'system',content:'You help a stuck journaler find their next thought. Given their entry, offer a SHORT continuation (one clause, 4-10 words) OR a tiny nudge question in their own first-person voice. No headers. Keep it minimal so they take over.'},{role:'user',content:`Mood ${mood}/5. Feelings: ${feel||'unspecified'}.\n\nEntry so far:\n${cur||'(blank page)'}\n\nGive me just enough to keep going.`}],{max:60,temp:0.8});const e=$('entry');e.value=(cur?cur.replace(/\s*$/,'')+' ':'')+r;caretEnd(e);updateCounts();scheduleSave();}catch(e){toast('AI error: '+e.message);}finally{if(btn){btn.disabled=false;btn.innerHTML='✦ Unstick <span class="kbd">Tab</span>';}}}
+async function aiReflect(){if(!aiReady()){openModal('aiModal');return;}const box=$('reflect');box.style.display='block';box.innerHTML='<div class="rh">✦ Reflection</div><div class="rb">reflecting…</div>';try{const r=await aiChat([{role:'system',content:'You are a compassionate journaling companion. Reflect back in 2-3 warm sentences: name one feeling, one strength or win, and offer one gentle, non-prescriptive question. Never give medical advice.'},{role:'user',content:buildMarkdown()}],{max:200,temp:0.6});box.innerHTML='<div class="rh">✦ Reflection</div><div class="rb">'+escLines(r)+'</div>';}catch(e){box.innerHTML='<div class="rh">✦ Reflection</div><div class="rb">AI error: '+esc(e.message)+'</div>';}}
+let ghostText='',ghostTimer=null;
+function ghostEnabled(){const s=getS();return aiReady()&&s.ghost!==false;}
+function scheduleGhost(){clearTimeout(ghostTimer);clearGhost();if(!ghostEnabled())return;const e=$('entry');if(e.selectionStart!==e.value.length)return;const cur=e.value;if(cur.trim().length<12)return;ghostTimer=setTimeout(async()=>{try{const r=await aiChat([{role:'system',content:'You gently autocomplete a personal journal. Output ONLY the next 4-9 words that could naturally follow, continuing the same thought. No quotes, no restating.'},{role:'user',content:cur.slice(-400)}],{max:24,temp:0.6});if(r&&$('entry').value===cur){ghostText=(/^[\s,.;:!?]/.test(r)?'':' ')+r.replace(/^["“]|["”]$/g,'');paintGhost(cur,ghostText);}}catch{}},900);}
+function paintGhost(cur,suffix){$('ghost').innerHTML=esc(cur)+'<span class="gt">'+esc(suffix)+'</span>';}
+function clearGhost(){ghostText='';$('ghost').innerHTML='';}
+function acceptGhost(){if(!ghostText)return false;const e=$('entry');e.value=e.value+ghostText;clearGhost();caretEnd(e);updateCounts();scheduleSave();return true;}
+
+/* ============================================================ GITHUB ============================================================ */
+function getGH(){try{return JSON.parse(store.get(LS.github))||{};}catch{return {};}}
+function fillGH(){const c=getGH();if($('ghOwner'))$('ghOwner').value=c.owner||'';if($('ghRepo'))$('ghRepo').value=c.repo||'';if($('ghBranch'))$('ghBranch').value=c.branch||'main';if($('ghPath'))$('ghPath').value=c.path||'journal';if($('ghToken'))$('ghToken').value=c.token||'';}
+function saveGitHubConfig(){store.set(LS.github,JSON.stringify({owner:val('ghOwner'),repo:val('ghRepo'),branch:val('ghBranch')||'main',path:(val('ghPath')||'journal').replace(/^\/|\/$/g,''),token:val('ghToken')}));status('ghConfigStatus','Saved ✓','ok');}
+function ghH(t){return {'Authorization':'Bearer '+t,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};}
+async function testGitHubConnection(){const c=getGH();if(!c.token||!c.owner||!c.repo){status('ghConfigStatus','Fill owner, repo & token, then Save.','err');return;}status('ghConfigStatus','Testing…','info');try{const r=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}`,{headers:ghH(c.token)});if(r.ok){const j=await r.json();status('ghConfigStatus',`Connected ✓ ${esc(j.full_name)}`,'ok');}else if(r.status===404)status('ghConfigStatus','Repo not found / no access (404).','err');else if(r.status===401)status('ghConfigStatus','Bad credentials (401).','err');else status('ghConfigStatus','Error '+r.status,'err');}catch(e){status('ghConfigStatus','Network error: '+esc(e.message),'err');}}
+async function saveToGitHub(){const c=getGH();if(!c.token||!c.owner||!c.repo){status('ghStatus','Set up Sync first (⟲ in the top bar).','err');openModal('githubModal');return;}const d=val('date')||todayISO();const folder=(c.path||'journal').replace(/^\/|\/$/g,'');const file=`${folder}/${d}.md`;const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${file}`;const branch=c.branch||'main';status('ghStatus','Syncing…','info');try{let sha;const g=await fetch(`${api}?ref=${encodeURIComponent(branch)}`,{headers:ghH(c.token)});if(g.ok)sha=(await g.json()).sha;const body={message:`Journal ${d}`,content:b64(buildMarkdown()),branch};if(sha)body.sha=sha;const p=await fetch(api,{method:'PUT',headers:ghH(c.token),body:JSON.stringify(body)});if(p.ok){const j=await p.json();const link=j.content&&j.content.html_url;status('ghStatus',(sha?'Updated':'Saved')+` ✓ ${esc(file)}`+(link?` — <a href="${link}" target="_blank" rel="noopener">view ↗</a>`:''),'ok');}else{const e=await p.json().catch(()=>({}));status('ghStatus',`Error ${p.status}: ${esc(e.message||'failed')}`,'err');}}catch(e){status('ghStatus','Network error: '+esc(e.message),'err');}}
+
+/* ============================================================ SETTINGS ============================================================ */
+function getS(){try{return JSON.parse(store.get(LS.settings))||{};}catch{return {};}}
+function saveS(s){store.set(LS.settings,JSON.stringify(s));}
+function applyS(s){const r=document.documentElement.style;if(s.fsize){r.setProperty('--fsize',s.fsize+'px');if($('fontSizeRange')){$('fontSizeRange').value=s.fsize;$('fontSizeValue').textContent=s.fsize+'px';}}if(s.font){r.setProperty('--sans',s.font);if($('fontSelect'))$('fontSelect').value=s.font;}if(s.accent){r.setProperty('--accent',s.accent);if($('accentPicker'))$('accentPicker').value=s.accent;}document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('sel',b.dataset.th===(s.theme||'auto')));if($('promptsToggle'))$('promptsToggle').checked=s.prompts!==false;if($('ghostToggle'))$('ghostToggle').checked=s.ghost!==false;if($('composeVoice')&&s.composeVoice)$('composeVoice').value=s.composeVoice;if(s.prompts===false&&$('promptLine'))$('promptLine').style.display='none';applyPalette();}
+function setTheme(t){const s=getS();s.theme=t;saveS(s);applyS(s);}
+function wireSettings(){const s=getS();const push=()=>saveS(s);$('fontSizeRange').addEventListener('input',e=>{s.fsize=e.target.value;applyS(s);push();});$('fontSelect').addEventListener('change',e=>{s.font=e.target.value;applyS(s);push();});$('accentPicker').addEventListener('input',e=>{s.accent=e.target.value;applyS(s);push();const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e.target.value;});$('promptsToggle').addEventListener('change',e=>{s.prompts=e.target.checked;$('promptLine').style.display=e.target.checked?'':'none';push();});$('ghostToggle').addEventListener('change',e=>{s.ghost=e.target.checked;push();});$('composeVoice').addEventListener('change',e=>{s.composeVoice=e.target.value;push();});$('resetSettingsBtn').addEventListener('click',()=>{if(!$('confirmResetToggle').checked){toast('Toggle "Enable reset" first.');return;}if(confirm('Erase everything on this device?')){store.clear();location.reload();}});applyS(s);}
+function loadLocalStorage(){const c=$('ls-list');if(!c)return;c.innerHTML='';const keys=store.keys();if(!keys.length){c.innerHTML='<p class="muted">No entries yet.</p>';return;}keys.forEach(k=>{const row=document.createElement('div');row.className='ls-row';const key=document.createElement('div');key.className='k';key.textContent=k.replace('thedaily:','');const ta=document.createElement('textarea');ta.value=store.get(k);ta.addEventListener('change',()=>{store.set(k,ta.value);});row.appendChild(key);row.appendChild(ta);c.appendChild(row);});}
+function clearLocalStorage(){if(confirm('Clear ALL local storage?')){store.clear();location.reload();}}
+function openDrawer(){$('drawer').classList.add('open');}
+function closeDrawer(){$('drawer').classList.remove('open');}
+function openModal(id){$(id).classList.add('open');}
+function closeModal(id){$(id).classList.remove('open');}
+function mbd(e,id){if(e.target===$(id))closeModal(id);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.mback.open').forEach(m=>m.classList.remove('open'));closeDrawer();closeSlash();closeRitual();}});
+function closeTheDay(){flushSave();const words=(val('entry').match(/\S+/g)||[]).length;const streak=computeStreak();renderWeekRing();updateTotals();$('ritualStats').textContent=`${words} WORDS · ${streak}-DAY STREAK · ${selectedFeelings.size} FEELINGS LOGGED`;$('ritualAff').textContent='“'+AFFIRMATIONS[Math.floor(Math.random()*AFFIRMATIONS.length)]+'”';const hour=new Date().getHours();$('ritualTitle').textContent=hour>=21||hour<5?'The day is complete.':'A moment of pause.';$('ritualOverlay').classList.add('open');if(!RM)burst();}
+function closeRitual(ev){if(ev&&ev.stopPropagation)ev.stopPropagation();$('ritualOverlay').classList.remove('open');}
+function burst(){const c=$('confetti');c.innerHTML='';const cols=[getComputedStyle(document.documentElement).getPropertyValue('--accent'),'#2f7dd1','#0bb4c4','#4f9fe6','#22c9d8'];for(let i=0;i<70;i++){const s=document.createElement('span');s.className='cf';s.style.left=Math.random()*100+'vw';s.style.background=cols[i%cols.length];s.style.animationDuration=(2+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.4)+'s';s.style.transform='rotate('+(Math.random()*360)+'deg)';c.appendChild(s);}setTimeout(()=>c.innerHTML='',4600);}
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  greeting();const now=new Date();if($('stardate'))$('stardate').textContent='LOG '+now.toISOString().slice(0,10).replace(/-/g,'.');if($('date')&&!$('date').value)$('date').value=todayISO();if($('entryId'))$('entryId').textContent=todayISO().replace(/-/g,'.');
+  POOL=promptPool();const saved=parseInt(store.get(LS.prompt));const doy=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000);promptIdx=Number.isFinite(saved)?saved:(now.getFullYear()*366+doy)%POOL.length;showPrompt();
+  renderFeelings();renderTags();renderWeekRing();updateTotals();const ex=loadEntry($('date').value);if(ex)restoreEntry(ex);updateCounts();computeStreak();
+  const e=$('entry');
+  e.addEventListener('input',()=>{updateCounts();scheduleSave();scheduleGhost();const v=e.value;if(v.slice(-1)==='/'){openSlash();}else if(!/\/$/.test(v))closeSlash();});
+  e.addEventListener('keydown',ev=>{if($('slash').classList.contains('open')){if(ev.key==='ArrowDown'){ev.preventDefault();slashNav(1);return;}if(ev.key==='ArrowUp'){ev.preventDefault();slashNav(-1);return;}if(ev.key==='Enter'){ev.preventDefault();e.value=e.value.replace(/\/$/,'');slashRun();updateCounts();scheduleSave();return;}if(ev.key==='Escape'){closeSlash();return;}}if(ev.key==='Tab'&&ghostText){ev.preventDefault();acceptGhost();}else if(ev.key!=='Tab'&&ghostText){clearGhost();}});
+  e.addEventListener('blur',()=>{setTimeout(()=>{clearGhost();closeSlash();},150);});
+  e.addEventListener('scroll',()=>{$('ghost').scrollTop=e.scrollTop;});
+  ['grateful','highlight','intention'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',scheduleSave);});
+  $('location').addEventListener('input',e=>{if($('locTag'))$('locTag').textContent=e.target.value?'◎ '+e.target.value.toUpperCase():'◎ —';scheduleSave();});
+  $('date').addEventListener('change',ev=>{const en=loadEntry(ev.target.value);selectedFeelings=new Set();tags=[];mood=0;if($('entry'))$('entry').value='';['grateful','highlight','intention','location'].forEach(f=>$(f)&&($(f).value=''));if($('entryId'))$('entryId').textContent=(ev.target.value||'').replace(/-/g,'.');if(en)restoreEntry(en);else{renderFeelings();renderTags();setMood(0);}updateCounts();});
+  $('tagInput').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===','){ev.preventDefault();addTag(ev.target.value);ev.target.value='';}else if(ev.key==='Backspace'&&!ev.target.value&&tags.length){removeTag(tags.length-1);}});
+  // compose input: Enter sends, Shift+Enter newline; autosize
+  const ci=$('cxInput');if(ci){ci.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();cxSend();}});ci.addEventListener('input',()=>{ci.style.height='auto';ci.style.height=Math.min(140,ci.scrollHeight)+'px';});}
+  fillGH();fillAI();wireSettings();loadLocalStorage();$('savedot').classList.add('saved');$('autosave').lastChild.textContent='saved';
+  setInterval(()=>{const s=getS();if((s.theme||'auto')==='auto')applyPalette();},600000);
+  window.addEventListener('beforeunload',flushSave);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushSave();});
+});
+</script>
+</body>
+</html>
