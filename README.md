@@ -27,6 +27,14 @@ A calm, private, single-file **developer intelligence workspace** — a daily lo
 - [Quick Start](#quick-start)
 - [Architecture](#architecture)
 - [Data Model](#data-model)
+- [AI Integration](#ai-integration)
+  - [How AI is wired in](#how-ai-is-wired-in)
+  - [Provider support & endpoint resolution](#provider-support--endpoint-resolution)
+  - [The seven AI surfaces](#the-seven-ai-surfaces)
+  - [Voice calibration & language mirroring](#voice-calibration--language-mirroring)
+  - [Fact-grounding & guardrails](#fact-grounding--guardrails)
+  - [Tuning reference](#tuning-reference)
+  - [AI privacy model](#ai-privacy-model)
 - [Configuration](#configuration)
   - [AI Assistant](#ai-assistant)
   - [GitHub Sync](#github-sync)
@@ -243,11 +251,109 @@ Each day is committed as a clean, human-readable Markdown file (`<folder>/YYYY-M
 
 ---
 
+## AI Integration
+
+AI in The Daily is **entirely optional, opt-in, and bring-your-own-endpoint**. Nothing calls a model until you connect one, and even then the app degrades gracefully — every AI feature has a deterministic, non-AI fallback. The intelligence is designed to *amplify your own thinking and words*, never to replace or fabricate them.
+
+### How AI is wired in
+
+All model traffic funnels through **two functions**, which keeps the integration small, auditable, and provider-agnostic:
+
+| Function | Responsibility |
+| --- | --- |
+| `aiResolve()` | Inspects your saved config, detects the dialect (OpenAI / Azure / local), and returns the correct `url` + `headers`. |
+| `aiChat(messages, opts)` | The single call site for every feature. Sends an OpenAI-style `messages` array, applies `temperature` / `max_tokens`, parses the response, and throws helpful errors. |
+
+Capability is gated by `aiReady()` (true only when a base URL **and** model are configured). The UI reflects this live via `reflectAIReady()` — the `✦ AI` pill appears and `[data-ai]` buttons enable only when a model is connected. Config is persisted under `thedaily:ai` and never transmitted anywhere except your chosen endpoint.
+
+```
+ feature (Compose, Reflect, Ghost, …)
+        │  builds a messages[] array
+        ▼
+   aiChat(messages, opts)
+        │  asks aiResolve() for url + headers
+        ▼
+   fetch() ──► your endpoint (OpenAI · Azure · localhost)
+        │
+        ▼
+   choices[0].message.content ──► rendered in-app
+```
+
+### Provider support & endpoint resolution
+
+`aiResolve()` normalizes wildly different endpoint shapes so you rarely have to think about URLs:
+
+- **OpenAI-compatible** — ensures a `/v1` suffix and appends `/chat/completions`; auth via `Authorization: Bearer <key>`. Works for OpenAI and any compatible gateway.
+- **Azure OpenAI** — detected by `*.openai.azure.com` or a `/openai/deployments/` path. Builds `…/openai/deployments/<deployment>/chat/completions?api-version=<ver>` and authenticates with the `api-key` header. The **model field is your deployment name**.
+- **Local (Ollama / LM Studio)** — detected by `localhost`, `127.0.0.1`, private IP ranges, or ports `1234` / `11434`. Rewrites to the server origin + `/v1`; key optional.
+
+The **🐞 Debug** button surfaces the resolved endpoint, detected dialect, auth mode, model, and page protocol — including an explicit **mixed-content warning** when an `https://` page tries to reach an `http://` local model.
+
+### The seven AI surfaces
+
+Each feature builds a purpose-specific system prompt and calls the same `aiChat()` core:
+
+| # | Surface | Function(s) | What it does |
+| --- | --- | --- | --- |
+| 1 | **Compose With Me** | `composeOpen` · `cxNextQuestion` · `cxGenerate` | Interviews you with short, adaptive follow-ups, then weaves *your own answers* into a first-person draft. Actions: Use / Append / Rewrite / more questions. |
+| 2 | **Ghost autocomplete** | `scheduleGhost` · `acceptGhost` | Faint 4–9 word continuations in your language and voice; press `Tab` to accept. Debounced (~900 ms) and only at the end of the text. |
+| 3 | **Reflection** | `aiReflect` | 2–3 warm sentences naming one feeling, one strength/win, and one gentle, non-prescriptive question. Never gives medical advice. |
+| 4 | **Unstick** | `aiUnstick` | A tiny nudge — one clause or micro-question — when you stall on a blank or half-finished page. |
+| 5 | **Patterns synthesis** | `aiSynthesis` | Reads up to your last **21 entries** and surfaces genuine themes, emotional trends, and one gentle observation. Never diagnoses. |
+| 6 | **Structured-capture enrichment** | `capDevelop` | Turns a one-line seed into a schema-complete Idea/Experiment/Decision/etc. Returns **strict JSON** for the exact field set; marks unknowns `Pending`. |
+| 7 | **Builder retrospective** | `builderRetro` | Compiles a month of structured captures into a grounded retrospective (Shipped, Ideas, Experiments, Decisions, Learnings, Open Loops, Next Focus). Optionally commits to `retrospectives/`. |
+
+### Voice calibration & language mirroring
+
+A shared helper, **`styleContext()`**, is appended to the system prompt of the voice-sensitive features (Compose, Ghost, Reflect, Unstick). It:
+
+- Samples snippets of your **own recent entries** (via `recentEntryTexts()` — up to 4 entries, ~220 chars each).
+- Instructs the model to **mirror your vocabulary, sentence length, punctuation habits, and level of formality**.
+- Enforces **language fidelity** — it must respond in the *same language you write in* and must **not** upgrade your register (casual stays casual).
+
+The **Compose voice** setting (`composeVoice` in the Reading Studio) lets you override this with `mine` (default, calibrated to your entries), `warm`, `brief`, or `poetic`.
+
+### Fact-grounding & guardrails
+
+The integration is deliberately conservative to protect the integrity of your record:
+
+- **Never invents your day.** Compose and drafting prompts are explicitly constrained to *only* use what you supplied.
+- **Never fabricates evidence.** Structured-capture enrichment (`capDevelop`) runs at **low temperature (0.2)**, must return valid JSON for the exact schema, and is told to use `Pending` for anything missing rather than inventing metrics, people, or results. Invalid JSON safely falls back to the deterministic template.
+- **No medical advice / no diagnosis.** Reflection and Patterns synthesis are prompted to stay supportive and non-clinical.
+- **Graceful degradation.** If AI is off or a call fails, features fall back: Compose offers a scripted question set, captures use deterministic templates, and the rest simply prompt you to connect a model.
+
+### Tuning reference
+
+Observed generation settings per surface (defaults: `temperature 0.8`, `max_tokens 240`):
+
+| Surface | Temperature | Max tokens | Rationale |
+| --- | :---: | :---: | --- |
+| Ghost autocomplete | 0.6 | 24 | Short, safe, predictable continuations |
+| Reflection | 0.6 | 200 | Warm but focused |
+| Patterns synthesis | 0.6 | 280 | Grounded, specific observations |
+| Compose — next question | 0.8 | 50 | Curious, varied follow-ups |
+| Compose — draft | 0.7 (0.9 on rewrite) | 420 | Natural prose; more variety when rewriting |
+| Capture enrichment | 0.2 | 900 | Deterministic, structured, fact-safe |
+| Retrospective | 0.2 | 1400 | Long, grounded synthesis |
+
+### AI privacy model
+
+- **Direct-to-endpoint.** Requests go straight from your browser to the endpoint you configured — there is **no proxy or middleman**.
+- **Keys stay local.** Your API key lives only in `localStorage` (`thedaily:ai`) on your device.
+- **Least privilege recommended.** Prefer a **local model** or a **scoped, low-limit key**. The AI settings modal states this explicitly.
+- **Test & inspect.** Use **Test link** to verify connectivity and **🐞 Debug** to see exactly where traffic will go before you send anything real.
+
+> ⚠️ Because calls originate in the browser, your key is exposed to the page (as with any client-side app). Never embed a high-privilege production key; use a throwaway scoped key or a local model.
+
+---
+
 ## Configuration
 
 All configuration is stored **only in your browser** and can be cleared at any time from **Your data & local storage**.
 
 ### AI Assistant
+
+> For the full picture — surfaces, resolution logic, guardrails, and tuning — see [**AI Integration**](#ai-integration). This is the quick **setup** reference.
 
 The Daily speaks the **OpenAI-compatible chat completions** dialect and auto-detects Azure vs. local endpoints.
 
@@ -257,9 +363,13 @@ The Daily speaks the **OpenAI-compatible chat completions** dialect and auto-det
 | **Azure OpenAI** | `https://<resource>.openai.azure.com` | *deployment name* | Requires API version (e.g. `2024-02-15-preview`) |
 | **Local** | `http://localhost:1234/v1` | *loaded model id* | Ollama / LM Studio; blank key |
 
-**LM Studio checklist:** start the **Server**, **load** the model, enable **CORS** in Server Settings, then restart. Open The Daily locally (an `https://` page can't call `http://`).
+**Setup steps**
+1. Open the **AI Assistant** modal (`✎` / command palette → *AI settings*).
+2. Pick a **provider** — the base URL and a sensible default model auto-fill.
+3. Enter your **model** (or Azure **deployment name**) and **API key** (blank for local).
+4. **Save**, then **Test link** to confirm. Use **🐞 Debug** to inspect the resolved endpoint before sending real data.
 
-> Use **Test link** to verify connectivity and **🐞 Debug** to inspect the resolved endpoint, dialect, and auth mode.
+**LM Studio checklist:** start the **Server**, **load** the model, enable **CORS** in Server Settings, then restart. Open The Daily locally (an `https://` page can't call `http://`).
 
 ### GitHub Sync
 
