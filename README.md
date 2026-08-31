@@ -1,288 +1,521 @@
 <div align="center">
 
-# ✦ The Daily
+# The Daily
 
-### A calm, private, beautiful journal that almost writes itself.
+### *Your work, your thinking — versioned.*
 
-*Reflective intake system · Write a little. Understand a lot.*
+A calm, private, single-file **developer intelligence workspace** — a daily log where builders think, capture decisions, and version their work like code.
 
-[![Made with HTML](https://img.shields.io/badge/Built%20with-Single%20File%20HTML-1a4b8c)](#)
-[![No Backend](https://img.shields.io/badge/Backend-None-2f7dd1)](#)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Local-1c9e77)](#)
-[![License](https://img.shields.io/badge/License-MIT-0bb4c4)](#-license)
+[![Version](https://img.shields.io/badge/version-2.0-1a4b8c)](#versioning)
+[![License: MIT](https://img.shields.io/badge/license-MIT-0bb4c4)](#license)
+[![Single File](https://img.shields.io/badge/build-zero--dependency-2f7dd1)](#architecture)
+[![Privacy](https://img.shields.io/badge/data-100%25%20local-1c9e77)](#privacy--security)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-c98a1e)](#contributing)
+
+*A daily writing surface on the outside. A structured capture, retrospective, and versioning engine underneath.*
+*No account. No cloud required. No tracking. Just you and the day.*
 
 </div>
 
 ---
 
-## 🌅 What is The Daily?
+## Table of Contents
 
-**The Daily** is a journaling app for anyone, anywhere. It's a single HTML file — no account, no subscription, no cloud, no install. You open it and write. Everything you type lives **only in your browser** unless *you* choose to export or sync it.
-
-It's built on one idea: **the blank page is the enemy of journaling.** So The Daily removes the friction with a mood you tap, prompts that rotate, gentle structure, an optional AI that helps you compose from *your own words*, and a quiet clinical-blue "engineering paper" aesthetic that makes you *want* to sit down and reflect.
-
-> **Design philosophy:** the AI is a **mirror, not a ghostwriter.** It reflects you back, helps you get unstuck, and surfaces patterns across time — but the words are always yours.
-
----
-
-## ✨ Features at a glance
-
-| | Feature | What it does |
-|---|---|---|
-| ✎ | **Compose with me** | The AI interviews you with a few short questions, then weaves *your answers* into a first-person draft you own and edit. |
-| 🎭 | **Mood signal** | Tap one of five faces — no typing required. |
-| ↻ | **Adaptive prompts** | Time-aware questions (morning vs. evening) so you never face a blank page. |
-| ✚ | **Sentence starters** | One click drops a natural opener where your cursor is. |
-| / | **Slash commands** | Type `/` in the entry to summon every tool from a menu. |
-| 🎙 | **Voice dictation** | Speak your entry hands-free (Chrome/Edge). |
-| ✦ | **Ghost-text** | Optional inline AI suggestions — press **Tab** to accept. |
-| ✦ | **Reflect** | A warm 2–3 sentence mirror of what you wrote. |
-| ✦ | **Unstick** | A tiny nudge when the words won't come. |
-| ◫ | **Patterns** | Longitudinal analysis of your history: mood charts, day-of-week trends, recurring feelings & tags, plus an optional AI synthesis. |
-| 🌙 | **Close the day** | A small completion ritual with stats + an affirmation. |
-| 🔥 | **Streak & week-ring** | A satisfying, guilt-free habit tracker. |
-| 🎨 | **Adaptive theming** | The blue palette shifts warmth from dawn → day → dusk → night. |
-| ⬇ | **Exports** | Markdown, JSON, DOCX, and Email. |
-| ☁ | **GitHub Sync** | Commit each day as a Markdown file to your own repo. |
-| 🔐 | **Truly private** | 100% client-side. Nothing leaves your device unless you sync/export. |
+- [Overview](#overview)
+- [Why The Daily](#why-the-daily)
+- [Feature Tour](#feature-tour)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Data Model](#data-model)
+- [Configuration](#configuration)
+  - [AI Assistant](#ai-assistant)
+  - [GitHub Sync](#github-sync)
+  - [Azure DevOps Repos Sync](#azure-devops-repos-sync)
+- [Reading Studio](#reading-studio)
+- [Structured Captures](#structured-captures)
+- [Browse & Constellation](#browse--constellation)
+- [Export Formats](#export-formats)
+- [Keyboard Shortcuts & Commands](#keyboard-shortcuts--commands)
+- [Privacy & Security](#privacy--security)
+- [Accessibility](#accessibility)
+- [Browser Support](#browser-support)
+- [Development Guide](#development-guide)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Versioning](#versioning)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
-## 🚀 Quick start (60 seconds)
+## Overview
 
-1. **Download** `index.html` from this repo.
-2. **Open it** — double-click the file. It runs in any modern browser as `file://`. No server needed.
-3. **Write.** Tap a mood, answer the prompt, or just start typing. It autosaves as you go.
+**The Daily** is a **local-first developer intelligence workspace** delivered as a **single, self-contained `index.html` file**. It runs entirely in the browser with no server, no build step, and no mandatory network calls. Everything you capture lives in your own browser storage until *you* choose to export or sync it.
 
-That's it. Everything else — AI, sync, themes — is optional.
+On the surface it is a calm, first-class **daily writing page** — a beautiful, low-friction on-ramp you *want* to return to. Underneath, it is a **structured capture, analysis, and versioning engine** built for developers and builders:
 
-> 💡 **Want it on your phone or a URL?** See [Hosting](#-hosting-it-optional) below. It also works great as a home-screen bookmark.
+- **Capture** ideas, experiments, decisions, learnings, wins, and memories as structured, schema-backed artifacts.
+- **Compound** them into pattern analysis and grounded monthly retrospectives.
+- **Version** each day — and its media — to **GitHub or Azure DevOps** as clean Markdown, then explore your history as an interactive Constellation.
+- **Amplify**, optionally, with AI that drafts in *your own voice* and never invents your facts.
 
----
+> **Design philosophy:** The daily page is the only dominant surface. Every builder capability — structured captures, analytics, source & code management, repository sync, AI — stays exactly one click (or keystroke) away, but never competes with the blank page. *Frictionless in; powerful underneath.*
 
-## 📝 How to use it
-
-### The writing canvas
-- **Field 01 · Mood** — tap a face (Rough → Great). This feeds your streak and Patterns.
-- **Prompt line** — a rotating question. Hit **↻ new** for another, or **↳ Prompt** to drop it into your entry.
-- **The entry** — your main writing surface. It autosaves every half-second (watch the green dot).
-- **Field 02 · Feelings** — tap any that fit.
-- **Field 03 · Daily markers** — one line each for *Grateful for*, *Highlight*, *Intention for tomorrow*.
-- **Field 04 · Tags** — type a tag and press **Enter** to index people, places, or topics.
-- **Metadata** (tucked away) — change the date to revisit or backfill past days; add a location.
-
-### Keyboard & power tips
-- **`/`** → opens the slash-command menu (arrow keys to navigate, Enter to run, Esc to close).
-- **Tab** → accepts an AI ghost-text suggestion when one is showing.
-- **Enter** (in a tag box) → adds the tag; **Backspace** on an empty box removes the last one.
-- **Esc** → closes any open modal or drawer.
-
-### Close the day 🌙
-When you're done, hit **Close the day** for a moment of completion — your word count, streak, and a gentle affirmation. It's a ritual, never a guilt trip.
+| At a glance | |
+| --- | --- |
+| **What it is** | Local-first developer intelligence workspace / builder's daily log |
+| **Primary surface** | A calm, auto-saving daily writing page |
+| **Underneath** | Structured captures · pattern analytics · retrospectives · Git versioning |
+| **Audience** | Developers, builders, and like-minded thinkers |
+| **Type** | Progressive, offline-first web app |
+| **Footprint** | One HTML file (portable, host-anywhere) |
+| **Runtime deps** | None required · `docx` (CDN) used only for Word export |
+| **Storage** | `localStorage` (with in-memory fallback) |
+| **Sync targets** | GitHub · Azure DevOps Repos (optional) |
+| **AI** | OpenAI · Azure OpenAI · Local (Ollama / LM Studio) — all optional |
+| **License** | MIT |
 
 ---
 
-## 🤖 Optional AI setup
+## Why The Daily
 
-AI is **entirely optional**. Without it, every non-AI feature works perfectly. With it, you unlock **Compose**, **Reflect**, **Unstick**, **ghost-text**, and **Patterns synthesis**.
-
-The Daily talks to any **OpenAI-compatible** endpoint. Open the **✦ AI** panel and choose a provider:
-
-### Option A — Local model (LM Studio / Ollama) 🔒 *most private*
-Runs entirely on your machine — your words never leave your device.
-
-**LM Studio:**
-1. Install [LM Studio](https://lmstudio.ai), download a model, and **load** it.
-2. Go to the **Developer** tab → start the **Local Server** (`Status: Running`).
-3. Open **Server Settings** and **enable CORS**, then restart the server. *(This is required — the browser blocks responses without it.)*
-4. In The Daily's AI panel:
-   - **Provider:** `Local`
-   - **Base URL:** `http://localhost:1234/v1` *(use your machine's IP if on another device, e.g. `http://192.168.1.50:1234/v1`)*
-   - **Model:** the loaded model id (e.g. `openai/gpt-oss-20b`)
-   - **API key:** leave **blank**
-5. Click **Test link** → you should see `Link OK ✓`.
-
-> ⚠️ **Open The Daily locally** (as `file://`). An `https://` page cannot call an `http://` local server (mixed-content block). The **🐞 Debug** button flags this and shows the exact resolved endpoint.
-
-**Ollama:** same steps — Base URL `http://localhost:11434/v1`, model e.g. `llama3.1`, key blank. Set `OLLAMA_ORIGINS=*` to allow browser calls.
-
-### Option B — OpenAI
-- **Provider:** `OpenAI`
-- **Base URL:** `https://api.openai.com/v1`
-- **Model:** `gpt-4o-mini` (or your choice)
-- **API key:** your `sk-…` key
-
-### Option C — Azure OpenAI
-- **Provider:** `Azure`
-- **Base URL:** `https://YOUR-RESOURCE.openai.azure.com`
-- **Model:** your **deployment name**
-- **Azure API version:** e.g. `2024-02-15-preview`
-- **API key:** your Azure key
-
-> The app automatically handles each dialect (Azure's `api-version` + `api-key` header, local's `/v1` path, etc.).
-
-### ✎ Compose with me — the flagship
-Click **✎ Compose with me**. The AI asks a few short questions; you answer by typing or voice. When ready, hit **Draft it now** and it composes a first-person entry **from your own answers** — no invented events. Choose your **Compose voice** in Config: *Sound like me*, *Warm*, *Brief*, or *Poetic*. Then **Use**, **Append**, **Rewrite**, or ask for **more questions**.
-
-> 🔐 **Security note:** API keys are stored **only in your browser's local storage** and calls go straight from your device to the endpoint you set. Prefer a **local model** or a **scoped, low-limit key**. For a public deployment, proxy calls through a backend so the key never touches the client.
+- **Built for builders.** Capture structured Ideas, Experiments, Decisions, Learnings, Wins, and Memories with rigorous, schema-backed fields — then roll them into grounded retrospectives. Your daily log becomes a searchable decision and knowledge base.
+- **Versioned like code.** Sync each day (and its media) to **GitHub or Azure DevOps** as clean Markdown, then explore your history as an interactive *Constellation*. Your thinking gets the same durability as your repos.
+- **Frictionless on-ramp.** The daily writing page auto-saves, auto-grows, detects pasted code and links, and never gets in your way — so capturing a thought costs nothing.
+- **Truly private by default.** No sign-up, no telemetry, no cloud dependency. Nothing leaves your device unless you explicitly export or sync. Keys and tokens stay in your browser.
+- **Your voice, amplified.** Optional AI drafts **from your own answers**, calibrated to your real writing style and language — it never invents your day, and it never fabricates facts in structured captures.
+- **Beautiful and personal.** The *Reading Studio* lets you tune paper, typography, accent, spacing, and comfort with a live preview — a workspace you actually want to open.
+- **Portable forever.** One file you can save, email, self-host, or archive. Zero lock-in.
 
 ---
 
-## ☁️ GitHub Sync setup
+## Feature Tour
 
-Sync commits each day's entry as `journal/YYYY-MM-DD.md` to a repo you control — a durable, plain-text, portable archive of your journal.
+### ✍️ The Writing Surface
+- Distraction-light, contenteditable rich editor with **inline media** (photos embed directly in the flow of text).
+- **Autosave** with a live "saving… / saved" indicator (debounced, 500 ms).
+- **Auto-growing** editor that expands to fit content so nothing is pushed off-screen.
+- **Slash commands** (`/`) for instant access to tools from inside the editor.
+- **Daily prompts** — time-aware (morning / evening / anytime) with a one-tap "another" reroll.
+- **Word count** and **read-time** estimates.
 
-### 1. Create a repository
-Make a repo (e.g. `daily`). It can be **private**.
+### 🤖 Compose With Me (opt-in AI)
+- Conversational, interview-style drafting: the AI asks short questions, you answer (type or speak), and it weaves **your own words** into a first-person draft.
+- **Voice calibration** reads snippets of your past entries to mirror your vocabulary, rhythm, register, and language.
+- Draft actions: **Use**, **Append**, **Rewrite**, or continue with **more questions**.
+- Additional AI helpers: **Reflection**, **Ghost autocomplete** (Tab to accept), and **Unstick**.
 
-### 2. Create a Personal Access Token (fine-grained — recommended)
-1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.**
-2. **Resource owner:** select **your account** (or the **org** that owns the repo).
-3. **Repository access:** choose **Only select repositories** → pick your journal repo.
-4. **Repository permissions:** set **Contents → Read and write.** *(This is the one that matters.)*
-5. Generate and copy the token.
+### 🎨 Reading Studio
+- Six full **paper palettes** (Daylight, Blueprint, Parchment, Sage, Dusk, Midnight), each with light + dark variants.
+- **Type pairings** (Fraunces, Newsreader, Lora, Spectral, Caveat, Inter, System).
+- Fine controls: appearance mode (auto/light/dark), accent color, grain/texture, font size, line height, measure (line width), and letter spacing.
+- **Live preview** card that updates as you tune.
 
-> If the repo lives under an **organization**, the org must **enable fine-grained tokens** (and may require approval). If in doubt, create the repo under your **personal account** — personal repo + personal token "just works."
+### 🌈 Signals & Context
+- **Mood** (5-point signal), **feelings** chips, **tags** (people, places, topics), **location**, and **date**.
+- **Streak** tracking, **week ring**, and gentle **ritual** to "close the day."
 
-### 3. Configure in the app
-Open the **⟲ Sync** panel and enter:
-- **Owner / user:** your username or org (e.g. `TehauD`)
-- **Repository:** the repo name (e.g. `daily`)
-- **Branch:** `main`
-- **Folder:** `journal`
-- **Token:** paste your PAT
+### 📷 Photos
+- Drag, paste, or pick images. **Client-side compression** (~1600px longest edge, JPEG @72%) keeps them Git-friendly.
+- Photos embed inline and sync to their own files in GitHub / Azure DevOps.
 
-Click **Test**, then **Save**. Now the **⟲ Sync** button on the main screen commits today's entry (it updates the file if you sync the same day again).
+### 🧠 Structured Captures & Builder Intelligence
+- Six artifact types — **Idea, Experiment, Decision, Learning, Win, Memory** — each with a rigorous field schema.
+- Deterministic templates *or* AI enrichment that **never invents facts**.
+- **Builder Intelligence** dashboard and **monthly retrospective** generation (with optional GitHub commit).
 
-### Troubleshooting sync
-| Error | Meaning | Fix |
-|---|---|---|
-| `403 Resource not accessible by personal access token` | Token lacks **Contents: write** or repo access | Regenerate with **Contents → Read and write** and grant the repo |
-| `404 Repo not found` | Wrong owner/repo, or token can't see it | Check Owner/Repository fields; grant repo in token |
-| `401 Bad credentials` | Token is wrong/expired | Paste a fresh token |
-| Repos don't appear when creating the PAT | Wrong resource owner, "Only select repositories" not chosen, or repo created after the token | Pick the correct owner, select the repo, or recreate the token |
+### 🔭 Browse & Constellation
+- **Timeline, Projects, Search, Briefing, Sources, and Map** hub.
+- **Constellation** — a force-directed star-map of your history built from your repo: node size = words, glow = mood, image thumbnails, tag hubs, and pan/zoom.
 
----
-
-## 🎨 Customization (⚙ Config)
-
-- **Theme mode:** Auto (shifts hue by time of day), Light, or Dark.
-- **Text size** & **interface font.**
-- **Accent color** — or leave it for the adaptive blue.
-- **Writing toggles:** show/hide the daily prompt; enable/disable AI ghost hints.
-- **Compose voice:** how your AI-composed drafts sound.
-- **Reset:** wipe everything on this device (guarded by a confirm toggle).
+### 📦 Export & Sync
+- Export any day as **Markdown, JSON, DOCX, or Email**.
+- Sync to **GitHub** and/or **Azure DevOps Repos** — journal text and embedded media pushed together.
 
 ---
 
-## 🔐 Privacy & data
+## Quick Start
 
-- **Everything is local.** Entries, settings, streak, and keys live in your browser's `localStorage`.
-- **No servers, no analytics, no tracking.** The app makes network calls **only** when *you* trigger AI (to your configured endpoint) or GitHub Sync (to GitHub).
-- **Your data, your control.** Export anytime (MD/JSON/DOCX/Email) or sync to your own repo.
-- **The storage manager** (◈ Local data store) lets you view, edit, or clear your raw local data.
+The Daily is a single file. There is nothing to install.
 
-> Because it's client-side, API keys and GitHub tokens are stored in plaintext in your browser. Use scoped, low-privilege credentials — or a local model — and never commit your keys anywhere.
+### Option 1 — Just open it
+1. Download `index.html`.
+2. Double-click to open it in any modern browser.
+3. Start writing. That's it. Your entries autosave locally.
 
----
+### Option 2 — Host it (recommended for AI + sync)
+Serving over `http(s)` unlocks the most reliable behavior for clipboard, speech, and API calls.
 
-## 📁 Data formats
+```bash
+# Python (any 3.x)
+python -m http.server 8080
 
-**Each synced/exported day is clean Markdown:**
+# Node
+npx serve .
 
-```markdown
-# 2026-08-30
-
-**Mood:** 🙂 Good
-**Feelings:** Grateful, Hopeful
-
-Today I was building the plane while flying it...
-
----
-
-◇ **Grateful for:** My wife and kids
-◆ **Highlight:** Making and sharing this app with others
-▷ **Tomorrow:** —
-🏷 **Tags:** —
-
-_The Daily · 8/30/2026, 8:22:47 AM_
+# then browse to http://localhost:8080
 ```
 
-**JSON export** preserves the full structured record (mood as a number, feelings/tags as arrays, timestamps) for programmatic use.
+> 💡 **HTTPS note:** A page served over `https://` **cannot** call a `http://` endpoint (mixed content). If you use a **local** AI model (LM Studio / Ollama at `http://localhost`), open The Daily from a local file or a local `http://` server, not from an `https://` origin.
 
 ---
 
-## 🌐 Hosting it (optional)
+## Architecture
 
-The Daily is one file, so hosting is trivial:
+The Daily is intentionally a **zero-build, single-artifact** application.
 
-- **GitHub Pages:** put `index.html` in a repo, enable Pages → get a URL.
-- **Netlify / Vercel / Cloudflare Pages:** drag-and-drop the file.
-- **Local network:** serve the folder with `python -m http.server` and open it from any device.
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        index.html                            │
+│                                                              │
+│  ┌─────────────┐   ┌──────────────┐   ┌───────────────────┐  │
+│  │   <style>   │   │   markup     │   │     <script>      │  │
+│  │  design     │   │  semantic    │   │  application core │  │
+│  │  tokens +   │   │  HTML + a11y │   │  (vanilla JS)     │  │
+│  │  themes     │   │  landmarks   │   │                   │  │
+│  └─────────────┘   └──────────────┘   └───────────────────┘  │
+│                                                              │
+│  State ── localStorage (with in-memory fallback)             │
+│  Optional I/O ── fetch() → AI provider / GitHub / Azure DevOps│
+│  Word export ── docx@7.1.0 (CDN, lazy)                       │
+└──────────────────────────────────────────────────────────────┘
+```
 
-> Remember: if you host over **https** and want to use a **local** AI model (http), open the page **locally** instead, or point the model through `localhost` on the same machine. Cloud AI (OpenAI/Azure) works fine over https.
+**Design principles**
 
----
-
-## 🧭 Browser support
-
-| Feature | Requirement |
-|---|---|
-| Core journaling, exports, themes, sync | Any modern browser (Chrome, Edge, Firefox, Safari) |
-| **Voice dictation** | Chromium-based (Chrome/Edge) |
-| **DOCX export** | Loads the `docx` library from a CDN (needs internet for that one feature) |
-| **AI features** | A configured OpenAI-compatible endpoint |
-
----
-
-## ❓ FAQ
-
-**Do I need to create an account?** No. Ever.
-
-**Does it work offline?** Yes — the app itself is fully offline. Only AI, DOCX, and GitHub Sync need a network.
-
-**Where are my entries stored?** In your browser on this device. Switching devices/browsers won't carry them over unless you use GitHub Sync or import an export.
-
-**Is my journal sent to any AI by default?** No. AI is off until you configure it, and even then only runs when you press an AI button.
-
-**Can the AI write my whole entry for me?** It won't invent your day. **Compose** turns *your own answers* into prose; **Ghost-text/Unstick** offer tiny nudges. The words are yours.
-
-**How do I move to a new computer?** Export your entries (JSON), or set up GitHub Sync and your Markdown archive travels with you.
+- **Vanilla JS, no framework.** Small helper primitives (`$`, `val`, `store`, `esc`, `toast`, `status`, `download`) keep the code readable and dependency-free.
+- **Theme tokens.** All visual styling is driven by CSS custom properties on `:root`; a "paper" is a complete palette applied live via `applyTheme()`.
+- **Resilient storage.** The `store` wrapper transparently falls back to an in-memory map when `localStorage` is unavailable or full, and surfaces quota warnings.
+- **Progressive enhancement.** Core journaling works with zero configuration; AI and sync layers activate only when you connect them.
+- **Composition layer (V1).** A thin exposure layer changes *what's visible*, not *what's capable* — the command palette, day navigation, and sources/snippets/links live here.
 
 ---
 
-## 🛠️ Under the hood
+## Data Model
 
-- **One file.** All HTML, CSS, and JS in `index.html`. No build step, no dependencies to install.
-- **Vanilla JS.** No framework.
-- **Safe by design.** Storage access is wrapped to survive private-mode/quota limits; all AI/model output is HTML-escaped before rendering; work flushes on tab close.
-- **Accessible.** ARIA labels, focus-visible rings, reduced-motion support, and a print stylesheet.
-- **CDN used:** only `docx` (for Word export). Fonts load from Google Fonts.
+All state is namespaced under the `thedaily:` prefix in `localStorage`.
+
+| Key | Purpose |
+| --- | --- |
+| `thedaily:entry:<YYYY-MM-DD>` | One serialized journal entry per day |
+| `thedaily:settings` | Reading Studio + preferences |
+| `thedaily:github` | GitHub connection config |
+| `thedaily:azuredevops` | Azure DevOps connection config |
+| `thedaily:sync` | Active sync-target preferences |
+| `thedaily:ai` | AI provider config |
+| `thedaily:promptIdx` | Current daily-prompt index |
+| `thedaily:constCache` | Cached parsed repo entries for Constellation |
+| `thedaily:v1objects` | Sources, snippets, links, research notes |
+
+### Entry shape
+
+```jsonc
+{
+  "savedAt": "2026-08-31T16:53:00.000Z",
+  "date": "2026-08-31",
+  "location": "Kansas City, KS",
+  "mood": 4,                         // 0–5 (0 = unset)
+  "feelings": ["Calm", "Proud"],
+  "entry": "Today I ... [[image:img_...]] ...",
+  "grateful": "…",
+  "highlight": "…",
+  "intention": "…",
+  "tags": ["work", "family"],
+  "images": [
+    {
+      "id": "img_abc123",
+      "name": "sunset",
+      "mime": "image/jpeg",
+      "dataUrl": "data:image/jpeg;base64,…",
+      "w": 1600, "h": 1067, "size": 148231,
+      "ghUrl": null, "ghName": null,   // set after GitHub sync
+      "azPath": null, "azCommit": null, "azRepoKey": null
+    }
+  ]
+}
+```
+
+### Synced Markdown
+
+Each day is committed as a clean, human-readable Markdown file (`<folder>/YYYY-MM-DD.md`) that round-trips back into the Constellation via `parseEntryMarkdown()`. Photos are written to `<folder>/images/<date>/` and referenced relatively (Azure DevOps) or by raw URL (GitHub).
 
 ---
 
-## 🤝 Contributing
+## Configuration
 
-Issues and pull requests are welcome. Because it's a single file, changes are easy to review — please keep it dependency-free and privacy-first.
+All configuration is stored **only in your browser** and can be cleared at any time from **Your data & local storage**.
 
-Ideas that fit the spirit:
-- A history/calendar view to browse past days
-- "Load from GitHub" to pull entries back
-- A memory layer so Compose references your recent entries
-- An installable offline **PWA** wrapper
+### AI Assistant
+
+The Daily speaks the **OpenAI-compatible chat completions** dialect and auto-detects Azure vs. local endpoints.
+
+| Provider | Base URL example | Model field | Notes |
+| --- | --- | --- | --- |
+| **OpenAI** | `https://api.openai.com/v1` | `gpt-4o-mini` | Bearer key |
+| **Azure OpenAI** | `https://<resource>.openai.azure.com` | *deployment name* | Requires API version (e.g. `2024-02-15-preview`) |
+| **Local** | `http://localhost:1234/v1` | *loaded model id* | Ollama / LM Studio; blank key |
+
+**LM Studio checklist:** start the **Server**, **load** the model, enable **CORS** in Server Settings, then restart. Open The Daily locally (an `https://` page can't call `http://`).
+
+> Use **Test link** to verify connectivity and **🐞 Debug** to inspect the resolved endpoint, dialect, and auth mode.
+
+### GitHub Sync
+
+1. Open **Sync** → **GitHub**.
+2. Provide **owner/user**, **repository**, **branch** (default `main`), and **folder** (default `journal`).
+3. Paste a **fine-grained Personal Access Token** scoped to **one repository** with **Contents: read and write**.
+4. **Save**, then **Test**.
+
+A single sync commits the day's Markdown plus any new embedded images via the GitHub Contents API. Existing paths are updated (SHA-aware); new paths are added.
+
+### Azure DevOps Repos Sync
+
+1. Open **Sync** → **Azure DevOps Repos**.
+2. Provide **organization**, **project**, **repository**, **branch**, and **folder**.
+3. Paste an **Azure DevOps PAT** with **Code: read & write**.
+4. **Save**, then **Test**.
+
+Azure DevOps uses the Git **Pushes** REST API to commit the journal Markdown and all new media **in a single atomic commit** against the current branch tip.
+
+> You can enable **both** targets — The Daily fans out the sync and reports per-provider success/failure.
 
 ---
 
-## 📜 License
+## Reading Studio
 
-Released under the **MIT License** — free to use, modify, host, and share. Your words belong to you.
+| Tab | Controls |
+| --- | --- |
+| **Paper** | Palette swatches, appearance mode (Auto / Light / Dark), accent color (+ custom), paper texture |
+| **Type** | Writing font pairing, writing size |
+| **Comfort** | Display name, line height, measure (line width), letter spacing, daily prompt toggle, ghost hints toggle, focus mode, compose voice |
+
+Everything renders through CSS variables, so changes are instant and global. **Reset to defaults** restores the original look without touching your entries or sync config.
 
 ---
+
+## Structured Captures
+
+Designed for builders who want their journal to double as a decision and knowledge log.
+
+| Type | Icon | Key fields |
+| --- | --- | --- |
+| **Idea** | 💡 | Problem, Why it matters, Proposed approach, Assumptions, Unknowns, Next experiment |
+| **Experiment** | ⚗ | Hypothesis, Variables, Success criteria, Method, Result, Learning, Decision triggered |
+| **Decision** | ◆ | Context, Decision, Alternatives, Rationale, Tradeoffs, Expected impact, Review trigger |
+| **Learning** | ▣ | Topic, Insight, Evidence, Application, Open question |
+| **Win** | ★ | Achievement, Impact, Who benefited, Evidence, Follow-on opportunity |
+| **Memory** | ⬡ | Subject, Context, Memory, Why it matters, Use when, Sensitivity |
+
+Each capture is emitted as a portable Markdown callout with a unique **Artifact ID**. **Builder Intelligence** aggregates counts and surfaces open (Pending) items; **Monthly Retrospective** compiles them — optionally enriched by AI that is instructed **never to invent facts** — and can be committed to `retrospectives/<YYYY-MM>.md`.
+
+---
+
+## Browse & Constellation
+
+**Browse** opens a hub with six lenses:
+
+- **Timeline** — reverse-chronological entries with word counts.
+- **Projects** — tags rolled up into project views with capture counts.
+- **Search** — full-text across entries, captures, code, files, and links.
+- **Briefing** — days, captures, and open structured work at a glance.
+- **Sources** — imported files, snippets, links (text/code indexed locally).
+- **Map** — launches the Constellation.
+
+**Constellation** reads your repository, parses each day, and lays out a **force-directed graph**: entry nodes sized by word count and colored by mood, image thumbnails hydrated on demand, and tag hubs that pull related days together. Click any star to preview it or **load it back into the editor**.
+
+---
+
+## Export Formats
+
+| Format | Function | Contents |
+| --- | --- | --- |
+| **Markdown** | `saveJournal()` | Full day with mood, feelings, markers, tags, embedded images |
+| **JSON** | `saveJournalAsJson()` | Complete structured entry object |
+| **DOCX** | `saveJournalAsDocx()` | Word document with embedded, sized photos |
+| **Email** | `saveJournalAsEmail()` | `mailto:` draft with a text-safe rendering |
+
+---
+
+## Keyboard Shortcuts & Commands
+
+| Shortcut | Action |
+| --- | --- |
+| `/` (in editor) | Open slash command menu |
+| `Ctrl` / `⌘` + `K` | Open the command palette |
+| `Shift` + `←` / `→` | Previous / next day |
+| `Tab` | Accept ghost autocomplete |
+| `Esc` | Close any open modal, studio, palette, or overlay |
+| `Enter` (in compose) | Send answer |
+
+The **command palette** groups actions under **Think, Explore, Create, System** — Compose, Capture, Research, Search, Browse, Patterns, Add source, Studio, Sync, AI settings, and About.
+
+---
+
+## Privacy & Security
+
+- **Local-first.** All entries and settings live in your browser's `localStorage`. Nothing is transmitted unless you export or sync.
+- **Your keys, your device.** AI keys and Git tokens are stored only in your browser and sent **directly** from your device to the endpoint you configured — never to any intermediary.
+- **Least privilege.** Use **fine-grained, single-repository** tokens with the minimum scopes (Contents/Code read & write). Prefer scoped, low-limit keys or a **local** model.
+- **No third-party analytics or trackers.**
+- **Transparent storage.** Inspect, edit, or clear every stored key from the **Your data & local storage** panel.
+
+> ⚠️ Because this is a client-side app, anyone with access to your browser profile can read your local data. Treat exported files and tokens accordingly, and clear storage on shared machines.
+
+---
+
+## Accessibility
+
+- Semantic landmarks, `aria-label`s, and `role` attributes throughout.
+- Full **keyboard** operability for navigation, palette, and slash menu.
+- **`prefers-reduced-motion`** honored — animations collapse gracefully.
+- Visible **`:focus-visible`** outlines.
+- **Print** stylesheet renders a clean, chrome-free page.
+- A `<noscript>` fallback explains the JavaScript requirement.
+
+---
+
+## Browser Support
+
+| Feature | Chrome | Edge | Firefox | Safari |
+| --- | :---: | :---: | :---: | :---: |
+| Core journaling | ✅ | ✅ | ✅ | ✅ |
+| Photos / compression | ✅ | ✅ | ✅ | ✅ |
+| AI / Sync (`fetch`) | ✅ | ✅ | ✅ | ✅ |
+| DOCX export | ✅ | ✅ | ✅ | ✅ |
+| **Dictation** (Web Speech API) | ✅ | ✅ | ⚠️ | ⚠️ |
+
+Dictation relies on the Web Speech API and is best supported in Chromium browsers.
+
+---
+
+## Development Guide
+
+The Daily is a single file, but it is organized into clearly commented sections.
+
+**Conventions**
+
+- Keep the app **dependency-free**; the only external script is `docx` (lazy, CDN) for Word export.
+- Prefer the existing helper primitives over new abstractions.
+- Style exclusively through **CSS custom properties** so themes stay consistent.
+- Never introduce behavior that transmits user data without explicit user action.
+- Guard optional features behind capability checks (`aiReady()`, `ghConfigured()`, `azConfigured()`).
+
+**Local loop**
+
+```bash
+git clone <your-fork>
+cd the-daily
+python -m http.server 8080   # edit index.html, refresh
+```
+
+**Manual test checklist**
+
+- [ ] Write, autosave, reload — entry persists.
+- [ ] Add/paste/drag a photo — inline embed + compression toast.
+- [ ] Switch days with `Shift`+`←/→` — correct entry loads.
+- [ ] Studio changes apply live and survive reload.
+- [ ] Export MD / JSON / DOCX / Email.
+- [ ] Configure + Test AI, GitHub, and Azure DevOps.
+- [ ] Sync a day, then open Constellation and confirm it appears.
+
+---
+
+## Project Structure
+
+```
+index.html
+├── <style>        Design tokens, themes, component styles, responsive + print
+├── markup
+│   ├── Top bar    Brand, day lens, primary nav (Studio · Browse · Sync · About)
+│   ├── Hero       Stardate, greeting, streak ribbon
+│   ├── Stage      Prompt, writer (rich contenteditable), meta, capture rail,
+│   │              mood, toolbar, tags, export bar
+│   ├── Studio     Reading Studio drawer (Paper · Type · Comfort)
+│   ├── Modals     Capture, Builder, Compose, Patterns, About, AI, Sync
+│   └── Constellation  Full-screen graph + detail panel
+└── <script>
+    ├── Core           storage, helpers, rich media canvas
+    ├── Reading Studio  palettes, pairings, theme application
+    ├── Content         prompts, feelings, tags, mood, counts
+    ├── Photos          compression + inline embedding
+    ├── Voice/Compose   interview flow, calibration, drafting
+    ├── Patterns        analytics + AI synthesis
+    ├── AI              provider resolution + chat
+    ├── GitHub / Azure  repository sync
+    ├── Constellation   parse → graph → force layout → render
+    ├── Captures        structured artifacts + retrospectives
+    └── V1 layer        command palette, day nav, sources/snippets/links
+```
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause / fix |
+| --- | --- |
+| **AI "Could not reach…"** | Local model over `http://` from an `https://` page (mixed content). Open locally; enable CORS in LM Studio and restart. |
+| **GitHub 401 / 404** | Bad or unscoped token, or wrong owner/repo. Use a fine-grained token with Contents R/W on that repo. |
+| **Azure "Branch not found"** | Branch name mismatch — confirm the exact branch and that the repo is initialized. |
+| **DOCX export does nothing** | `docx` CDN blocked (tracking prevention). Allow `unpkg.com` or export Markdown/JSON instead. |
+| **"Storage full" toast** | `localStorage` quota reached (often from many photos). Export a backup, then clear old data. |
+| **Dictation unavailable** | Web Speech API needs Chrome/Edge. |
+
+---
+
+## Roadmap
+
+- [ ] Optional end-to-end encryption for local storage.
+- [ ] Import/restore from exported JSON and from a synced repo.
+- [ ] Full-text search across the synced repository (not just local).
+- [ ] Weekly/annual retrospective templates.
+- [ ] PWA install + offline app shell.
+- [ ] Additional export targets (PDF).
+
+> Ideas and pull requests are welcome — see **Contributing**.
+
+---
+
+## Contributing
+
+1. **Fork** and create a feature branch: `git checkout -b feature/your-idea`.
+2. Keep the app **single-file** and **dependency-free**.
+3. Run the **manual test checklist** above.
+4. Match the existing code style and commenting conventions.
+5. Open a PR with a clear description, screenshots for UI changes, and notes on privacy/security impact.
+
+Please file bugs and feature requests as issues with reproduction steps and browser/OS details.
+
+---
+
+## Versioning
+
+The Daily follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`). This document describes **v2.0**. Because the app is a single file, a release is simply a tagged `index.html`.
+
+---
+
+## License
+
+Released under the **MIT License** — free and open. Save it, share it, host it anywhere.
+
+```
+MIT License — © 2026 The Daily contributors
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction… (see LICENSE for full text)
+```
+
+---
+
+## Acknowledgments
+
+- **Typography:** Fraunces, Newsreader, Lora, Spectral, Caveat, Inter, IBM Plex Mono (Google Fonts).
+- **Word export:** [`docx`](https://github.com/dolanmiu/docx).
+- **Everyone who journals** — this is built so the page almost writes itself.
 
 <div align="center">
 
-**The Daily** — *Capture thoughts. Build understanding.*
-
-Made with care, so anyone on the planet can start journaling in sixty seconds.
+*Write a little. Understand a lot.*
 
 </div>
