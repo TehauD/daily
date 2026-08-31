@@ -323,6 +323,18 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
 .btn.sm{padding:8px 12px;font-size:12px}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .status{font-family:var(--mono);font-size:12px;min-height:16px;margin-top:8px;text-align:center;word-break:break-word}
+.sync-result{margin-top:12px;display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:12px;border:1px solid var(--line,#e6e6e6);background:var(--card,#f7f7f8);font-family:var(--sans);font-size:13px;line-height:1.45;text-align:left}
+.sync-result[hidden]{display:none}
+.sync-result .sr-ic{font-size:16px;line-height:1.2;flex:0 0 auto}
+.sync-result .sr-body{flex:1 1 auto;min-width:0}
+.sync-result .sr-title{font-weight:600}
+.sync-result .sr-meta{color:var(--faint);font-family:var(--mono);font-size:11px;word-break:break-all;margin-top:2px}
+.sync-result .sr-links{margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+.sync-result .sr-links a{font-weight:600;text-decoration:none;border-bottom:1px solid currentColor}
+.sync-result.ok{border-color:#bfe3cc}.sync-result.ok .sr-ic{color:#2e9e5b}
+.sync-result.err{border-color:#e6c3bc}.sync-result.err .sr-ic{color:#c0442e}
+.sync-result.info{border-color:#cdd7e6}.sync-result.info .sr-ic{color:var(--accent,#5a7ab0)}
+.sync-result .sr-x{flex:0 0 auto;background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;line-height:1;padding:2px}
 .status.ok{color:var(--ok)}.status.err{color:var(--err)}.status.info{color:var(--accent2)}
 .muted{color:var(--faint);font-size:12.5px}
 .ls-row{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
@@ -429,6 +441,18 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
 .feature{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--line2)}
 .feature .fi{font-size:19px;flex:none;width:26px;text-align:center}
 .feature b{font-size:14.5px}.feature span{display:block;color:var(--soft);font-size:13px}
+.sync-log{max-height:240px;overflow:auto;font-size:12px;display:flex;flex-direction:column;gap:4px;margin:4px 0}
+.sl-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start;padding:6px 8px;border-radius:8px;background:var(--card,#f6f6f7)}
+.sl-row .sl-path{font-weight:600;word-break:break-all}
+.sl-row .sl-meta{grid-column:2;color:var(--faint);font-weight:400}
+.sl-tag{grid-row:span 2;font-size:10px;font-weight:700;text-align:center;padding:3px 4px;border-radius:6px;color:#fff}
+.sl-new .sl-tag{background:#2e9e5b}.sl-upd .sl-tag{background:#5a7ab0}.sl-err .sl-tag{background:#c0442e}.sl-exp .sl-tag{background:#8a6d3b}
+.sync-log code{background:rgba(127,127,127,.16);padding:0 4px;border-radius:4px}
+.daylog{margin-top:16px;padding-top:12px;border-top:1px solid var(--line,#ececec);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.daylog-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-right:2px}
+.daylog-empty{font-size:12px;color:var(--faint)}
+.daylog-chip{font-size:12px;border:1px solid var(--line,#e6e6e6);background:var(--card,#f7f7f8);border-radius:999px;padding:4px 10px;cursor:pointer;display:inline-flex;gap:5px;align-items:center;color:var(--ink)}
+.daylog-chip:hover{border-color:var(--accent,#5a7ab0)}
 .warnbox{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid color-mix(in srgb,var(--warn) 34%,transparent);border-radius:11px;padding:12px 14px;font-size:12.5px;color:var(--ink);margin-top:14px}
 .tipbox{background:var(--accent-soft);border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:12.5px;color:var(--ink);margin-top:14px}
 .tipbox code{font-family:var(--mono);background:var(--paper);padding:1px 5px;border-radius:5px;font-size:11px}
@@ -545,7 +569,7 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
     <div class="page-date"><span class="dl" id="pageDate">Today</span><span class="dr" id="pageLoc">◎ —</span></div>
 
 
-    <div class="prompt" id="promptLine"><span class="q">✦</span><span id="promptText">What's on your mind today?</span><button class="re" onclick="nextPrompt()">↻ another</button></div>
+    <div class="prompt" id="promptLine"><span class="q">✦</span><span id="promptText">What are you building today?</span><button class="re" onclick="nextPrompt()">↻ another</button></div>
 
     <div class="writer" id="writer">
       <div class="ghost" id="ghost" aria-hidden="true"></div>
@@ -566,6 +590,7 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
 
     <div class="toolbar"><button class="tool primary" data-ai onclick="composeOpen()">✎ Compose</button><button class="tool slash-main" onclick="openSlash()">/ Commands <span class="kbd">/</span></button><span class="spacer"></span><button class="tool" id="micBtn" onclick="toggleDictation()" title="Dictate">◉</button><button class="tool" onclick="$('imgInput').click()" title="Photo">📷</button><input type="file" id="imgInput" accept="image/*" multiple style="display:none"></div>
     <div class="reflect" id="reflect"></div>
+    <div class="daylog" id="daylog"></div>
 
 <div style="flex:1"><div class="mk"></div>
 
@@ -580,12 +605,13 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
 
   <div class="close-wrap"><button class="close-day" onclick="closeTheDay()">🌙 Close the day</button></div>
   <div class="bar">
-    <button class="btn primary" onclick="saveToGitHub()">☁ Sync</button>
+    <button class="btn primary" id="syncBtn" onclick="syncRepositories()">☁ Sync</button>
     <button class="btn" onclick="saveJournal()">↓ Markdown</button>
     <button class="btn" onclick="saveJournalAsJson()">↓ JSON</button>
     <button class="btn" onclick="saveJournalAsDocx()">↓ DOCX</button>
     <button class="btn" onclick="saveJournalAsEmail()">✉ Email</button>
   </div>
+  <div id="syncResult" class="sync-result" hidden></div>
   <div id="ghStatus" class="status"></div>
 
   <details class="tuck"><summary>Your data &amp; local storage</summary>
@@ -753,8 +779,12 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
       <div class="bar" style="justify-content:flex-start"><button class="btn" onclick="saveAzureConfig()">Save Azure DevOps</button><button class="btn" onclick="testAzureConnection()">Test</button></div>
       <div id="azConfigStatus" class="status" style="text-align:left"></div>
     </div></details>
-    <div class="sync-footer"><button class="btn primary" id="syncNowBtn" onclick="syncRepositories()">Sync selected repositories</button><span class="muted">Local autosave remains active.</span></div>
+    <div class="sync-footer"><button class="btn primary" id="syncNowBtn" onclick="syncRepositories()">Sync selected repositories</button><button class="btn" onclick="promptNewEntry()">＋ New entry (any date)</button><span class="muted">Local autosave remains active.</span></div>
     <div id="syncStatus" class="status" style="text-align:left"></div>
+    <details class="provider-config" id="syncLogWrap"><summary><span>Sync activity</span><small class="muted">created vs. updated · commit SHA</small></summary><div class="provider-config-body">
+      <div id="syncLog" class="sync-log"></div>
+      <div class="bar" style="justify-content:flex-start"><button class="btn" onclick="renderSyncLog()">↻ Refresh</button><button class="btn" onclick="clearSyncLog()">Clear log</button></div>
+    </div></details>
   </div>
 </div></div>
 
@@ -796,7 +826,7 @@ input.f:focus,select.f:focus{border-color:var(--accent2);box-shadow:0 0 0 3px va
 <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
 <script>
 /* ============================================================ THE DAILY v8 · DEVELOPER WORKSPACE ============================================================ */
-const LS={entry:d=>'thedaily:entry:'+d,settings:'thedaily:settings',github:'thedaily:github',azure:'thedaily:azuredevops',sync:'thedaily:sync',ai:'thedaily:ai',prompt:'thedaily:promptIdx'};
+const LS={entry:d=>'thedaily:entry:'+d,settings:'thedaily:settings',github:'thedaily:github',azure:'thedaily:azuredevops',sync:'thedaily:sync',ai:'thedaily:ai',prompt:'thedaily:promptIdx',synclog:'thedaily:synclog'};
 const $=id=>document.getElementById(id);
 const val=id=>(($(id)&&$(id).value)||'').trim();
 const todayISO=()=>new Date().toISOString().slice(0,10);
@@ -808,9 +838,33 @@ let MEM={};
 const store={get(k){try{return localStorage.getItem(k);}catch{return MEM[k]??null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch(e){MEM[k]=v;if(e&&e.name==='QuotaExceededError')toast('Storage full — export to keep your data safe.');return false;}},remove(k){try{localStorage.removeItem(k);}catch{delete MEM[k];}},keys(){try{return Object.keys(localStorage);}catch{return Object.keys(MEM);}},clear(){try{localStorage.clear();}catch{}MEM={};}};
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function escLines(s){return esc(s).replace(/\n/g,'<br>');}
-function toast(msg){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:400;background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:13px;padding:11px 18px;border-radius:12px;box-shadow:0 12px 32px -12px rgba(0,0,0,.5);max-width:90vw;text-align:center';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._h);t._h=setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';},3200);}
+function toast(msg,action){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:400;background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:13px;padding:11px 18px;border-radius:12px;box-shadow:0 12px 32px -12px rgba(0,0,0,.5);max-width:90vw;text-align:center;display:flex;gap:12px;align-items:center;justify-content:center';document.body.appendChild(t);}t.innerHTML='';const span=document.createElement('span');span.textContent=msg;t.appendChild(span);if(action&&action.href){const a=document.createElement('a');a.textContent=action.label||'Open';a.href=action.href;a.target='_blank';a.rel='noopener';if(action.download)a.download=action.download;a.style.cssText='color:var(--paper);text-decoration:underline;font-weight:600;white-space:nowrap';t.appendChild(a);}t.style.opacity='1';clearTimeout(t._h);t._h=setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';},action?6000:3200);}
 function status(el,m,c){const e=$(el);if(!e)return;e.className='status '+(c||'');e.innerHTML=m;}
-function download(n,c,t){const b=c instanceof Blob?c:new Blob([c],{type:t||'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);}
+/* Persistent, at-the-button confirmation for sync + export. Stays until the next action or dismissal. */
+function showSyncResult(opts){
+  const el=$('syncResult');if(!el)return;
+  const cls=opts.cls||'info';
+  const ic=cls==='ok'?'✓':cls==='err'?'⚠':'…';
+  const meta=opts.meta?`<div class="sr-meta">${opts.meta}</div>`:'';
+  const links=(opts.links||[]).filter(Boolean).map(l=>`<a href="${l.href}" target="_blank" rel="noopener"${l.download?` download="${esc(l.download)}"`:''}>${esc(l.label)}</a>`).join('');
+  const linkRow=links?`<div class="sr-links">${links}</div>`:'';
+  el.className='sync-result '+cls;el.hidden=false;
+  el.innerHTML=`<span class="sr-ic">${ic}</span><div class="sr-body"><div class="sr-title">${opts.title||''}</div>${meta}${linkRow}</div><button class="sr-x" title="Dismiss" onclick="$('syncResult').hidden=true">✕</button>`;
+}
+function download(n,c,t){const b=c instanceof Blob?c:new Blob([c],{type:t||'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return {name:n,url:u,size:b.size};}
+/* Local export confirmation: shows filename, size, and where the browser saved it, with an Open affordance. */
+function humanBytes(n){if(!n&&n!==0)return'';if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB';}
+function confirmExport(kind,res){
+  if(!res||!res.name)return;
+  const where='Downloads folder';
+  const size=res.size!=null?` · ${humanBytes(res.size)}`:'';
+  const line=`Exported ✓ ${kind} — <code>${esc(res.name)}</code>${size}<br><span class="muted">Saved to your ${where}.</span>`+(res.url?` <a href="${res.url}" target="_blank" rel="noopener" download="${esc(res.name)}">open ↗</a>`:'');
+  status('ghStatus',line,'ok');
+  showSyncResult({cls:'ok',title:`Exported ${kind}`,meta:`${esc(res.name)}${res.size!=null?' · '+humanBytes(res.size):''} · saved to your Downloads folder`,links:[res.url?{label:'Open file ↗',href:res.url,download:res.name}:null]});
+  recordSync({provider:'Export',path:res.name,action:'exported',status:'ok',bytes:res.size||0});
+  toast(`${kind} exported: ${res.name}`, res.url?{label:'Open',href:res.url,download:res.name}:null);
+}
+
 
 /* ============================================================ INLINE RICH MEDIA CANVAS ============================================================ */
 const IMAGE_TOKEN_RE=/\[\[image:([^\]]+)\]\]/g;
@@ -922,13 +976,13 @@ function wireStudioRanges(){
 const focusCSS=document.createElement('style');focusCSS.textContent=`body.focusmode .top,body.focusmode .hero,body.focusmode .toolbar,body.focusmode .sec,body.focusmode .feelings,body.focusmode .marker,body.focusmode .tagbar,body.focusmode .tuck,body.focusmode .close-wrap,body.focusmode .bar,body.focusmode .foot{opacity:.28;transition:opacity .4s;filter:saturate(.7)}body.focusmode .page:hover ~ *,body.focusmode .toolbar:hover,body.focusmode .top:hover{opacity:1}body.focusmode .writer:focus-within{}body.focusmode .page{box-shadow:0 30px 90px -40px var(--glow1)}`;document.head.appendChild(focusCSS);
 
 /* ============================================================ CONTENT ============================================================ */
-const PROMPTS_BASE=["What's on your mind today?","What challenged you — and how did you meet it?","Who did you connect with, and how did it feel?","What's one thing you're grateful for right now?","Describe a small moment you want to remember.","What gave you energy today? What drained it?","What did you learn about yourself today?","If today had a title, what would it be?","What's weighing on you? Let it out here.","When did you feel most like yourself today?","What's something you're proud of, however small?","What's a thought you keep returning to?","What felt hard, and what got you through it?","Where did you notice beauty today?","What would make tomorrow feel good?"];
-const PROMPTS_MORNING=["What are you hoping for today?","How do you want to feel by tonight?","What's one thing that would make today good?","What are you carrying into today?"];
-const PROMPTS_EVENING=["How did today actually go?","What are you letting go of tonight?","What was the best part of today?","What do you want to leave behind before sleep?"];
+const PROMPTS_BASE=["What are you building today?","What problem are you solving right now?","What did you ship or move forward?","What did you learn that changed your approach?","What decision did you make — and why?","What experiment are you running?","Where did you get stuck, and how did you get unstuck?","What idea is worth capturing before you lose it?","What was today's win, however small?","What would future-you want to remember about today?","What's the next smallest step?","What assumption did you test today?"];
+const PROMPTS_MORNING=["What's the one thing to ship today?","What's the hardest problem on deck?","What would make today a win?","What are you setting out to prove?"];
+const PROMPTS_EVENING=["What did you actually ship today?","What did you learn worth keeping?","What decision are you carrying into tomorrow?","What loose end needs a note before you stop?"];
 function promptPool(){const h=new Date().getHours();return h<11?PROMPTS_MORNING.concat(PROMPTS_BASE):h>=18?PROMPTS_EVENING.concat(PROMPTS_BASE):PROMPTS_BASE;}
-const STARTERS=["Today I ","I felt ","Right now I'm noticing ","I'm grateful that ","A small win was ","I keep thinking about ","What surprised me was ","I want to remember ","Tomorrow I hope to ","Honestly, "];
+const STARTERS=["Today I built ","I'm exploring ","The problem I'm solving is ","A win today was ","I learned that ","I'm stuck on ","An idea worth testing: ","Next I want to ","I shipped ","Note to future me: "];
 const FEELINGS=["Calm","Happy","Grateful","Tired","Anxious","Excited","Sad","Proud","Hopeful","Stressed","Content","Loved","Lonely","Motivated","Overwhelmed","Peaceful"];
-const AFFIRMATIONS=["You showed up. That's what matters.","One honest page is enough.","Rest is part of the work.","Tomorrow gets a fresh page.","You met the day. Be proud.","Small steps still move you forward."];
+const AFFIRMATIONS=["Ship it. Iterate tomorrow.","One commit is progress.","Done beats perfect.","Small PRs, steady wins.","You moved the work forward.","Learning counts as output."];
 const MOOD_LABELS=['','Rough','Low','Neutral','Good','Great'];
 const MOOD_TIPS=['','Rough days matter too. Be gentle.','A low day — you still showed up.','A steady, neutral day.','A good day. Savor it.','A great day. Remember this.'];
 let selectedFeelings=new Set(),tags=[],mood=0,promptIdx=0,POOL=PROMPTS_BASE,entryImages=[];
@@ -973,18 +1027,58 @@ function dayHasEntry(iso){const raw=store.get(LS.entry(iso));if(!raw)return fals
 function computeStreak(){let n=0;const d=new Date();for(;;){const iso=d.toISOString().slice(0,10);if(dayHasEntry(iso)){n++;d.setDate(d.getDate()-1);}else{if(n===0&&iso===todayISO()){d.setDate(d.getDate()-1);continue;}break;}}$('streak').textContent=n;return n;}
 function renderWeekRing(){const c=$('weekring');c.innerHTML='';const today=new Date();for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const iso=d.toISOString().slice(0,10);const dot=document.createElement('div');dot.className='wd'+(dayHasEntry(iso)?' on':'')+(i===0?' today':'');dot.title=d.toLocaleDateString(undefined,{weekday:'short'});c.appendChild(dot);}}
 function allEntries(){const arr=[];store.keys().forEach(k=>{if(k.startsWith('thedaily:entry:')){try{const j=JSON.parse(store.get(k));if(j)arr.push(j);}catch{}}});return arr.sort((a,b)=>(a.date||'').localeCompare(b.date||''));}
-function collectEntry(){return {savedAt:new Date().toISOString(),date:val('date')||todayISO(),location:val('location'),mood,feelings:[...selectedFeelings],entry:val('entry'),grateful:val('grateful'),highlight:val('highlight'),intention:val('intention'),tags:[...tags],images:entryImages.map(im=>({id:im.id,name:im.name,mime:im.mime,dataUrl:im.dataUrl,w:im.w,h:im.h,size:im.size,ghUrl:im.ghUrl,ghName:im.ghName,azPath:im.azPath,azCommit:im.azCommit,azRepoKey:im.azRepoKey}))};}
-function restoreEntry(e){if(!e)return;if($('location'))$('location').value=e.location||'';entryImages=e.images||[];if($('entry'))$('entry').value=e.entry||'';['grateful','highlight','intention'].forEach(f=>{if($(f))$(f).value=e[f]||'';});mood=e.mood||0;setMood(mood);selectedFeelings=new Set(e.feelings||[]);renderFeelings();tags=e.tags||[];renderTags();renderImages();updateCounts();if($('pageLoc'))$('pageLoc').textContent=e.location?'◎ '+e.location:'◎ —';}
+// Unified history model: local entries take precedence over repository entries for the same date.
+let repoHistoryPromise=null;
+function normalizeKnownEntry(e,source){
+  if(!e||!e.date)return null;
+  return {
+    date:e.date,
+    savedAt:e.savedAt||'',
+    location:e.location||'',
+    mood:e.mood||0,
+    feelings:Array.isArray(e.feelings)?e.feelings:[],
+    entry:e.entry!=null?e.entry:(e.text||''),
+    idea:e.idea||'',
+    project:e.project||e.intention||'',
+    learn:e.learn||e.grateful||'',
+    win:e.win||e.highlight||'',
+    tags:Array.isArray(e.tags)?e.tags:[],
+    images:Array.isArray(e.images)?e.images:[],
+    local:source==='local'||!!e.local,
+    source,
+    htmlUrl:e.htmlUrl||''
+  };
+}
+function getAllKnownEntries(){
+  const byDate=new Map();
+  (CONST.entries||[]).forEach(e=>{const n=normalizeKnownEntry(e,'repo');if(n)byDate.set(n.date,n);});
+  allEntries().forEach(e=>{const n=normalizeKnownEntry(e,'local');if(n)byDate.set(n.date,n);});
+  return [...byDate.values()].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+function repoHistoryConfigured(){const c=getGH();return !!(c.token&&c.owner&&c.repo);}
+async function ensureRepoHistory(force=false){
+  if(!repoHistoryConfigured())return getAllKnownEntries();
+  if(!force&&CONST.entries&&CONST.entries.length)return getAllKnownEntries();
+  if(repoHistoryPromise&&!force)return repoHistoryPromise;
+  repoHistoryPromise=(async()=>{await constLoad(force);return getAllKnownEntries();})();
+  try{return await repoHistoryPromise;}finally{repoHistoryPromise=null;}
+}
+function collectEntry(){return {savedAt:new Date().toISOString(),date:val('date')||todayISO(),location:val('location'),mood,feelings:[...selectedFeelings],entry:val('entry'),tags:[...tags],images:entryImages.map(im=>({id:im.id,name:im.name,mime:im.mime,dataUrl:im.dataUrl,w:im.w,h:im.h,size:im.size,ghUrl:im.ghUrl,ghName:im.ghName,azPath:im.azPath,azCommit:im.azCommit,azRepoKey:im.azRepoKey}))};}
+function restoreEntry(e){if(!e)return;if($('location'))$('location').value=e.location||'';entryImages=e.images||[];if($('entry'))$('entry').value=e.entry||'';renderDayLog();mood=e.mood||0;setMood(mood);selectedFeelings=new Set(e.feelings||[]);renderFeelings();tags=e.tags||[];renderTags();renderImages();updateCounts();if($('pageLoc'))$('pageLoc').textContent=e.location?'◎ '+e.location:'◎ —';}
 let saveTimer=null;
-function scheduleSave(){clearTimeout(saveTimer);const sd=$('savedot');sd.classList.remove('saved');$('autosave').lastChild.textContent='saving…';saveTimer=setTimeout(()=>{const d=val('date')||todayISO();store.set(LS.entry(d),JSON.stringify(collectEntry()));sd.classList.add('saved');$('autosave').lastChild.textContent='saved';computeStreak();renderWeekRing();},500);}
+function scheduleSave(){clearTimeout(saveTimer);const sd=$('savedot');sd.classList.remove('saved');$('autosave').lastChild.textContent='saving…';saveTimer=setTimeout(()=>{const d=val('date')||todayISO();store.set(LS.entry(d),JSON.stringify(collectEntry()));sd.classList.add('saved');$('autosave').lastChild.textContent='saved';computeStreak();renderWeekRing();renderDayLog();},500);}
 function loadEntry(d){try{return JSON.parse(store.get(LS.entry(d)));}catch{return null;}}
 function flushSave(){clearTimeout(saveTimer);const d=val('date')||todayISO();store.set(LS.entry(d),JSON.stringify(collectEntry()));const sd=$('savedot');if(sd)sd.classList.add('saved');const a=$('autosave');if(a&&a.lastChild)a.lastChild.textContent='saved';}
 function setPageDate(){const d=val('date')||todayISO();const dt=new Date(d+'T12:00');if($('pageDate'))$('pageDate').textContent=dt.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});}
 
-function buildMarkdown(mode){mode=mode||'local';const e=collectEntry();const moods=['—','😔 Rough','😕 Low','😐 Neutral','🙂 Good','😄 Great'];const feel=e.feelings.length?e.feelings.join(', '):'—';const tg=e.tags.length?e.tags.map(t=>'#'+t).join(' '):'—';const used=new Set();const imageMarkdown=im=>{if(!im)return'';used.add(im.id);if(mode==='email')return `[Image: ${im.name||'photo'}]`;if(mode==='sync')return im.ghUrl?`![${im.name||'Photo'}](${im.ghUrl})`:`[Image pending GitHub sync: ${im.name||'photo'}]`;if(mode==='azure'){const az=getAZ(),folder=(az.path||'journal').replace(/^\/|\/$/g,'');const rel=`./images/${e.date}/${im.id}.jpg`;return `![${im.name||'Photo'}](${rel})`;}return `![${im.name||'Photo'}](${im.dataUrl})`;};let body=(e.entry||'_(no entry)_').replace(IMAGE_TOKEN_RE,(_,id)=>imageMarkdown(e.images.find(im=>im.id===id)));const remaining=e.images.filter(im=>!used.has(im.id)).map(imageMarkdown).filter(Boolean);if(remaining.length)body+=`\n\n${remaining.join('\n\n')}`;return `# ${e.date}${e.location?` · ${e.location}`:''}\n\n**Mood:** ${moods[e.mood]||'—'}  \n**Feelings:** ${feel}\n\n${body}\n\n---\n\n◇ **Grateful for:** ${e.grateful||'—'}  \n◆ **Highlight:** ${e.highlight||'—'}  \n▷ **Tomorrow:** ${e.intention||'—'}  \n🏷 **Tags:** ${tg}\n\n_The Daily · ${new Date().toLocaleString()}_\n`;}
-function saveJournal(){download(`the-daily-${val('date')||todayISO()}.md`,buildMarkdown('local'),'text/markdown');}
-function saveJournalAsJson(){download(`the-daily-${val('date')||todayISO()}.json`,JSON.stringify(collectEntry(),null,2),'application/json');}
-function saveJournalAsEmail(){const d=val('date')||todayISO();location.href=`mailto:?subject=${encodeURIComponent('The Daily — '+d)}&body=${encodeURIComponent(buildMarkdown('email'))}`;}
+const CAPTURE_ORDER=[['IDEA','💡','Idea'],['EXPERIMENT','⚗','Experiment'],['DECISION','◆','Decision'],['LEARNING','▣','Learning'],['WIN','★','Win'],['MEMORY','⬡','Memory']];
+function captureCounts(text,date){const arts=parseArts(text||'',date||val('date')||todayISO());const c={};arts.forEach(a=>c[a.type]=(c[a.type]||0)+1);return c;}
+function captureSummary(text){const c=captureCounts(text);return CAPTURE_ORDER.filter(o=>c[o[0]]).map(o=>`${o[1]} ${c[o[0]]} ${o[2]}${c[o[0]]>1?'s':''}`).join(' · ');}
+function renderDayLog(){const el=$('daylog');if(!el)return;const c=captureCounts(val('entry'));const total=CAPTURE_ORDER.reduce((n,o)=>n+(c[o[0]]||0),0);if(!total){el.innerHTML='<span class="daylog-empty">No structured captures yet — press <b>/</b> to capture an Idea, Experiment, Decision, Learning, Win, or Memory.</span>';return;}el.innerHTML='<span class="daylog-label">Captured</span>'+CAPTURE_ORDER.filter(o=>c[o[0]]).map(o=>`<button class="daylog-chip" onclick="openCapture('${o[0]}')"><span>${o[1]}</span> ${c[o[0]]} ${o[2]}${c[o[0]]>1?'s':''}</button>`).join('');}
+function buildMarkdown(mode){mode=mode||'local';const e=collectEntry();const moods=['—','😔 Rough','😕 Low','😐 Neutral','🙂 Good','😄 Great'];const feel=e.feelings.length?e.feelings.join(', '):'—';const tg=e.tags.length?e.tags.map(t=>'#'+t).join(' '):'—';const used=new Set();const imageMarkdown=im=>{if(!im)return'';used.add(im.id);if(mode==='email')return `[Image: ${im.name||'photo'}]`;if(mode==='sync')return im.ghUrl?`![${im.name||'Photo'}](${im.ghUrl})`:`[Image pending GitHub sync: ${im.name||'photo'}]`;if(mode==='azure'){const az=getAZ(),folder=(az.path||'journal').replace(/^\/|\/$/g,'');const rel=`./images/${e.date}/${im.id}.jpg`;return `![${im.name||'Photo'}](${rel})`;}return `![${im.name||'Photo'}](${im.dataUrl})`;};let body=(e.entry||'_(no entry)_').replace(IMAGE_TOKEN_RE,(_,id)=>imageMarkdown(e.images.find(im=>im.id===id)));const remaining=e.images.filter(im=>!used.has(im.id)).map(imageMarkdown).filter(Boolean);if(remaining.length)body+=`\n\n${remaining.join('\n\n')}`;return `# ${e.date}${e.location?` · ${e.location}`:''}\n\n**Mood:** ${moods[e.mood]||'—'}  \n**Feelings:** ${feel}\n\n${body}\n\n---\n\n**Captured:** ${captureSummary(e.entry)||'—'}  \n🏷 **Tags:** ${tg}\n\n_The Daily · ${new Date().toLocaleString()}_\n`;}
+function saveJournal(){const r=download(`the-daily-${val('date')||todayISO()}.md`,buildMarkdown('local'),'text/markdown');confirmExport('Markdown',r);}
+function saveJournalAsJson(){const r=download(`the-daily-${val('date')||todayISO()}.json`,JSON.stringify(collectEntry(),null,2),'application/json');confirmExport('JSON',r);}
+function saveJournalAsEmail(){const d=val('date')||todayISO();location.href=`mailto:?subject=${encodeURIComponent('The Daily — '+d)}&body=${encodeURIComponent(buildMarkdown('email'))}`;status('ghStatus',`Email draft opened ✓ <span class=\"muted\">The Daily — ${esc(d)} is ready in your mail client.</span>`,'ok');showSyncResult({cls:'ok',title:'Email draft opened',meta:`The Daily — ${esc(d)} is ready in your mail client.`});toast('Email draft opened');}
 function dataUrlToUint8Array(dataUrl){const base64=dataUrl.split(',')[1]||'';const bin=atob(base64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr;}
 function saveJournalAsDocx(){if(typeof docx==='undefined'){toast('DOCX library not loaded.');return;}const {Document,Packer,Paragraph,HeadingLevel,TextRun,ImageRun}=docx;const e=collectEntry();const d=e.date;const moods=['—','Rough','Low','Neutral','Good','Great'];const P=(t,o={})=>new Paragraph(Object.assign({children:[new TextRun(t||'—')]},o));const H=(t,l)=>new Paragraph({text:t,heading:l});const body=(e.entry||'').split(/\n+/).filter(Boolean).map(p=>P(p));
   const DOCX_MAX_W=520;
@@ -993,8 +1087,8 @@ function saveJournalAsDocx(){if(typeof docx==='undefined'){toast('DOCX library n
     photoBlocks.push(H('Photos',HeadingLevel.HEADING_1));
     e.images.forEach(im=>{try{if(!/^data:/.test(im.dataUrl)){photoBlocks.push(P('(photo linked online, not embedded: '+(im.ghUrl||im.dataUrl)+')'));return;}const w=Math.min(DOCX_MAX_W,im.w||DOCX_MAX_W);const h=Math.round(w*((im.h||w)/(im.w||w)));photoBlocks.push(new Paragraph({children:[new ImageRun({type:'jpg',data:dataUrlToUint8Array(im.dataUrl),transformation:{width:w,height:h}})]}));}catch(err){photoBlocks.push(P('(photo could not be embedded: '+im.name+')'));}});
   }
-  const doc=new Document({sections:[{children:[H(`${d}${e.location?' · '+e.location:''}`,HeadingLevel.TITLE),P(`Mood: ${moods[e.mood]||'—'}`),P(`Feelings: ${e.feelings.join(', ')||'—'}`),H('Entry',HeadingLevel.HEADING_1),...(body.length?body:[P('—')]),...photoBlocks,H('Markers',HeadingLevel.HEADING_1),P(`Grateful for: ${e.grateful||'—'}`),P(`Highlight: ${e.highlight||'—'}`),P(`Tomorrow: ${e.intention||'—'}`),P(`Tags: ${e.tags.map(t=>'#'+t).join(' ')||'—'}`)]}]});
-  Packer.toBlob(doc).then(b=>download(`the-daily-${d}.docx`,b));}
+  const doc=new Document({sections:[{children:[H(`${d}${e.location?' · '+e.location:''}`,HeadingLevel.TITLE),P(`Mood: ${moods[e.mood]||'—'}`),P(`Feelings: ${e.feelings.join(', ')||'—'}`),H('Entry',HeadingLevel.HEADING_1),...(body.length?body:[P('—')]),...photoBlocks,H('Captured',HeadingLevel.HEADING_1),P(`${captureSummary(e.entry)||'—'}`),P(`Tags: ${e.tags.map(t=>'#'+t).join(' ')||'—'}`)]}]});
+  Packer.toBlob(doc).then(b=>{const r=download(`the-daily-${d}.docx`,b);confirmExport('DOCX',r);});}
 
 /* ============================================================ COMPOSE ============================================================ */
 const CX_FALLBACK_Q=["What's the first thing that comes to mind about today?","What actually happened — walk me through a moment or two.","How did that leave you feeling?","Was there anything hard, or anything you're proud of?","Anything you want tomorrow-you to remember?"];
@@ -1056,23 +1150,188 @@ function acceptGhost(){if(!ghostText)return false;const e=$('entry');e.value=e.v
 /* ============================================================ GITHUB ============================================================ */
 function getGH(){try{return JSON.parse(store.get(LS.github))||{};}catch{return {};}}
 function fillGH(){const c=getGH();if($('ghOwner'))$('ghOwner').value=c.owner||'';if($('ghRepo'))$('ghRepo').value=c.repo||'';if($('ghBranch'))$('ghBranch').value=c.branch||'main';if($('ghPath'))$('ghPath').value=c.path||'journal';if($('ghToken'))$('ghToken').value=c.token||'';}
-function saveGitHubConfig(){store.set(LS.github,JSON.stringify({owner:val('ghOwner'),repo:val('ghRepo'),branch:val('ghBranch')||'main',path:(val('ghPath')||'journal').replace(/^\/|\/$/g,''),token:val('ghToken')}));saveSyncPrefs();status('ghConfigStatus','Saved ✓','ok');syncBadges();}
-function ghH(t){return {'Authorization':'Bearer '+t,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};}
-async function testGitHubConnection(){const c=getGH();if(!c.token||!c.owner||!c.repo){status('ghConfigStatus','Fill owner, repo & token, then Save.','err');return;}status('ghConfigStatus','Testing…','info');try{const r=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}`,{headers:ghH(c.token)});if(r.ok){const j=await r.json();status('ghConfigStatus',`Connected ✓ ${esc(j.full_name)}`,'ok');}else if(r.status===404)status('ghConfigStatus','Repo not found / no access (404).','err');else if(r.status===401)status('ghConfigStatus','Bad credentials (401).','err');else status('ghConfigStatus','Error '+r.status,'err');}catch(e){status('ghConfigStatus','Network error: '+esc(e.message),'err');}}
-async function uploadImageToGitHub(img,c,folder,branch,date){const filename=(img.ghName||(img.id+'.jpg'));const path=`${folder}/images/${date}/${filename}`;const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`;const base64content=(img.dataUrl.split(',')[1])||'';let sha;const g=await fetch(`${api}?ref=${encodeURIComponent(branch)}`,{headers:ghH(c.token)});if(g.ok)sha=(await g.json()).sha;const body={message:`Journal photo ${date}`,content:base64content,branch};if(sha)body.sha=sha;const p=await fetch(api,{method:'PUT',headers:ghH(c.token),body:JSON.stringify(body)});if(!p.ok){const e=await p.json().catch(()=>({}));throw new Error(`photo upload ${p.status}: ${e.message||'failed'}`);}const rawUrl=`https://raw.githubusercontent.com/${c.owner}/${c.repo}/${branch}/${path}`;return {rawUrl,filename};}
-async function saveToGitHub(){const c=getGH();if(!c.token||!c.owner||!c.repo){status('ghStatus','Set up Sync first (☁ in the top bar).','err');openModal('githubModal');return;}const d=val('date')||todayISO();const folder=(c.path||'journal').replace(/^\/|\/$/g,'');const branch=c.branch||'main';status('ghStatus','Syncing…','info');try{
+function persistGitHubForm(){
+  const current=getGH();
+  const c={owner:val('ghOwner')||current.owner||'',repo:val('ghRepo')||current.repo||'',branch:val('ghBranch')||current.branch||'main',path:(val('ghPath')||current.path||'journal').replace(/^\/|\/$/g,''),token:val('ghToken')||current.token||''};
+  store.set(LS.github,JSON.stringify(c));return c;
+}
+function saveGitHubConfig(){persistGitHubForm();invalidateRepoIndex();saveSyncPrefs();status('ghConfigStatus','Saved ✓','ok');syncBadges();}
+function ghH(t,accept='application/vnd.github+json'){return {'Authorization':'Bearer '+t,'Accept':accept,'X-GitHub-Api-Version':'2022-11-28'};}
+function ghWriteH(t){return {...ghH(t),'Content-Type':'application/json'};}
+async function responseText(res){try{return await res.text();}catch{return '';}}
+async function responseJson(res,context){
+  const raw=await responseText(res);
+  if(!raw)return {};
+  try{return JSON.parse(raw);}catch{
+    const preview=raw.replace(/\s+/g,' ').slice(0,120);
+    throw new Error(`${context||'GitHub'} returned a non-JSON response (${res.status}): ${preview}`);
+  }
+}
+async function ghMetadata(api,c,branch,pathHint){
+  const index=await loadRepoIndex(false);
+  const path=pathHint||decodeURIComponent(String(api).split('/contents/')[1]||'').split('?')[0];
+  const item=index.files.get(path);
+  return item?{sha:item.sha,path:item.path}:null;
+}
+async function ghPut(api,c,payload,context){
+  const res=await fetch(api,{method:'PUT',headers:ghWriteH(c.token),body:JSON.stringify(payload)});
+  if(!res.ok){const raw=await responseText(res);let message=raw;try{message=JSON.parse(raw).message||raw;}catch{}throw new Error(`GitHub ${res.status}: ${message.slice(0,220)||res.statusText}`);}
+  return responseJson(res,context||'GitHub update');
+}
+async function ghLiveSha(c,path,branch){
+  // Authoritative single-file SHA from the Contents API JSON envelope.
+  // cache:'no-store' + a cache-busting param defeat stale HTTP-cache reads (common on file:// origins),
+  // which otherwise return an old SHA and cause perpetual 409 conflicts on write.
+  const encoded=path.split('/').map(encodeURIComponent).join('/');
+  const bust=`t=${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${encoded}?ref=${encodeURIComponent(branch)}&${bust}`;
+  const res=await fetch(url,{headers:ghH(c.token,'application/vnd.github+json'),cache:'no-store'});
+  if(res.status===404)return null;
+  if(!res.ok){const raw=await responseText(res);let detail=raw;try{detail=JSON.parse(raw).message||raw;}catch{}throw new Error(`GitHub file lookup ${res.status}: ${String(detail).slice(0,200)||res.statusText}`);}
+  const data=await responseJson(res,'GitHub file lookup');
+  if(Array.isArray(data))throw new Error(`Path ${path} is a directory, not a journal file.`);
+  return data&&typeof data.sha==='string'?data.sha:null;
+}
+async function ghCommitFile(c,path,branch,message,base64content){
+  // Deterministic create-or-update. Resolve the live SHA, then loop against fresh SHAs on 409.
+  const encoded=path.split('/').map(encodeURIComponent).join('/');
+  const api=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${encoded}`;
+  const build=x=>{const b={message,content:base64content,branch};if(x)b.sha=x;return b;};
+  let sha=await ghLiveSha(c,path,branch);
+  let existed=!!sha;
+  for(let attempt=0;attempt<4;attempt++){
+    try{
+      const result=await ghPut(api,c,build(sha),`GitHub commit ${path}`);
+      const commitSha=result&&result.commit&&result.commit.sha||'';
+      const contentSha=result&&result.content&&result.content.sha||'';
+      const commitUrl=result&&result.commit&&result.commit.html_url||'';
+      return {result,existed,action:existed?'updated':'created',commitSha,contentSha,commitUrl,path};
+    }catch(e){
+      if(!/\b409\b/.test(e.message||'')||attempt===3)throw e;
+      await new Promise(r=>setTimeout(r,300*(attempt+1)));
+      const fresh=await ghLiveSha(c,path,branch);
+      // If GitHub reports the very SHA we just sent, extract the expected SHA from the error and use it.
+      const m=/does not match\s+([0-9a-f]{7,40})/i.exec(e.message||'');
+      const expected=m?m[1]:null;
+      sha=fresh||expected||sha;existed=!!sha;
+    }
+  }
+  throw new Error(`GitHub commit ${path} failed after repeated conflicts.`);
+}
+const REPO_INDEX_TTL=60000;
+let REPO_INDEX={key:'',loadedAt:0,head:'',files:new Map(),promise:null};
+function repoKey(c){return [c.owner,c.repo,c.branch||'main',c.path||'journal'].join('|');}
+function repoJournalPath(date,c=getGH()){const folder=(c.path||'journal').replace(/^\/|\/$/g,'');return `${folder}/${date}.md`;}
+function invalidateRepoIndex(){REPO_INDEX={key:'',loadedAt:0,head:'',files:new Map(),promise:null};CONST.loadedOnce=false;CONST.entries=[];CONST.nodes=[];CONST.edges=[];CONST.nodeIndex={};}
+async function ghApiJson(url,c,context){
+  const res=await fetch(url,{headers:ghH(c.token,'application/vnd.github+json')});
+  if(!res.ok){const raw=await responseText(res);let detail=raw;try{detail=JSON.parse(raw).message||raw;}catch{}throw new Error(`${context||'GitHub'} ${res.status}: ${String(detail).slice(0,220)||res.statusText}`);}
+  return responseJson(res,context||'GitHub');
+}
+async function loadRepoIndex(force=false){
+  const c=getGH();if(!ghConfigured(c))throw new Error('GitHub is not configured.');
+  const key=repoKey(c),fresh=REPO_INDEX.key===key&&Date.now()-REPO_INDEX.loadedAt<REPO_INDEX_TTL&&REPO_INDEX.files.size;
+  if(!force&&fresh)return REPO_INDEX;
+  if(REPO_INDEX.promise&&!force)return REPO_INDEX.promise;
+  REPO_INDEX.promise=(async()=>{
+    const branch=c.branch||'main';
+    const refUrl=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/git/ref/heads/${branch.split('/').map(encodeURIComponent).join('/')}`;
+    const ref=await ghApiJson(refUrl,c,'GitHub branch');
+    const head=ref.object&&ref.object.sha;if(!head)throw new Error(`GitHub branch ${branch} did not return a commit SHA.`);
+    const treeUrl=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/git/trees/${encodeURIComponent(head)}?recursive=1`;
+    const tree=await ghApiJson(treeUrl,c,'GitHub tree');
+    if(tree.truncated)throw new Error('GitHub repository tree was truncated. Narrow the configured journal folder.');
+    const files=new Map();(tree.tree||[]).forEach(item=>{if(item.type==='blob'&&item.path)files.set(item.path,item);});
+    REPO_INDEX={key,loadedAt:Date.now(),head,files,promise:null};return REPO_INDEX;
+  })();
+  try{return await REPO_INDEX.promise;}finally{if(REPO_INDEX.promise)REPO_INDEX.promise=null;}
+}
+async function readRepoBlob(sha,c=getGH()){
+  const url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/git/blobs/${encodeURIComponent(sha)}`;
+  const blob=await ghApiJson(url,c,'GitHub blob');
+  if(blob.encoding!=='base64'||typeof blob.content!=='string')throw new Error('GitHub blob did not return Base64 content.');
+  return decodeBase64Utf8(blob.content);
+}
+async function loadRepoEntryByDate(date,force=false){
+  const c=getGH();if(!ghConfigured(c))return null;
+  const index=await loadRepoIndex(force),path=repoJournalPath(date,c),item=index.files.get(path);
+  if(!item)return null;
+  const markdown=await readRepoBlob(item.sha,c),parsed=parseEntryMarkdown(markdown,date);
+  parsed.sha=item.sha;parsed.path=path;parsed.htmlUrl=`https://github.com/${c.owner}/${c.repo}/blob/${c.branch||'main'}/${path}`;parsed.source='repo';
+  return parsed;
+}
+function repoEntryToLocal(e){return {date:e.date,location:e.location||'',mood:e.mood||0,feelings:e.feelings||[],entry:e.text||e.entry||'',idea:e.idea||'',project:e.project||'',learn:e.learn||'',win:e.win||'',tags:e.tags||[],images:(e.images||[]).map((u,i)=>typeof u==='string'?{id:`remote_${e.date}_${i}`,name:'photo',mime:'image/jpeg',dataUrl:u,w:0,h:0,size:0,ghUrl:u}:u)};}
+
+function decodeBase64Utf8(value){
+  const clean=String(value||'').replace(/\s/g,'');
+  const bytes=Uint8Array.from(atob(clean),c=>c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+async function ghResponseBody(res){
+  const raw=await res.text();
+  const type=(res.headers.get('content-type')||'').toLowerCase();
+  if(type.includes('application/json')||/^\s*[\[{]/.test(raw)){
+    let envelope;
+    try{envelope=JSON.parse(raw);}catch{return raw;}
+    if(envelope&&typeof envelope.content==='string')return decodeBase64Utf8(envelope.content);
+    if(typeof envelope==='string')return envelope;
+    return raw;
+  }
+  return raw;
+}
+async function ghReadTextFile(c,item,branch){
+  const api=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${item.path}?ref=${encodeURIComponent(branch)}`;
+  const res=await fetch(api,{headers:ghH(c.token)});
+  if(!res.ok){const detail=await res.text().catch(()=>'');throw new Error(`GitHub ${res.status} while reading ${item.path}${detail?': '+detail.slice(0,140):''}`);}
+  return ghResponseBody(res);
+}
+
+async function testGitHubConnection(){const c=persistGitHubForm();if(!c.token||!c.owner||!c.repo){status('ghConfigStatus','Fill owner, repo & token, then Save.','err');return;}status('ghConfigStatus','Testing…','info');try{const r=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}`,{headers:ghH(c.token)});if(r.ok){const j=await responseJson(r,'GitHub connection');status('ghConfigStatus',`Connected ✓ ${esc(j.full_name||c.owner+'/'+c.repo)}`,'ok');}else if(r.status===404)status('ghConfigStatus','Repo not found / no access (404).','err');else if(r.status===401)status('ghConfigStatus','Bad credentials (401).','err');else status('ghConfigStatus','Error '+r.status,'err');}catch(e){status('ghConfigStatus','Network error: '+esc(e.message),'err');}}
+async function uploadImageToGitHub(img,c,folder,branch,date){
+  const filename=img.ghName||(img.id+'.jpg');
+  const path=`${folder}/images/${date}/${filename}`;
+  const commit=await ghCommitFile(c,path,branch,`Journal photo ${date}`,(img.dataUrl.split(',')[1]||''));
+  return {rawUrl:`https://raw.githubusercontent.com/${c.owner}/${c.repo}/${branch}/${path}`,filename,action:commit.action,commitSha:commit.commitSha};
+}
+/* ---- Sync audit log (local, append-only, capped) ---- */
+const SYNC_LOG_MAX=200;
+function getSyncLog(){try{return JSON.parse(store.get(LS.synclog))||[];}catch{return[];}}
+function recordSync(entry){const log=getSyncLog();log.unshift(Object.assign({at:new Date().toISOString()},entry));if(log.length>SYNC_LOG_MAX)log.length=SYNC_LOG_MAX;store.set(LS.synclog,JSON.stringify(log));renderSyncLog();return entry;}
+function clearSyncLog(){store.remove(LS.synclog);renderSyncLog();}
+function renderSyncLog(){const el=$('syncLog');if(!el)return;const log=getSyncLog();if(!log.length){el.innerHTML='<div class="muted" style="padding:6px 0">No sync activity yet.</div>';return;}
+  el.innerHTML=log.map(e=>{const when=new Date(e.at).toLocaleString();const tag=e.action==='created'?'NEW':e.action==='updated'?'UPD':e.action==='exported'?'EXP':(e.action||'').toUpperCase();const cls=e.status==='error'?'sl-err':(e.action==='created'?'sl-new':e.action==='exported'?'sl-exp':'sl-upd');const sha=e.commitSha?` · <code>${esc(e.commitSha.slice(0,7))}</code>`:'';const detail=e.status==='error'?` — ${esc(e.message||'failed')}`:'';return `<div class="sl-row ${cls}"><span class="sl-tag">${esc(tag||'—')}</span><span class="sl-path">${esc(e.provider||'')} ${esc(e.path||'')}</span><span class="sl-meta">${esc(when)}${sha}${detail}</span></div>`;}).join('');}
+async function saveToGitHub(){
+  const c=persistGitHubForm();
+  if(!c.token||!c.owner||!c.repo){status('ghStatus','Set up Sync first (☁ in the top bar).','err');openModal('githubModal');throw new Error('GitHub is not configured.');}
+  const d=val('date')||todayISO(),folder=(c.path||'journal').replace(/^\/|\/$/g,''),branch=c.branch||'main';
+  status('ghStatus','Syncing…','info');
+  try{
+    flushSave();
     const toUpload=entryImages.filter(im=>!im.ghUrl);
-    for(let i=0;i<toUpload.length;i++){status('ghStatus',`Uploading photos… (${i+1}/${toUpload.length})`,'info');const r=await uploadImageToGitHub(toUpload[i],c,folder,branch,d);toUpload[i].ghUrl=r.rawUrl;toUpload[i].ghName=r.filename;}
+    for(let i=0;i<toUpload.length;i++){
+      status('ghStatus',`Uploading photos… (${i+1}/${toUpload.length})`,'info');
+      const r=await uploadImageToGitHub(toUpload[i],c,folder,branch,d);
+      toUpload[i].ghUrl=r.rawUrl;toUpload[i].ghName=r.filename;
+      recordSync({provider:'GitHub',path:`${folder}/images/${d}/${r.filename}`,action:r.action||'created',commitSha:r.commitSha||'',status:'ok'});
+    }
     if(toUpload.length){flushSave();renderImages();}
-    const file=`${folder}/${d}.md`;const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${file}`;
-    let sha;const g=await fetch(`${api}?ref=${encodeURIComponent(branch)}`,{headers:ghH(c.token)});if(g.ok)sha=(await g.json()).sha;
-    const body={message:`Journal ${d}`,content:b64(buildMarkdown('sync')),branch};if(sha)body.sha=sha;
-    const p=await fetch(api,{method:'PUT',headers:ghH(c.token),body:JSON.stringify(body)});
-    if(p.ok){const j=await p.json();const link=j.content&&j.content.html_url;const photoNote=entryImages.length?` + ${entryImages.length} photo${entryImages.length>1?'s':''}`:'';status('ghStatus',(sha?'Updated':'Saved')+` ✓ ${esc(file)}${photoNote}`+(link?` — <a href="${link}" target="_blank" rel="noopener">view ↗</a>`:''),'ok');}
-    else{const e=await p.json().catch(()=>({}));throw new Error(`GitHub ${p.status}: ${e.message||'failed'}`);}
-  }catch(e){status('ghStatus','Error: '+esc(e.message),'err');throw e;}}
-
-
+    const file=`${folder}/${d}.md`;
+    const commit=await ghCommitFile(c,file,branch,`Journal ${d}`,b64(buildMarkdown('sync')));
+    const link=commit.commitUrl||(commit.result.content&&commit.result.content.html_url)||'';
+    const photoNote=entryImages.length?` + ${entryImages.length} photo${entryImages.length>1?'s':''}`:'';
+    recordSync({provider:'GitHub',path:file,action:commit.action,commitSha:commit.commitSha,status:'ok',htmlUrl:link||''});
+    showSyncResult({cls:'ok',title:`${commit.existed?'Updated':'Created'} on GitHub${photoNote}`,meta:`${esc(file)}${commit.commitSha?' · '+esc(commit.commitSha.slice(0,7)):''}`,links:[link?{label:'View commit ↗',href:link}:null]});
+    status('ghStatus',(commit.existed?'Updated':'Created')+` ✓ ${esc(file)}${photoNote}`+(commit.commitSha?` · <code>${esc(commit.commitSha.slice(0,7))}</code>`:'')+(link?` — <a href="${link}" target="_blank" rel="noopener">view ↗</a>`:''),'ok');
+    store.remove('thedaily:constCache');store.remove('thedaily:constCache:v2');invalidateRepoIndex();
+    return {provider:'GitHub',path:file,htmlUrl:link||'',action:commit.action,commitSha:commit.commitSha};
+  }catch(e){
+    console.error('[The Daily] GitHub sync failed',e);
+    recordSync({provider:'GitHub',path:`${folder}/${d}.md`,action:'error',status:'error',message:e.message||String(e)});
+    showSyncResult({cls:'err',title:'Sync failed',meta:esc(e.message||String(e))});
+    status('ghStatus','Error: '+esc(e.message||String(e)),'err');
+    throw e;
+  }
+}
 /* ============================================================ REPOSITORY PROVIDERS — GITHUB + AZURE DEVOPS ============================================================ */
 function getSyncPrefs(){try{return Object.assign({github:true,azure:false},JSON.parse(store.get(LS.sync))||{});}catch{return{github:true,azure:false};}}
 function saveSyncPrefs(){const p={github:!!$('syncGitHub')?.checked,azure:!!$('syncAzure')?.checked};store.set(LS.sync,JSON.stringify(p));return p;}
@@ -1081,7 +1340,12 @@ function azConfigured(c=getAZ()){return !!(c.org&&c.project&&c.repo&&c.branch&&c
 function ghConfigured(c=getGH()){return !!(c.owner&&c.repo&&c.branch&&c.token);}
 function syncBadges(){const gb=$('ghReadyBadge'),ab=$('azReadyBadge');if(gb){gb.textContent=ghConfigured()?'Configured':'Not configured';gb.style.color=ghConfigured()?'var(--ok)':'';}if(ab){ab.textContent=azConfigured()?'Configured':'Not configured';ab.style.color=azConfigured()?'var(--ok)':'';}}
 function fillAzure(){const c=getAZ(),p=getSyncPrefs();if($('azOrg'))$('azOrg').value=c.org||'';if($('azProject'))$('azProject').value=c.project||'';if($('azRepo'))$('azRepo').value=c.repo||'';if($('azBranch'))$('azBranch').value=c.branch||'main';if($('azPath'))$('azPath').value=c.path||'journal';if($('azToken'))$('azToken').value=c.token||'';if($('syncGitHub'))$('syncGitHub').checked=p.github!==false;if($('syncAzure'))$('syncAzure').checked=!!p.azure;syncBadges();}
-function saveAzureConfig(){const c={org:val('azOrg'),project:val('azProject'),repo:val('azRepo'),branch:val('azBranch')||'main',path:(val('azPath')||'journal').replace(/^\/|\/$/g,''),token:val('azToken')};store.set(LS.azure,JSON.stringify(c));saveSyncPrefs();status('azConfigStatus','Saved ✓','ok');syncBadges();}
+function persistAzureForm(){
+  const current=getAZ();
+  const c={org:val('azOrg')||current.org||'',project:val('azProject')||current.project||'',repo:val('azRepo')||current.repo||'',branch:val('azBranch')||current.branch||'main',path:(val('azPath')||current.path||'journal').replace(/^\/|\/$/g,''),token:val('azToken')||current.token||''};
+  store.set(LS.azure,JSON.stringify(c));return c;
+}
+function saveAzureConfig(){persistAzureForm();saveSyncPrefs();status('azConfigStatus','Saved ✓','ok');syncBadges();}
 function azHeaders(token){return{'Authorization':'Basic '+btoa(':'+token),'Content-Type':'application/json','Accept':'application/json'};}
 function azBase(c){return `https://dev.azure.com/${encodeURIComponent(c.org)}/${encodeURIComponent(c.project)}/_apis/git/repositories/${encodeURIComponent(c.repo)}`;}
 async function azJson(url,opts={}){const r=await fetch(url,opts);const text=await r.text();let body={};try{body=text?JSON.parse(text):{};}catch{body={message:text};}if(!r.ok)throw new Error(`Azure DevOps ${r.status}: ${body.message||body.typeKey||'request failed'}`);return body;}
@@ -1089,10 +1353,14 @@ async function testAzureConnection(){saveAzureConfig();const c=getAZ();if(!azCon
 async function azPathExists(c,path){const u=`${azBase(c)}/items?path=${encodeURIComponent(path)}&versionDescriptor.versionType=branch&versionDescriptor.version=${encodeURIComponent(c.branch)}&api-version=7.1`;const r=await fetch(u,{headers:azHeaders(c.token)});if(r.status===404)return false;if(!r.ok){const t=await r.text();throw new Error(`Azure DevOps ${r.status}: ${t.slice(0,160)}`);}return true;}
 async function saveToAzureDevOps(){const c=getAZ();if(!azConfigured(c))throw new Error('Azure DevOps is not configured.');const d=val('date')||todayISO(),folder=(c.path||'journal').replace(/^\/|\/$/g,''),refName='refs/heads/'+c.branch,base=azBase(c),headers=azHeaders(c.token);status('syncStatus','Reading Azure DevOps branch…','info');const refs=await azJson(`${base}/refs?filter=${encodeURIComponent('heads/'+c.branch)}&api-version=7.1`,{headers});const ref=refs.value?.find(x=>x.name===refName)||refs.value?.[0];if(!ref?.objectId)throw new Error(`Azure DevOps branch ${c.branch} was not found.`);const changes=[],repoKey=[c.org,c.project,c.repo,c.branch,folder].join('|'),pendingImages=[];const newImages=entryImages.filter(im=>im.azRepoKey!==repoKey);for(let i=0;i<newImages.length;i++){const im=newImages[i],path=`/${folder}/images/${d}/${im.id}.jpg`;status('syncStatus',`Preparing Azure DevOps images… (${i+1}/${newImages.length})`,'info');changes.push({changeType:await azPathExists(c,path)?'edit':'add',item:{path},newContent:{content:(im.dataUrl.split(',')[1]||''),contentType:'base64encoded'}});pendingImages.push({im,path});}
 const journalPath=`/${folder}/${d}.md`;changes.push({changeType:await azPathExists(c,journalPath)?'edit':'add',item:{path:journalPath},newContent:{content:buildMarkdown('azure'),contentType:'rawtext'}});const payload={refUpdates:[{name:refName,oldObjectId:ref.objectId}],commits:[{comment:`Journal ${d}`,changes}]};status('syncStatus','Pushing journal and media to Azure DevOps…','info');const result=await azJson(`${base}/pushes?api-version=7.1`,{method:'POST',headers,body:JSON.stringify(payload)});const commit=result.commits?.[0]?.commitId||'';pendingImages.forEach(x=>{x.im.azPath=x.path;x.im.azRepoKey=repoKey;x.im.azCommit=commit;});flushSave();refreshInlineMedia();return {provider:'Azure DevOps',path:journalPath,commit};}
-async function syncRepositories(){const p=saveSyncPrefs(),jobs=[];if(!p.github&&!p.azure){status('syncStatus','Select at least one repository provider.','err');return;}if(p.github){if(!ghConfigured())jobs.push(Promise.reject(new Error('GitHub is selected but not configured.')));else jobs.push((async()=>{await saveToGitHub();return{provider:'GitHub'};})());}if(p.azure){if(!azConfigured())jobs.push(Promise.reject(new Error('Azure DevOps is selected but not configured.')));else jobs.push(saveToAzureDevOps());}const btn=$('syncNowBtn');if(btn)btn.disabled=true;status('syncStatus','Synchronizing selected repositories…','info');const results=await Promise.allSettled(jobs);if(btn)btn.disabled=false;const ok=results.filter(x=>x.status==='fulfilled'),bad=results.filter(x=>x.status==='rejected');if(bad.length)status('syncStatus',`${ok.length?ok.length+' provider synchronized. ':''}${bad.map(x=>esc(x.reason?.message||String(x.reason))).join('<br>')}`,'err');else status('syncStatus',`Synchronized ✓ ${ok.map(x=>esc(x.value.provider)).join(' + ')}`,'ok');syncBadges();}
+function syncStatusBoth(msg,cls){status('syncStatus',msg,cls);status('ghStatus',msg,cls);}
+async function syncRepositories(){persistGitHubForm();persistAzureForm();const p=saveSyncPrefs(),jobs=[];if(!p.github&&!p.azure){syncStatusBoth('Select at least one repository provider in Sync settings (☁).','err');showSyncResult({cls:'err',title:'No repository selected',meta:'Open Sync settings (☁) and enable GitHub or Azure DevOps.'});toast('No repository selected — open Sync settings.');openModal('githubModal');return;}if(p.github){if(!ghConfigured())jobs.push(Promise.reject(new Error('GitHub is selected but not configured.')));else jobs.push((async()=>{const r=await saveToGitHub();return Object.assign({provider:'GitHub'},r);})());}if(p.azure){if(!azConfigured())jobs.push(Promise.reject(new Error('Azure DevOps is selected but not configured.')));else jobs.push(saveToAzureDevOps());}const btn=$('syncNowBtn');if(btn)btn.disabled=true;syncStatusBoth('Synchronizing selected repositories…','info');showSyncResult({cls:'info',title:'Synchronizing selected repositories…'});const results=await Promise.allSettled(jobs);if(btn)btn.disabled=false;const ok=results.filter(x=>x.status==='fulfilled'),bad=results.filter(x=>x.status==='rejected');if(bad.length){const msg=`${ok.length?ok.length+' provider synchronized. ':''}${bad.map(x=>esc(x.reason?.message||String(x.reason))).join('<br>')}`;status('syncStatus',msg,'err');status('ghStatus',msg,'err');showSyncResult({cls:'err',title:'Some providers failed',meta:bad.map(x=>esc(x.reason?.message||String(x.reason))).join(' | ')});}else{
+    const lines=ok.map(x=>{const v=x.value||{};const verb=v.action==='created'?'Created':v.action==='updated'?'Updated':'Synchronized';const sha=v.commitSha?` · <code>${esc(v.commitSha.slice(0,7))}</code>`:'';const where=v.path?` ${esc(v.path)}`:'';const link=v.htmlUrl?` — <a href="${esc(v.htmlUrl)}" target="_blank" rel="noopener">view commit ↗</a>`:'';return `${verb} ✓ ${esc(v.provider||'')}${where}${sha}${link}`;});
+    const msg=lines.join('<br>');status('syncStatus',msg,'ok');status('ghStatus',msg,'ok');
+  }syncBadges();}
 
 /* ============================================================ CONSTELLATION — reads your GitHub repo, builds a star-map of entries & tags ============================================================ */
-const CONST_CACHE_KEY='thedaily:constCache';
+const CONST_CACHE_KEY='thedaily:constCache:v2';
 const CONST_MAX_ENTRIES=400;
 function loadConstCache(){try{return JSON.parse(store.get(CONST_CACHE_KEY))||{};}catch{return {};}}
 function saveConstCache(c){store.set(CONST_CACHE_KEY,JSON.stringify(c));}
@@ -1100,23 +1368,35 @@ function moodColor(m){return {1:'#d24b4b',2:'#c98a1e',3:'#7f93b8',4:'#2f9dd1',5:
 function cssId(s){return String(s).replace(/[^a-zA-Z0-9_-]/g,'_');}
 
 function parseEntryMarkdown(text,dateFallback){
-  const dateMatch=/^#\s*([0-9]{4}-[0-9]{2}-[0-9]{2})(?:\s*·\s*(.+))?/m.exec(text);
+  const source=String(text||'').replace(/\r\n?/g,'\n');
+  const dateMatch=/^#\s*([0-9]{4}-[0-9]{2}-[0-9]{2})(?:\s*·\s*(.+))?\s*$/m.exec(source);
   const date=dateMatch?dateMatch[1]:dateFallback;
   const location=dateMatch&&dateMatch[2]?dateMatch[2].trim():'';
-  const moodMatch=/\*\*Mood:\*\*\s*([^\n]+)/.exec(text);
+  const moodMatch=/\*\*Mood:\*\*\s*([^\n]+)/i.exec(source);
   let mood=0;
-  if(moodMatch){const label=moodMatch[1].trim();for(let i=1;i<MOOD_LABELS.length;i++){if(MOOD_LABELS[i]&&label.indexOf(MOOD_LABELS[i])>=0){mood=i;break;}}}
-  const feelMatch=/\*\*Feelings:\*\*\s*([^\n]+)/.exec(text);
-  const feelings=feelMatch&&feelMatch[1].trim()!=='—'?feelMatch[1].split(',').map(s=>s.trim()).filter(Boolean):[];
-  const tagMatch=/🏷\s*\*\*Tags:\*\*\s*([^\n]+)/.exec(text);
+  if(moodMatch){const label=moodMatch[1].trim().toLowerCase();for(let i=1;i<MOOD_LABELS.length;i++){if(MOOD_LABELS[i]&&label.includes(MOOD_LABELS[i].toLowerCase())){mood=i;break;}}}
+  const feelMatch=/\*\*Feelings:\*\*\s*([^\n]+)/i.exec(source);
+  const feelings=feelMatch&&!/^(?:—|-)\s*$/.test(feelMatch[1].trim())?feelMatch[1].split(',').map(s=>s.trim()).filter(Boolean):[];
+  const tagMatch=/🏷\s*\*\*Tags:\*\*\s*([^\n]+)/i.exec(source)||/\*\*Tags:\*\*\s*([^\n]+)/i.exec(source);
   const tags=tagMatch?[...tagMatch[1].matchAll(/#([^\s#]+)/g)].map(m=>m[1]):[];
-  const images=[...text.matchAll(/!\[Photo\]\(([^)]+)\)/g)].map(m=>m[1]);
-  let body='';
-  const afterFeel=feelMatch?text.slice(feelMatch.index+feelMatch[0].length):text;
-  const bodyMatch=/\n\n([\s\S]*?)\n\n---/.exec(afterFeel);
-  if(bodyMatch)body=bodyMatch[1].replace(/!\[Photo\]\([^)]*\)/g,'').trim();
-  if(body==='_(no entry)_')body='';
-  return {date,location,mood,feelings,tags,images,text:body};
+  const images=[...source.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map(m=>m[1].trim()).filter(Boolean);
+
+  // Remove only the generated metadata header, then stop at the generated marker divider.
+  let contentStart=0;
+  if(feelMatch)contentStart=feelMatch.index+feelMatch[0].length;
+  else if(moodMatch)contentStart=moodMatch.index+moodMatch[0].length;
+  else if(dateMatch)contentStart=dateMatch.index+dateMatch[0].length;
+  let remainder=source.slice(contentStart).replace(/^\s+/, '');
+  const divider=/^---\s*$/m.exec(remainder);
+  if(divider)remainder=remainder.slice(0,divider.index);
+  let body=remainder.replace(/!\[[^\]]*\]\([^)]+\)/g,'').trim();
+  if(/^_\(no entry\)_$/i.test(body))body='';
+  const pick=re=>{const m=re.exec(source);const v=m?m[1].trim():'';return /^—$/.test(v)?'':v;};
+  const idea=pick(/\*\*Idea:\*\*\s*([^\n]+)/i);
+  const project=pick(/\*\*Project:\*\*\s*([^\n]+)/i)||pick(/\*\*Tomorrow:\*\*\s*([^\n]+)/i);
+  const learn=pick(/\*\*Learn:\*\*\s*([^\n]+)/i)||pick(/\*\*Grateful for:\*\*\s*([^\n]+)/i);
+  const win=pick(/\*\*Win:\*\*\s*([^\n]+)/i)||pick(/\*\*Highlight:\*\*\s*([^\n]+)/i);
+  return {date,location,mood,feelings,tags,images,text:body,idea,project,learn,win};
 }
 function buildGraph(entries){
   const nodes=[],edges=[],tagMap={};
@@ -1163,7 +1443,7 @@ function renderConstellation(){
 function constToggleTagFocus(tagId){const svg=$('constSvg');const active=svg.dataset.activeTag===tagId?null:tagId;svg.dataset.activeTag=active||'';const connected=new Set();if(active){CONST.edges.forEach(e=>{if(e.target===active)connected.add(e.source);});connected.add(active);}svg.querySelectorAll('.const-node').forEach(elm=>elm.classList.toggle('dim',!!active&&!connected.has(elm.dataset.id)));svg.querySelectorAll('.const-tag').forEach(elm=>{elm.classList.toggle('active',elm.dataset.id===active);elm.classList.toggle('dim',!!active&&elm.dataset.id!==active);});svg.querySelectorAll('.const-edge').forEach(elm=>elm.classList.toggle('dim',!!active&&!(elm.dataset.a===active||elm.dataset.b===active)));}
 
 function parseRawGhUrl(url){const m=/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/.exec(url||'');if(!m)return null;return {owner:m[1],repo:m[2],branch:m[3],path:m[4]};}
-async function constImageBlobUrl(url){if(CONST.imgCache[url])return CONST.imgCache[url];const c=getGH();const parsed=parseRawGhUrl(url);if(!parsed||!c.token)throw new Error('no auth');const api=`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/contents/${parsed.path}?ref=${encodeURIComponent(parsed.branch)}`;const res=await fetch(api,{headers:Object.assign({},ghH(c.token),{'Accept':'application/vnd.github.raw'})});if(!res.ok)throw new Error('fetch failed '+res.status);const blob=await res.blob();const objUrl=URL.createObjectURL(blob);CONST.imgCache[url]=objUrl;return objUrl;}
+async function constImageBlobUrl(url){if(CONST.imgCache[url])return CONST.imgCache[url];const c=getGH();const parsed=parseRawGhUrl(url);if(!parsed||!c.token)throw new Error('no auth');const api=`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/contents/${parsed.path}?ref=${encodeURIComponent(parsed.branch)}`;const res=await fetch(api,{headers:ghH(c.token,'application/vnd.github.raw')});if(!res.ok)throw new Error('fetch failed '+res.status);const blob=await res.blob();const objUrl=URL.createObjectURL(blob);CONST.imgCache[url]=objUrl;return objUrl;}
 async function constHydrateThumbnails(){const svg=$('constSvg');if(!svg)return;const slots=[...svg.querySelectorAll('image[data-imgslot]')];let i=0;async function worker(){while(i<slots.length){const el=slots[i++];const id=el.getAttribute('data-imgslot');const node=CONST.nodeIndex[id];if(!node||!node.images||!node.images.length)continue;let u=node.images[0];try{u=await constImageBlobUrl(node.images[0]);}catch{}try{el.setAttributeNS('http://www.w3.org/1999/xlink','href',u);el.setAttribute('href',u);el.setAttribute('opacity','1');}catch{}}}await Promise.all(Array.from({length:Math.min(4,slots.length||1)},worker));}
 
 function constShowEmpty(title,msg,extraHtml){const el=$('constEmpty');if(!el)return;el.style.display='flex';el.innerHTML=`<h3>${esc(title)}</h3><p>${esc(msg)}</p>${extraHtml||''}`;}
@@ -1171,37 +1451,19 @@ function constShowSetupPrompt(){const el=$('constLoading');if(el)el.style.displa
 
 async function constLoad(force){
   const c=getGH();
-  if(!c.token||!c.owner||!c.repo){constShowSetupPrompt();return;}
-  $('constEmpty').style.display='none';$('constPanel').classList.remove('open');
-  $('constLoading').style.display='flex';$('constLoadingText').textContent='Reading your repo…';
+  if(!ghConfigured(c)){constShowSetupPrompt();return;}
+  $('constEmpty').style.display='none';$('constPanel').classList.remove('open');$('constLoading').style.display='flex';$('constLoadingText').textContent='Reading your repo…';
   try{
-    const folder=(c.path||'journal').replace(/^\/|\/$/g,'');const branch=c.branch||'main';
-    const listApi=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${folder}?ref=${encodeURIComponent(branch)}`;
-    const listRes=await fetch(listApi,{headers:ghH(c.token)});
-    let items=[];
-    if(listRes.ok)items=(await listRes.json()).filter(it=>it.type==='file'&&/\.md$/i.test(it.name));
-    else if(listRes.status!==404)throw new Error('Could not list repo folder ('+listRes.status+')');
-    const cache=force?{}:loadConstCache();
-    const parsedByDate={};const toFetch=[];
-    items.forEach(it=>{const dateStr=it.name.replace(/\.md$/i,'');if(!force&&cache[it.path]&&cache[it.path].sha===it.sha)parsedByDate[dateStr]=cache[it.path].parsed;else toFetch.push(it);});
-    let done=0;const CONC=5;let qi=0;
-    async function worker(){while(qi<toFetch.length){const it=toFetch[qi++];$('constLoadingText').textContent=`Reading entries… (${done+1}/${items.length})`;try{const res=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${it.path}?ref=${encodeURIComponent(branch)}`,{headers:Object.assign({},ghH(c.token),{'Accept':'application/vnd.github.raw'})});if(res.ok){const text=await res.text();const dateStr=it.name.replace(/\.md$/i,'');const parsed=parseEntryMarkdown(text,dateStr);parsed.htmlUrl=`https://github.com/${c.owner}/${c.repo}/blob/${branch}/${it.path}`;parsedByDate[dateStr]=parsed;cache[it.path]={sha:it.sha,parsed};}}catch(e){}done++;}}
-    await Promise.all(Array.from({length:Math.min(CONC,toFetch.length||1)},worker));
-    saveConstCache(cache);
-    const localDates=store.keys().filter(k=>k.startsWith('thedaily:entry:')).map(k=>k.replace('thedaily:entry:',''));
-    localDates.forEach(d=>{if(!parsedByDate[d]){const le=loadEntry(d);if(le&&((le.entry&&le.entry.trim())||le.mood||(le.feelings&&le.feelings.length)||(le.images&&le.images.length))){parsedByDate[d]={date:d,mood:le.mood||0,feelings:le.feelings||[],tags:le.tags||[],images:(le.images||[]).map(im=>photoSrc(im)),text:le.entry||'',location:le.location||'',local:true};}}});
-    let entries=Object.values(parsedByDate).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date));
-    let truncated=false;if(entries.length>CONST_MAX_ENTRIES){entries=entries.slice(-CONST_MAX_ENTRIES);truncated=true;}
-    CONST.entries=entries;
-    $('constSub').textContent=`${entries.length} day${entries.length===1?'':'s'} mapped`+(truncated?' · showing the most recent 400':'');
-    $('constLoading').style.display='none';
-    if(!entries.length){constShowEmpty('No entries yet','Write and sync a few days, then come back — your history will start mapping itself here.');return;}
-    const {nodes,edges}=buildGraph(entries);
-    CONST.nodes=nodes;CONST.edges=edges;CONST.nodeIndex={};nodes.forEach(n=>CONST.nodeIndex[n.id]=n);
-    forceLayout(nodes,edges,{w:1000,h:1000});
-    renderConstellation();wireConstPanZoom();
-    constHydrateThumbnails();
-  }catch(e){$('constLoading').style.display='none';constShowEmpty('Could not load your history',e.message);}
+    const index=await loadRepoIndex(!!force),folder=(c.path||'journal').replace(/^\/|\/$/g,''),re=new RegExp('^'+folder.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+'/([0-9]{4}-[0-9]{2}-[0-9]{2})\\.md$','i');
+    const items=[...index.files.values()].map(item=>{const m=re.exec(item.path);return m?{...item,date:m[1]}:null;}).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date));
+    const entries=[];let qi=0,done=0;async function worker(){while(qi<items.length){const item=items[qi++];$('constLoadingText').textContent=`Reading entries… (${done+1}/${items.length})`;try{const markdown=await readRepoBlob(item.sha,c),parsed=parseEntryMarkdown(markdown,item.date);parsed.sha=item.sha;parsed.path=item.path;parsed.htmlUrl=`https://github.com/${c.owner}/${c.repo}/blob/${c.branch||'main'}/${item.path}`;entries.push(parsed);}catch(e){console.error('[The Daily] Repository entry load failed',item.path,e);entries.push({date:item.date,mood:0,feelings:[],tags:[],images:[],text:'',location:'',path:item.path,sha:item.sha,loadError:e.message});}done++;}}
+    await Promise.all(Array.from({length:Math.min(5,items.length||1)},worker));
+    const byDate={};entries.forEach(e=>byDate[e.date]=e);store.keys().filter(k=>k.startsWith('thedaily:entry:')).forEach(k=>{const d=k.replace('thedaily:entry:','');if(!byDate[d]){const le=loadEntry(d);if(le&&((le.entry&&le.entry.trim())||le.mood||(le.feelings&&le.feelings.length)||(le.images&&le.images.length)))byDate[d]={date:d,mood:le.mood||0,feelings:le.feelings||[],tags:le.tags||[],images:(le.images||[]).map(im=>photoSrc(im)),text:le.entry||'',location:le.location||'',local:true};}});
+    let known=Object.values(byDate).sort((a,b)=>a.date.localeCompare(b.date)),truncated=false;if(known.length>CONST_MAX_ENTRIES){known=known.slice(-CONST_MAX_ENTRIES);truncated=true;}
+    CONST.entries=known;$('constSub').textContent=`${known.length} day${known.length===1?'':'s'} mapped`+(truncated?' · showing the most recent 400':'');$('constLoading').style.display='none';
+    if(!known.length){constShowEmpty('No entries yet','Write and sync a few days, then come back.');return;}
+    const graph=buildGraph(known);CONST.nodes=graph.nodes;CONST.edges=graph.edges;CONST.nodeIndex={};graph.nodes.forEach(n=>CONST.nodeIndex[n.id]=n);forceLayout(graph.nodes,graph.edges,{w:1000,h:1000});renderConstellation();wireConstPanZoom();constHydrateThumbnails();document.dispatchEvent(new CustomEvent('thedaily:repoLoaded',{detail:{count:known.length,force:!!force}}));
+  }catch(e){$('constLoading').style.display='none';document.dispatchEvent(new CustomEvent('thedaily:repoLoadFailed',{detail:{message:e.message}}));constShowEmpty('Could not load your history',e.message);throw e;}
 }
 function openConstellation(){$('constBack').classList.add('open');$('constPanel').classList.remove('open');wireConstPanZoom();if(!CONST.loadedOnce){CONST.loadedOnce=true;constLoad();}else if(CONST.nodes.length){renderConstellation();}}
 function closeConstellation(){$('constBack').classList.remove('open');}
@@ -1237,11 +1499,12 @@ function constLoadIntoEditor(nodeId){
 const ART={IDEA:{icon:'💡',fields:['Title','Problem','Why it matters','Proposed approach','Target user','Assumptions','Unknowns','Next experiment','Tags']},EXPERIMENT:{icon:'⚗',fields:['Title','Hypothesis','Independent variable','Controlled inputs','Success criteria','Method','Result','Learning','Decision triggered','Tags']},DECISION:{icon:'◆',fields:['Title','Status','Context','Decision','Alternatives considered','Rationale','Tradeoffs','Expected impact','Review trigger','Related','Tags']},LEARNING:{icon:'▣',fields:['Title','Topic','Insight','Evidence','Application','Open question','Tags']},WIN:{icon:'★',fields:['Title','Achievement','Impact','Who benefited','Evidence','Follow-on opportunity','Tags']},MEMORY:{icon:'⬡',fields:['Title','Subject','Context','Memory','Why it matters','Use when','Sensitivity','Tags']}};
 let CAPTYPE='IDEA';
 function openCapture(t){closeSlash();CAPTYPE=t;$('capTitle').textContent=ART[t].icon+' '+t[0]+t.slice(1).toLowerCase();$('capRaw').value='';$('capReview').style.display='none';$('capStatus').textContent='';openModal('captureModal');setTimeout(()=>$('capRaw').focus(),80);}
-function capObject(raw){const o={};ART[CAPTYPE].fields.forEach(f=>o[f]=f==='Title'?raw:(f==='Status'?'Proposed':(f==='Result'||f==='Learning'?'Pending':'')));return o;}
-function capMarkdown(o){let x=`> [!${CAPTYPE}]\n`;ART[CAPTYPE].fields.forEach(f=>x+=`> **${f}:** ${String(o[f]||'Pending').trim()}\n`);x+=`> **Artifact ID:** ${CAPTYPE.toLowerCase()}-${todayISO()}-${Math.random().toString(36).slice(2,7)}\n`;return x;}
+const STATUS_DEFAULT={IDEA:'Exploring',EXPERIMENT:'Running',DECISION:'Proposed',LEARNING:'Captured',WIN:'Done',MEMORY:'Noted'};const OPEN_STATES=['exploring','running','proposed','open','pending'];function capObject(raw){return {Title:raw,Status:STATUS_DEFAULT[CAPTYPE]||'Open'};}
+function capMarkdown(o){const label=CAPTYPE[0]+CAPTYPE.slice(1).toLowerCase();const id=`${CAPTYPE.toLowerCase()}-${todayISO()}-${Math.random().toString(36).slice(2,7)}`;const title=String(o.Title||'Untitled').trim();let x=`### ${ART[CAPTYPE].icon} ${label} — ${title}\n<!-- artifact:${id} -->\n\n`;x+=`- **Status:** ${String(o.Status||STATUS_DEFAULT[CAPTYPE]||'Open').trim()}\n`;ART[CAPTYPE].fields.forEach(f=>{if(f==='Title'||f==='Status')return;const v=String(o[f]||'').trim();if(v&&!/^pending$/i.test(v))x+=`- **${f}:** ${v}\n`;});return x;}
 function capTemplate(){const raw=$('capRaw').value.trim();if(!raw){status('capStatus','Add a starting thought.','err');return;}$('capDraft').value=capMarkdown(capObject(raw));$('capReview').style.display='block';capRelations();}
-async function capDevelop(){const raw=$('capRaw').value.trim();if(!raw){status('capStatus','Add a starting thought.','err');return;}if(!aiReady()){status('capStatus','AI is not connected. Using deterministic structure.','info');capTemplate();return;}status('capStatus','Enriching without inventing facts…','info');try{const fields=ART[CAPTYPE].fields;const prompt=`Type: ${CAPTYPE}\nInput: ${raw}\nExisting tags: ${allEntries().flatMap(e=>e.tags||[]).slice(-60).join(', ')}`;const r=await aiChat([{role:'system',content:`Return ONLY valid JSON with exactly these keys: ${fields.join(', ')}. Use only supplied facts. Use Pending for missing information. For ideas surface assumptions and a smallest experiment. For experiments require measurable success criteria and controls. For decisions include alternatives and tradeoffs. Never invent evidence, metrics, people, or results.`},{role:'user',content:prompt}],{max:900,temp:.2});const o=JSON.parse(r.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim());$('capDraft').value=capMarkdown(o);$('capReview').style.display='block';status('capStatus','Enriched. Review before insertion.','ok');capRelations();}catch(e){status('capStatus','AI output was invalid. Deterministic template loaded.','info');capTemplate();}}
-function parseArts(text,date){const out=[],re=/> \[!(IDEA|EXPERIMENT|DECISION|LEARNING|WIN|MEMORY)\]\n([\s\S]*?)(?=\n(?=> \[!|[^>])|$)/g;let m;while((m=re.exec(text||''))){const q=/\*\*Title:\*\*\s*([^\n]+)/.exec(m[2]);out.push({type:m[1],block:m[0],title:q?q[1].replace(/^>\s*/,'').trim():'Untitled',date});}return out;}
+async function capDevelop(){const raw=$('capRaw').value.trim();if(!raw){status('capStatus','Add a starting thought.','err');return;}if(!aiReady()){status('capStatus','AI is not connected. Using deterministic structure.','info');capTemplate();return;}status('capStatus','Enriching without inventing facts…','info');try{const fields=ART[CAPTYPE].fields;const prompt=`Type: ${CAPTYPE}\nInput: ${raw}\nExisting tags: ${allEntries().flatMap(e=>e.tags||[]).slice(-60).join(', ')}`;const r=await aiChat([{role:'system',content:`Return ONLY valid JSON with exactly these keys: ${fields.join(', ')}. Use only supplied facts. Leave a field blank if unknown; do not invent. For ideas surface assumptions and a smallest experiment. For experiments require measurable success criteria and controls. For decisions include alternatives and tradeoffs. Never invent evidence, metrics, people, or results.`},{role:'user',content:prompt}],{max:900,temp:.2});const o=JSON.parse(r.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim());$('capDraft').value=capMarkdown(o);$('capReview').style.display='block';status('capStatus','Enriched. Review before insertion.','ok');capRelations();}catch(e){status('capStatus','AI output was invalid. Deterministic template loaded.','info');capTemplate();}}
+function parseArts(text,date){const out=[],src=String(text||'');let m;const reNew=/^###\s+\S+\s+(Idea|Experiment|Decision|Learning|Win|Memory)\s+—\s+([^\n]+)\n<!--\s*artifact:([a-z]+-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+)\s*-->\n([\s\S]*?)(?=\n###\s|\n<!--\s*artifact:|$)/gim;while((m=reNew.exec(src))){out.push({type:m[1].toUpperCase(),title:m[2].trim(),id:m[3],block:m[0],date});}const reOld=/> \[!(IDEA|EXPERIMENT|DECISION|LEARNING|WIN|MEMORY)\]\n([\s\S]*?)(?=\n(?=> \[!|[^>])|$)/g;while((m=reOld.exec(src))){const q=/\*\*Title:\*\*\s*([^\n]+)/.exec(m[2]);out.push({type:m[1],block:m[0],title:q?q[1].replace(/^>\s*/,'').trim():'Untitled',date});}return out;}
+function artIsOpen(block){const st=/\*\*Status:\*\*\s*([^\n]+)/i.exec(block||'');if(st)return OPEN_STATES.includes(st[1].trim().toLowerCase());return /pending/i.test(block||'');}
 function allArts(){return allEntries().flatMap(e=>parseArts(e.entry,e.date)).sort((a,b)=>b.date.localeCompare(a.date));}
 function capRelations(){const d=$('capDraft').value.toLowerCase(),rels=allArts().map(a=>({...a,score:(a.block.toLowerCase().match(/[a-z0-9_-]{4,}/g)||[]).filter(w=>d.includes(w)).length})).filter(a=>a.score>1).sort((a,b)=>b.score-a.score).slice(0,3);$('capRelated').innerHTML=rels.length?'<label class="f">Related captures</label>'+rels.map(a=>`<div class="bitem"><span class="bkind">${esc(a.type)}</span><span>${esc(a.title)}</span><span class="bdate">${esc(a.date)}</span></div>`).join(''):'';}
 function capInsert(){const x=$('capDraft').value.trim();if(!x)return;const e=$('entry');e.value+=(e.value&&!/\n$/.test(e.value)?'\n\n':'')+x+'\n';updateCounts();scheduleSave();closeModal('captureModal');e.focus();caretEnd(e);}
@@ -1253,7 +1516,7 @@ async function pushRetro(){const r=window.__retro,c=getGH();if(!r||!c.token||!c.
 /* ============================================================ STORAGE / MODAL / RITUAL ============================================================ */
 function loadLocalStorage(){const c=$('ls-list');if(!c)return;c.innerHTML='';const keys=store.keys();if(!keys.length){c.innerHTML='<p class="muted">No entries yet.</p>';return;}keys.forEach(k=>{const row=document.createElement('div');row.className='ls-row';const key=document.createElement('div');key.className='k';key.textContent=k.replace('thedaily:','');const ta=document.createElement('textarea');ta.value=store.get(k);ta.addEventListener('change',()=>{store.set(k,ta.value);});row.appendChild(key);row.appendChild(ta);c.appendChild(row);});}
 function clearLocalStorage(){if(confirm('Clear ALL local storage? This erases entries and settings.')){store.clear();location.reload();}}
-function openModal(id){$(id).classList.add('open');}
+function openModal(id){$(id).classList.add('open');if(id==='githubModal'||id==='syncModal')renderSyncLog();}
 function closeModal(id){$(id).classList.remove('open');}
 function mbd(e,id){if(e.target===$(id))closeModal(id);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.mback.open').forEach(m=>m.classList.remove('open'));closeStudio();closeSlash();closeRitual();closeConstellation();}});
@@ -1283,7 +1546,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   e.addEventListener('keydown',ev=>{if($('slash').classList.contains('open')){if(ev.key==='ArrowDown'){ev.preventDefault();slashNav(1);return;}if(ev.key==='ArrowUp'){ev.preventDefault();slashNav(-1);return;}if(ev.key==='Enter'){ev.preventDefault();e.value=e.value.replace(/\/$/,'');slashRun();updateCounts();scheduleSave();return;}if(ev.key==='Escape'){closeSlash();return;}}if(ev.key==='Tab'&&ghostText){ev.preventDefault();acceptGhost();}else if(ev.key!=='Tab'&&ghostText){clearGhost();}});
   e.addEventListener('blur',()=>{setTimeout(()=>{clearGhost();closeSlash();},150);});
   e.addEventListener('scroll',()=>{$('ghost').scrollTop=e.scrollTop;});
-  ['grateful','highlight','intention'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',scheduleSave);});
+  
   $('location').addEventListener('input',e=>{if($('pageLoc'))$('pageLoc').textContent=e.target.value?'◎ '+e.target.value:'◎ —';scheduleSave();});
   $('date').addEventListener('change',ev=>{const en=loadEntry(ev.target.value);selectedFeelings=new Set();tags=[];mood=0;entryImages=[];if($('entry'))$('entry').value='';['grateful','highlight','intention','location'].forEach(f=>$(f)&&($(f).value=''));setPageDate();if(en)restoreEntry(en);else{renderFeelings();renderTags();renderImages();setMood(0);}updateCounts();});
   $('tagInput').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===','){ev.preventDefault();addTag(ev.target.value);ev.target.value='';}else if(ev.key==='Backspace'&&!ev.target.value&&tags.length){removeTag(tags.length-1);}});
@@ -1304,11 +1567,44 @@ function localDate(k){const p=k.split('-').map(Number);return new Date(p[0],p[1]
 function dateShift(k,n){const d=localDate(k);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function dayLabel(k){const t=todayISO();if(k===t)return'Today';if(k===dateShift(t,-1))return'Yesterday';if(k===dateShift(t,1))return'Tomorrow';return localDate(k).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
 function v1UpdateDate(){const k=val('date')||todayISO();$('dayCurrent').textContent=dayLabel(k);$('dayCurrent').classList.toggle('today',k===todayISO());$('dayCurrent').title=localDate(k).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('headerDateInput').value=k;}
-function v1OpenDay(k){flushSave();$('date').value=k;$('date').dispatchEvent(new Event('change'));v1UpdateDate();setTimeout(()=>$('entry').focus(),20);}
+async function newEntryForDate(dateStr){
+  // Author a net-new entry for an arbitrary date. If a repo/local entry already exists it loads it;
+  // otherwise it opens a blank editor whose first Sync creates a brand-new Git file at journal/<date>.md.
+  const d=(dateStr||'').trim();
+  if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(d)){status('ghStatus','Enter a date as YYYY-MM-DD.','err');return;}
+  await v1OpenDay(d);
+  const exists=!!loadEntry(d)||(repoHistoryConfigured()&&!!(await loadRepoEntryByDate(d,false).catch(()=>null)));
+  status('ghStatus',exists?`Editing existing entry for ${esc(d)}.`:`New entry for ${esc(d)} — Sync will create journal/${esc(d)}.md.`,exists?'info':'ok');
+}
+function promptNewEntry(){const d=prompt('Create or open an entry for which date? (YYYY-MM-DD)',todayISO());if(d)newEntryForDate(d);}
+async function v1OpenDay(k){
+  flushSave();$('date').value=k;
+  selectedFeelings=new Set();tags=[];mood=0;entryImages=[];$('entry').value='';['grateful','highlight','intention','location'].forEach(f=>$(f)&&($(f).value=''));setPageDate();v1UpdateDate();renderFeelings();renderTags();renderImages();setMood(0);updateCounts();
+  const local=loadEntry(k);
+  if(local){restoreEntry(local);setTimeout(()=>$('entry').focus(),20);return;}
+  if(repoHistoryConfigured()){
+    status('ghStatus',`Loading ${esc(k)} from repository…`,'info');
+    try{const remote=await loadRepoEntryByDate(k,false);if(remote){restoreEntry(repoEntryToLocal(remote));status('ghStatus',`Loaded ✓ ${esc(remote.path)}`,'ok');}else status('ghStatus',`No repository entry for ${esc(k)}.`,'info');}
+    catch(e){status('ghStatus',`Could not load ${esc(k)}: ${esc(e.message)}`,'err');}
+  }
+  updateCounts();setTimeout(()=>$('entry').focus(),20);
+}
 function v1WireDate(){v1UpdateDate();$('dayPrev').onclick=()=>v1OpenDay(dateShift(val('date')||todayISO(),-1));$('dayNext').onclick=()=>v1OpenDay(dateShift(val('date')||todayISO(),1));$('dayCurrent').onclick=()=>{const x=$('headerDateInput');if(x.showPicker)x.showPicker();else x.click();};$('headerDateInput').onchange=e=>e.target.value&&v1OpenDay(e.target.value);$('date').addEventListener('change',v1UpdateDate);}
-function artifactSummary(){const arts=allArts();return{entries:allEntries().filter(e=>e.entry&&e.entry.trim()).length,arts,open:arts.filter(a=>/Pending/i.test(a.block)).length};}
+function artifactSummary(){const arts=allArts();return{entries:getAllKnownEntries().filter(e=>e.entry&&e.entry.trim()).length,arts,open:arts.filter(a=>artIsOpen(a.block)).length};}
 function objectList(){const out=[];Object.values(V1OBJ.sources).forEach(x=>out.push({kind:'source',...x,text:x.content||x.type}));Object.values(V1OBJ.snippets).forEach(x=>out.push({kind:'snippet',...x,text:x.code}));Object.values(V1OBJ.links).forEach(x=>out.push({kind:'link',...x,text:(x.notes||'')+' '+x.url}));Object.values(V1OBJ.research).forEach(x=>out.push({kind:'research',...x,text:x.markdown}));return out.sort((a,b)=>b.created-a.created);}
-function openBrowseHub(tab='timeline'){$('builderBody').innerHTML='<div class="hub-tabs"><button class="hub-tab" data-hub="timeline">Timeline</button><button class="hub-tab" data-hub="projects">Projects</button><button class="hub-tab" data-hub="search">Search</button><button class="hub-tab" data-hub="brief">Briefing</button><button class="hub-tab" data-hub="sources">Sources</button><button class="hub-tab" data-hub="map">Map</button></div><div id="hubBody"></div>';openModal('builderModal');document.querySelector('#builderModal .mt').textContent='Browse';document.querySelector('#builderModal .ms').textContent='History and intelligence, when you need it';const draw=t=>{document.querySelectorAll('[data-hub]').forEach(b=>b.classList.toggle('active',b.dataset.hub===t));const h=$('hubBody');if(t==='timeline'){const es=allEntries().filter(e=>e.entry&&e.entry.trim()).sort((a,b)=>b.date.localeCompare(a.date));h.innerHTML='<div class="hub-list">'+(es.map(e=>`<button class="hub-item" data-day="${e.date}"><header><strong>${esc(new Date(e.date+'T12:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}))}</strong><span class="hub-badge">${(e.entry.match(/\S+/g)||[]).length} words</span></header><p>${esc(e.entry.slice(0,180))}</p></button>`).join('')||'<p class="muted">No entries yet.</p>')+'</div>';document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{closeModal('builderModal');v1OpenDay(b.dataset.day);});}if(t==='projects'){const tags=[...new Set(allEntries().flatMap(e=>e.tags||[]))];h.innerHTML='<div class="hub-list">'+(tags.map(tag=>{const es=allEntries().filter(e=>(e.tags||[]).includes(tag)).length,as=allArts().filter(a=>a.block.toLowerCase().includes('#'+tag.toLowerCase())).length;return`<div class="hub-item"><header><strong>#${esc(tag)}</strong><span class="hub-badge">${es} days</span></header><p>${as} structured captures</p></div>`}).join('')||'<p class="muted">Add tags to create projects.</p>')+'</div>';}if(t==='brief'){const s=artifactSummary();h.innerHTML=`<div class="bgrid"><div class="bstat"><b>${s.entries}</b><span>Days</span></div><div class="bstat"><b>${s.arts.length}</b><span>Captures</span></div><div class="bstat"><b>${s.open}</b><span>Open</span></div></div><div class="hub-list" style="margin-top:12px">${s.arts.filter(a=>/Pending/i.test(a.block)).slice(0,10).map(a=>`<div class="hub-item"><header><strong>${esc(a.title)}</strong><span class="hub-badge">${esc(a.type)}</span></header><p>Incomplete structured fields · ${esc(a.date)}</p></div>`).join('')||'<p class="muted">No open structured work.</p>'}</div>`;}if(t==='search'){h.innerHTML='<label class="f">Search everything</label><input class="f" id="hubSearch" placeholder="Entries, captures, code, files, links"><div id="hubResults" class="hub-list" style="margin-top:10px"></div>';$('hubSearch').oninput=()=>{const q=$('hubSearch').value.toLowerCase(),r=[];allEntries().forEach(e=>{if(((e.entry||'')+' '+(e.tags||[]).join(' ')).toLowerCase().includes(q))r.push({kind:'entry',id:e.date,title:e.date,text:e.entry})});allArts().forEach(a=>{if((a.title+' '+a.block).toLowerCase().includes(q))r.push({kind:a.type,id:a.date,title:a.title,text:a.block})});objectList().forEach(o=>{if((o.title+' '+o.text).toLowerCase().includes(q))r.push({kind:o.kind,id:o.id,title:o.title,text:o.text})});$('hubResults').innerHTML=q?r.slice(0,60).map(x=>`<button class="hub-item" data-result="${esc(x.kind+'|'+x.id)}"><header><strong>${esc(x.title)}</strong><span class="hub-badge">${esc(x.kind)}</span></header><p>${esc(String(x.text).slice(0,160))}</p></button>`).join(''):'';document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.result.split('|');if(k==='entry'){closeModal('builderModal');v1OpenDay(id);}else v1OpenObject(k,id);});};}if(t==='sources'){const os=objectList();h.innerHTML='<div class="hub-drop" id="sourceDrop">Drop files here or choose files<br><small>Text and code are indexed locally. Other files retain metadata.</small></div><div class="hub-grid">'+os.map(o=>`<button class="hub-item" data-obj="${esc(o.kind+'|'+o.id)}"><header><strong>${esc(o.title)}</strong><span class="hub-badge">${o.kind}</span></header><p>${esc(String(o.text).slice(0,120))}</p></button>`).join('')+'</div>';$('sourceDrop').onclick=()=>$('sourceInput').click();document.querySelectorAll('[data-obj]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.obj.split('|');v1OpenObject(k,id);});}if(t==='map'){closeModal('builderModal');openConstellation();}};document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>draw(b.dataset.hub));draw(tab);}
+function openBrowseHub(tab='timeline'){$('builderBody').innerHTML='<div class="hub-tabs"><button class="hub-tab" data-hub="timeline">Timeline</button><button class="hub-tab" data-hub="projects">Projects</button><button class="hub-tab" data-hub="search">Search</button><button class="hub-tab" data-hub="brief">Briefing</button><button class="hub-tab" data-hub="sources">Sources</button><button class="hub-tab" data-hub="map">Map</button></div><div id="hubBody"></div>';openModal('builderModal');document.querySelector('#builderModal .mt').textContent='Browse';document.querySelector('#builderModal .ms').textContent='History and intelligence, when you need it';const draw=t=>{document.querySelectorAll('[data-hub]').forEach(b=>b.classList.toggle('active',b.dataset.hub===t));const h=$('hubBody');if(t==='timeline'){const es=getAllKnownEntries().filter(e=>e.date).sort((a,b)=>b.date.localeCompare(a.date));h.innerHTML='<div class="hub-list">'+(es.map(e=>`<button class="hub-item" data-day="${e.date}"><header><strong>${esc(new Date(e.date+'T12:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}))}</strong><span class="hub-badge">${(e.entry.match(/\S+/g)||[]).length} words</span></header><p>${esc((e.entry||'').slice(0,180)||(e.source==='repo'?'Repository journal entry':'No entry text'))}</p></button>`).join('')||'<p class="muted">No entries yet.</p>')+'</div>';document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{closeModal('builderModal');v1OpenDay(b.dataset.day);});}if(t==='projects'){const tags=[...new Set(getAllKnownEntries().flatMap(e=>e.tags||[]))];h.innerHTML='<div class="hub-list">'+(tags.map(tag=>{const es=getAllKnownEntries().filter(e=>(e.tags||[]).includes(tag)).length,as=allArts().filter(a=>a.block.toLowerCase().includes('#'+tag.toLowerCase())).length;return`<div class="hub-item"><header><strong>#${esc(tag)}</strong><span class="hub-badge">${es} days</span></header><p>${as} structured captures</p></div>`}).join('')||'<p class="muted">Add tags to create projects.</p>')+'</div>';}if(t==='brief'){const s=artifactSummary();h.innerHTML=`<div class="bgrid"><div class="bstat"><b>${s.entries}</b><span>Days</span></div><div class="bstat"><b>${s.arts.length}</b><span>Captures</span></div><div class="bstat"><b>${s.open}</b><span>Open</span></div></div><div class="hub-list" style="margin-top:12px">${s.arts.filter(a=>artIsOpen(a.block)).slice(0,10).map(a=>`<div class="hub-item"><header><strong>${esc(a.title)}</strong><span class="hub-badge">${esc(a.type)}</span></header><p>Open · ${esc(a.date)}</p></div>`).join('')||'<p class="muted">No open structured work.</p>'}</div>`;}if(t==='search'){h.innerHTML='<label class="f">Search everything</label><input class="f" id="hubSearch" placeholder="Entries, captures, code, files, links"><div id="hubResults" class="hub-list" style="margin-top:10px"></div>';$('hubSearch').oninput=()=>{const q=$('hubSearch').value.toLowerCase(),r=[];getAllKnownEntries().forEach(e=>{if(((e.entry||'')+' '+(e.tags||[]).join(' ')).toLowerCase().includes(q))r.push({kind:'entry',id:e.date,title:e.date,text:e.entry})});allArts().forEach(a=>{if((a.title+' '+a.block).toLowerCase().includes(q))r.push({kind:a.type,id:a.date,title:a.title,text:a.block})});objectList().forEach(o=>{if((o.title+' '+o.text).toLowerCase().includes(q))r.push({kind:o.kind,id:o.id,title:o.title,text:o.text})});$('hubResults').innerHTML=q?r.slice(0,60).map(x=>`<button class="hub-item" data-result="${esc(x.kind+'|'+x.id)}"><header><strong>${esc(x.title)}</strong><span class="hub-badge">${esc(x.kind)}</span></header><p>${esc(String(x.text).slice(0,160))}</p></button>`).join(''):'';document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.result.split('|');if(k==='entry'){closeModal('builderModal');v1OpenDay(id);}else v1OpenObject(k,id);});};}if(t==='sources'){const os=objectList();h.innerHTML='<div class="hub-drop" id="sourceDrop">Drop files here or choose files<br><small>Text and code are indexed locally. Other files retain metadata.</small></div><div class="hub-grid">'+os.map(o=>`<button class="hub-item" data-obj="${esc(o.kind+'|'+o.id)}"><header><strong>${esc(o.title)}</strong><span class="hub-badge">${o.kind}</span></header><p>${esc(String(o.text).slice(0,120))}</p></button>`).join('')+'</div>';$('sourceDrop').onclick=()=>$('sourceInput').click();document.querySelectorAll('[data-obj]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.obj.split('|');v1OpenObject(k,id);});}if(t==='map'){closeModal('builderModal');openConstellation();}};document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>draw(b.dataset.hub));
+  draw(tab);
+  if(repoHistoryConfigured()&&(!CONST.entries||!CONST.entries.length)){
+    const h=$('hubBody');
+    if(h&&tab==='timeline')h.innerHTML='<div class="pn-empty">Reading repository history…</div>';
+    ensureRepoHistory(false).then(()=>{
+      if($('builderModal')?.classList.contains('open'))draw(tab);
+    }).catch(err=>{
+      const body=$('hubBody');
+      if(body&&tab==='timeline')body.innerHTML='<div class="pn-empty">Repository history could not be loaded.<br><small>'+esc(err.message)+'</small></div>';
+    });
+  }
+}
 function v1OpenObject(kind,id){const o=objectList().find(x=>x.kind===kind&&x.id===id);if(!o)return;$('capTitle').textContent=o.title;$('capRaw').value='';$('capReview').style.display='block';$('capDraft').value=o.text||'';$('capRelated').innerHTML='';openModal('captureModal');}
 function v1ImportFiles(files){[...files].forEach(f=>{if(/^image\//.test(f.type)){handleImageFiles([f]);return;}if(f.size>3*1024*1024){toast(f.name+' exceeds the 3 MB source limit.');return;}const id=v1id('source'),o={id,title:f.name,name:f.name,type:f.type||'application/octet-stream',size:f.size,created:Date.now(),date:val('date')||todayISO(),content:'',status:'metadata-only'};const text=/^text\//.test(f.type)||/\.(md|txt|json|ya?ml|js|ts|py|ps1|sql|html|css|csv|xml|sh|cs|java|go|rs|kql)$/i.test(f.name);if(text){const r=new FileReader();r.onload=()=>{o.content=String(r.result||'');o.status='indexed';V1OBJ.sources[id]=o;v1save();toast(f.name+' indexed locally.');};r.readAsText(f);}else{V1OBJ.sources[id]=o;v1save();toast(f.name+' stored as metadata.');}});}
 function v1CodeLike(t){return t.split('\n').length>2&&[/[{}();]/,/\b(function|class|def|const|let|SELECT|param|import|return)\b/,/^\s{2,}\S/m].filter(r=>r.test(t)).length>=2;}
