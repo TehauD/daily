@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-08
 created: 2026-09-08T04:16:19.786Z
-modified: 2026-09-11T00:51:54.614Z
+modified: 2026-09-11T00:57:08.981Z
 type: journal
 prompt: "What's the next smallest step?"
 tags:
@@ -33,7 +33,7 @@ artifact_types:
 aliases:
   - The Daily 2026-09-08
 artifacts: 2
-words: 408
+words: 396
 cssclasses:
   - the-daily
 ---
@@ -45,11 +45,7 @@ cssclasses:
 
 2026-09-08
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-08 · #enterprise-workspace
 
@@ -105,31 +101,11 @@ Identity must move from client assertions to a validated server-side trust model
 
 Filed under: #developerworkspace #identity #featureflags #knowledgegraph #productionreadiness #devjournal
 
-Projects: [[
-
-the-daily
-
-]] [[
-
-enterprise-workspace
-
-]] [[
-
-identity
-
-]] [[
-
-knowledge-graph
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[the-daily]] [[enterprise-workspace]] [[identity]] [[knowledge-graph]] [[devjournal]]
 
 The Daily · 09/08/2026
 
 **Projects:** [[enterprise-workspace]] [[developerworkspace]] [[identity]] [[featureflags]] [[knowledgegraph]] [[productionreadiness]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:51:54 PM_
+_The Daily · 9/10/2026, 7:57:08 PM_
