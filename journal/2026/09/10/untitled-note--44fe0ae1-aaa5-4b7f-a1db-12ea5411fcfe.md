@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-10
 created: 2026-09-11T00:35:44.343Z
-modified: 2026-09-11T00:52:25.830Z
+modified: 2026-09-11T00:57:54.066Z
 type: journal
 prompt: "What are you working on?"
 tags:
@@ -31,7 +31,7 @@ artifact_types:
 aliases:
   - The Daily 2026-09-10
 artifacts: 1
-words: 470
+words: 458
 cssclasses:
   - the-daily
 ---
@@ -43,11 +43,7 @@ cssclasses:
 
 2026-09-10
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-10 · #local-ai
 
@@ -103,31 +99,11 @@ The solution still needs validated extraction fidelity, model benchmarks, securi
 
 Filed under: #foundrylocal #localai #grc #contractintelligence #finops #devjournal
 
-Projects: [[
-
-foundry-local
-
-]] [[
-
-ata
-
-]] [[
-
-stca
-
-]] [[
-
-local-ai
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[foundry-local]] [[ata]] [[stca]] [[local-ai]] [[devjournal]]
 
 The Daily · 09/10/2026
 
 **Projects:** [[local-ai]] [[foundrylocal]] [[localai]] [[grc]] [[contractintelligence]] [[finops]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:52:25 PM_
+_The Daily · 9/10/2026, 7:57:54 PM_
