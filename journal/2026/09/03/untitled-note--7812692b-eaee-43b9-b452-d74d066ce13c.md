@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-03
 created: 2026-09-05T04:47:34.244Z
-modified: 2026-09-11T00:43:06.225Z
+modified: 2026-09-11T00:55:57.189Z
 type: journal
 prompt: "What decision did you make, and why?"
 tags:
@@ -29,7 +29,7 @@ projects:
 aliases:
   - The Daily 2026-09-03
 artifacts: 0
-words: 507
+words: 495
 cssclasses:
   - the-daily
 ---
@@ -38,11 +38,7 @@ cssclasses:
 
 2026-09-03
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-03 · #enterprise-agent-engineering
 
@@ -102,31 +98,11 @@ The guide still needs an executable conformance layer that can test whether an i
 
 Filed under: #copilotstudio #agents #evaluation #mlops #governance #devjournal
 
-Projects: [[
-
-copilot-studio-dev-guide
-
-]] [[
-
-evidenceos
-
-]] [[
-
-chexpert
-
-]] [[
-
-the-daily
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[copilot-studio-dev-guide]] [[evidenceos]] [[chexpert]] [[the-daily]] [[devjournal]]
 
 The Daily · 9/3/2026
 
 **Projects:** [[enterprise-agent-engineering]] [[copilotstudio]] [[agents]] [[evaluation]] [[mlops]] [[governance]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:43:06 PM_
+_The Daily · 9/10/2026, 7:55:57 PM_
