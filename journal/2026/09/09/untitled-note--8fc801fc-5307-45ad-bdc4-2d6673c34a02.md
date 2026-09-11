@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-09
 created: 2026-09-11T00:35:44.620Z
-modified: 2026-09-11T00:52:11.715Z
+modified: 2026-09-11T00:57:33.417Z
 type: journal
 prompt: "Who did you help, or who helped you?"
 tags:
@@ -31,7 +31,7 @@ artifact_types:
 aliases:
   - The Daily 2026-09-09
 artifacts: 1
-words: 457
+words: 445
 cssclasses:
   - the-daily
 ---
@@ -43,11 +43,7 @@ cssclasses:
 
 2026-09-09
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-09 · #architecture-decisioning
 
@@ -103,31 +99,11 @@ The decision framework still needs agreed thresholds for when a request should m
 
 Filed under: #aiarchitecture #decisionframework #stca #patientexperience #governance #devjournal
 
-Projects: [[
-
-ai-champions
-
-]] [[
-
-ata
-
-]] [[
-
-stca
-
-]] [[
-
-patient-experience
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[ai-champions]] [[ata]] [[stca]] [[patient-experience]] [[devjournal]]
 
 The Daily · 09/09/2026
 
 **Projects:** [[architecture-decisioning]] [[aiarchitecture]] [[decisionframework]] [[stca]] [[patientexperience]] [[governance]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:52:11 PM_
+_The Daily · 9/10/2026, 7:57:33 PM_
