@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-01
 created: 2026-09-05T04:47:35.624Z
-modified: 2026-09-11T00:43:12.484Z
+modified: 2026-09-11T00:53:57.507Z
 type: journal
 prompt: "What did you ship or move forward?"
 tags:
@@ -32,7 +32,7 @@ artifact_types:
 aliases:
   - The Daily 2026-09-01
 artifacts: 1
-words: 527
+words: 515
 cssclasses:
   - the-daily
 ---
@@ -44,11 +44,7 @@ cssclasses:
 
 2026-09-01
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-01 · #knowledge-architecture
 
@@ -108,31 +104,11 @@ Identity and versioning rules still need to be formalized for entries that move 
 
 Filed under: #knowledgegraph #git #obsidian #aiarchitecture #security #devjournal
 
-Projects: [[
-
-the-daily
-
-]] [[
-
-knowledge-graph
-
-]] [[
-
-repository-sync
-
-]] [[
-
-ai-provider
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[the-daily]] [[knowledge-graph]] [[repository-sync]] [[ai-provider]] [[devjournal]]
 
 The Daily · 9/1/2026
 
 **Projects:** [[knowledge-architecture]] [[knowledgegraph]] [[git]] [[obsidian]] [[aiarchitecture]] [[security]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:43:12 PM_
+_The Daily · 9/10/2026, 7:53:57 PM_
