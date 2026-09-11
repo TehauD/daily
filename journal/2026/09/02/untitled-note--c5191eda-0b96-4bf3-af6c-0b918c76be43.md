@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-09-02
 created: 2026-09-05T04:47:35.054Z
-modified: 2026-09-11T00:43:08.863Z
+modified: 2026-09-11T00:55:30.632Z
 type: journal
 prompt: "What did you learn?"
 tags:
@@ -31,7 +31,7 @@ artifact_types:
 aliases:
   - The Daily 2026-09-02
 artifacts: 1
-words: 512
+words: 499
 cssclasses:
   - the-daily
 ---
@@ -43,11 +43,7 @@ cssclasses:
 
 2026-09-02
 
-[
-
-!abstract
-
-] Artifacts ▣ learning
+[!abstract] Artifacts ▣ learning
 
 2026-09-02 · #clinical-data-product
 
@@ -107,31 +103,11 @@ The workflow still needs production validation for identity matching, duplicate 
 
 Filed under: #powerapps #sharepoint #dataproduct #revenuecycle #mlops #devjournal
 
-Projects: [[
-
-liberty-payments
-
-]] [[
-
-clinical-data-product
-
-]] [[
-
-powerapps
-
-]] [[
-
-mlops
-
-]] [[
-
-devjournal
-
-]]
+Projects: [[liberty-payments]] [[clinical-data]] [[mlops]] [[devjournal]]
 
 The Daily · 9/2/2026
 
 **Projects:** [[clinical-data-product]] [[powerapps]] [[sharepoint]] [[dataproduct]] [[revenuecycle]] [[mlops]] [[devjournal]]
 
 ---
-_The Daily · 9/10/2026, 7:43:08 PM_
+_The Daily · 9/10/2026, 7:55:30 PM_
