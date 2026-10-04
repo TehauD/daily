@@ -1,631 +1,353 @@
-<div align="center">
-
 # The Daily
 
-### *Your work, your thinking — versioned.*
+**A local-first developer journal for capturing where the real work happens: the dirty whiteboard, the iterative passes, the decisions you'd otherwise forget.**
 
-A calm, private, single-file **developer intelligence workspace** — a daily log where builders think, capture decisions, and version their work like code.
+The Daily is small on purpose. There is no account and no cloud backend. It keeps nothing that outlives you except what you choose to keep. Your entries live in your browser. You can push them as Markdown to a GitHub or Azure DevOps repository you control, track work in Azure Boards, and use an AI provider you choose to help curate them.
 
-[![Version](https://img.shields.io/badge/version-2.0-1a4b8c)](#versioning)
-[![License: MIT](https://img.shields.io/badge/license-MIT-0bb4c4)](#license)
-[![Single File](https://img.shields.io/badge/build-zero--dependency-2f7dd1)](#architecture)
-[![Privacy](https://img.shields.io/badge/data-100%25%20local-1c9e77)](#privacy--security)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-c98a1e)](#contributing)
-
-*A daily writing surface on the outside. A structured capture, retrospective, and versioning engine underneath.*
-*No account. No cloud required. No tracking. Just you and the day.*
-
-</div>
+```bash
+cp .env.example .env     # add your GitHub / Azure DevOps / AI settings
+python relay.py          # → open http://127.0.0.1:8000
+```
 
 ---
 
-## Table of Contents
+## Contents
 
-- [Overview](#overview)
-- [Why The Daily](#why-the-daily)
-- [Feature Tour](#feature-tour)
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [Data Model](#data-model)
-- [AI Integration](#ai-integration)
-  - [How AI is wired in](#how-ai-is-wired-in)
-  - [Provider support & endpoint resolution](#provider-support--endpoint-resolution)
-  - [The seven AI surfaces](#the-seven-ai-surfaces)
-  - [Voice calibration & language mirroring](#voice-calibration--language-mirroring)
-  - [Fact-grounding & guardrails](#fact-grounding--guardrails)
-  - [Tuning reference](#tuning-reference)
-  - [AI privacy model](#ai-privacy-model)
-- [Configuration](#configuration)
-  - [AI Assistant](#ai-assistant)
-  - [GitHub Sync](#github-sync)
-  - [Azure DevOps Repos Sync](#azure-devops-repos-sync)
-- [Reading Studio](#reading-studio)
-- [Structured Captures](#structured-captures)
-- [Browse & Constellation](#browse--constellation)
-- [Export Formats](#export-formats)
-- [Keyboard Shortcuts & Commands](#keyboard-shortcuts--commands)
-- [Privacy & Security](#privacy--security)
-- [Accessibility](#accessibility)
-- [Browser Support](#browser-support)
-- [Development Guide](#development-guide)
-- [Project Structure](#project-structure)
+- [Features](#features)
+- [How it works](#how-it-works)
+- [Run it locally](#run-it-locally)
+- [Configure `.env`](#configure-env)
+  - [GitHub](#github)
+  - [Azure DevOps and Boards](#azure-devops-and-boards)
+  - [AI provider](#ai-provider)
+  - [All settings](#all-settings)
+- [Running without the relay](#running-without-the-relay)
+- [Where your data lives](#where-your-data-lives)
+- [Security & privacy](#security--privacy)
+- [Deploying a hosted copy](#deploying-a-hosted-copy)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [Versioning](#versioning)
+- [Known limitations](#known-limitations)
+- [Project structure](#project-structure)
+- [Disclaimer](#disclaimer)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ---
 
-## Overview
+## Features
 
-**The Daily** is a **local-first developer intelligence workspace** delivered as a **single, self-contained `index.html` file**. It runs entirely in the browser with no server, no build step, and no mandatory network calls. Everything you capture lives in your own browser storage until *you* choose to export or sync it.
+- **Daily entries** with a rich "Canvas" editor, raw Markdown mode and a read-only view. Navigate by date and keep multiple notes per day.
+- **Scaffolds and auto-tagging:** press `/` for templates (tables, callouts, checklists, code blocks). Decisions, learnings and blockers get `#type/*` tags, and `#project/...` tags group your work.
+- **Browse:** Constellation graph, Timeline, Projects (by tag), Artifacts gallery and full-text Search.
+- **Repository sync:** push and pull entries as Markdown to GitHub and/or Azure DevOps (`journal/YYYY/MM/DD/<title>--<id>.md`). The output works as an Obsidian vault.
+- **AI assist:** "Curate today", "Find artifacts", "Discover patterns", executive summaries and status updates. Works with OpenAI, Azure OpenAI / AI Foundry, or a local model (Ollama, LM Studio).
+- **Work Items:** an Azure Boards drawer that lets you link entries to work items (`#ado/123`), draft items from an entry, and update state, fields and comments.
+- **Export and backup:** export one entry as `.md`, `.json` or `.html`, or back up the whole journal to one JSON file and restore it on another device.
+- **Studio:** appearance (light/dark/auto, type, layout), provider settings, diagnostics console and data reset.
+- **Keyboard first:** `⌘K` / `Ctrl+K` command palette, `⌘S` / `Ctrl+S` save, plus the usual formatting shortcuts.
+- **No telemetry:** no third-party scripts, fonts, analytics or trackers.
 
-On the surface it is a calm, first-class **daily writing page** — a beautiful, low-friction on-ramp you *want* to return to. Underneath, it is a **structured capture, analysis, and versioning engine** built for developers and builders:
+## How it works
 
-- **Capture** ideas, experiments, decisions, learnings, wins, and memories as structured, schema-backed artifacts.
-- **Compound** them into pattern analysis and grounded monthly retrospectives.
-- **Version** each day — and its media — to **GitHub or Azure DevOps** as clean Markdown, then explore your history as an interactive Constellation.
-- **Amplify**, optionally, with AI that drafts in *your own voice* and never invents your facts.
+```
+                 ┌──────────────────────── your browser ────────────────────────┐
+                 │  The Daily (public/index.html, one self-contained page)       │
+                 │  localStorage: entries + settings   (no tokens, no API keys)  │
+                 └───────────────┬──────────────────────────────────────────────┘
+                                 │ same-origin requests only
+                 ┌───────────────▼───────────────┐      ┌──────────────────────┐
+  .env ────────► │ relay.py   http://127.0.0.1:8000 ├────► │ GitHub               │
+  (your secrets) │  • serves the app             │      │ Azure DevOps / Boards│
+                 │  • adds credentials           │      │ AI provider          │
+                 │  • guards who may call it     │      └──────────────────────┘
+                 └───────────────────────────────┘
+```
 
-> **Design philosophy:** The daily page is the only dominant surface. Every builder capability — structured captures, analytics, source & code management, repository sync, AI — stays exactly one click (or keystroke) away, but never competes with the blank page. *Frictionless in; powerful underneath.*
+**`relay.py` is the recommended way to run The Daily.** It is a small Python server, using only the standard library, that runs on your computer. It serves the app and reads your tokens and keys from `.env`. It makes the GitHub, Azure DevOps and AI calls on the page's behalf. The page only ever sees non-secret settings such as your repository name and model name. Your credentials never reach the browser.
 
-| At a glance | |
-| --- | --- |
-| **What it is** | Local-first developer intelligence workspace / builder's daily log |
-| **Primary surface** | A calm, auto-saving daily writing page |
-| **Underneath** | Structured captures · pattern analytics · retrospectives · Git versioning |
-| **Audience** | Developers, builders, and like-minded thinkers |
-| **Type** | Progressive, offline-first web app |
-| **Footprint** | One HTML file (portable, host-anywhere) |
-| **Runtime deps** | None required · `docx` (CDN) used only for Word export |
-| **Storage** | `localStorage` (with in-memory fallback) |
-| **Sync targets** | GitHub · Azure DevOps Repos (optional) |
-| **AI** | OpenAI · Azure OpenAI · Local (Ollama / LM Studio) — all optional |
-| **License** | MIT |
-
----
-
-## Why The Daily
-
-- **Built for builders.** Capture structured Ideas, Experiments, Decisions, Learnings, Wins, and Memories with rigorous, schema-backed fields — then roll them into grounded retrospectives. Your daily log becomes a searchable decision and knowledge base.
-- **Versioned like code.** Sync each day (and its media) to **GitHub or Azure DevOps** as clean Markdown, then explore your history as an interactive *Constellation*. Your thinking gets the same durability as your repos.
-- **Frictionless on-ramp.** The daily writing page auto-saves, auto-grows, detects pasted code and links, and never gets in your way — so capturing a thought costs nothing.
-- **Truly private by default.** No sign-up, no telemetry, no cloud dependency. Nothing leaves your device unless you explicitly export or sync. Keys and tokens stay in your browser.
-- **Your voice, amplified.** Optional AI drafts **from your own answers**, calibrated to your real writing style and language — it never invents your day, and it never fabricates facts in structured captures.
-- **Beautiful and personal.** The *Reading Studio* lets you tune paper, typography, accent, spacing, and comfort with a live preview — a workspace you actually want to open.
-- **Portable forever.** One file you can save, email, self-host, or archive. Zero lock-in.
+When the page loads from the relay, it detects it automatically. Any token previously typed into the browser is replaced, and work goes through the relay.
 
 ---
 
-## Feature Tour
+## Run it locally
 
-### ✍️ The Writing Surface
-- Distraction-light, contenteditable rich editor with **inline media** (photos embed directly in the flow of text).
-- **Autosave** with a live "saving… / saved" indicator (debounced, 500 ms).
-- **Auto-growing** editor that expands to fit content so nothing is pushed off-screen.
-- **Slash commands** (`/`) for instant access to tools from inside the editor.
-- **Daily prompts** — time-aware (morning / evening / anytime) with a one-tap "another" reroll.
-- **Word count** and **read-time** estimates.
-
-### 🤖 Compose With Me (opt-in AI)
-- Conversational, interview-style drafting: the AI asks short questions, you answer (type or speak), and it weaves **your own words** into a first-person draft.
-- **Voice calibration** reads snippets of your past entries to mirror your vocabulary, rhythm, register, and language.
-- Draft actions: **Use**, **Append**, **Rewrite**, or continue with **more questions**.
-- Additional AI helpers: **Reflection**, **Ghost autocomplete** (Tab to accept), and **Unstick**.
-
-### 🎨 Reading Studio
-- Six full **paper palettes** (Daylight, Blueprint, Parchment, Sage, Dusk, Midnight), each with light + dark variants.
-- **Type pairings** (Fraunces, Newsreader, Lora, Spectral, Caveat, Inter, System).
-- Fine controls: appearance mode (auto/light/dark), accent color, grain/texture, font size, line height, measure (line width), and letter spacing.
-- **Live preview** card that updates as you tune.
-
-### 🌈 Signals & Context
-- **Mood** (5-point signal), **feelings** chips, **tags** (people, places, topics), **location**, and **date**.
-- **Streak** tracking, **week ring**, and gentle **ritual** to "close the day."
-
-### 📷 Photos
-- Drag, paste, or pick images. **Client-side compression** (~1600px longest edge, JPEG @72%) keeps them Git-friendly.
-- Photos embed inline and sync to their own files in GitHub / Azure DevOps.
-
-### 🧠 Structured Captures & Builder Intelligence
-- Six artifact types — **Idea, Experiment, Decision, Learning, Win, Memory** — each with a rigorous field schema.
-- Deterministic templates *or* AI enrichment that **never invents facts**.
-- **Builder Intelligence** dashboard and **monthly retrospective** generation (with optional GitHub commit).
-
-### 🔭 Browse & Constellation
-- **Timeline, Projects, Search, Briefing, Sources, and Map** hub.
-- **Constellation** — a force-directed star-map of your history built from your repo: node size = words, glow = mood, image thumbnails, tag hubs, and pan/zoom.
-
-### 📦 Export & Sync
-- Export any day as **Markdown, JSON, DOCX, or Email**.
-- Sync to **GitHub** and/or **Azure DevOps Repos** — journal text and embedded media pushed together.
-
----
-
-## Quick Start
-
-The Daily is a single file. There is nothing to install.
-
-### Option 1 — Just open it
-1. Download `index.html`.
-2. Double-click to open it in any modern browser.
-3. Start writing. That's it. Your entries autosave locally.
-
-### Option 2 — Host it (recommended for AI + sync)
-Serving over `http(s)` unlocks the most reliable behavior for clipboard, speech, and API calls.
+**Prerequisites:** [Python](https://www.python.org/downloads/) 3.9 or newer, and Git. Nothing else needs installing.
 
 ```bash
-# Python (any 3.x)
-python -m http.server 8080
-
-# Node
-npx serve .
-
-# then browse to http://localhost:8080
+git clone https://github.com/TehauD/daily.git
+cd daily
+cp .env.example .env                              # Windows: copy .env.example .env
 ```
 
-> 💡 **HTTPS note:** A page served over `https://` **cannot** call a `http://` endpoint (mixed content). If you use a **local** AI model (LM Studio / Ollama at `http://localhost`), open The Daily from a local file or a local `http://` server, not from an `https://` origin.
-
----
-
-## Architecture
-
-The Daily is intentionally a **zero-build, single-artifact** application.
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        index.html                            │
-│                                                              │
-│  ┌─────────────┐   ┌──────────────┐   ┌───────────────────┐  │
-│  │   <style>   │   │   markup     │   │     <script>      │  │
-│  │  design     │   │  semantic    │   │  application core │  │
-│  │  tokens +   │   │  HTML + a11y │   │  (vanilla JS)     │  │
-│  │  themes     │   │  landmarks   │   │                   │  │
-│  └─────────────┘   └──────────────┘   └───────────────────┘  │
-│                                                              │
-│  State ── localStorage (with in-memory fallback)             │
-│  Optional I/O ── fetch() → AI provider / GitHub / Azure DevOps│
-│  Word export ── docx@7.1.0 (CDN, lazy)                       │
-└──────────────────────────────────────────────────────────────┘
-```
-
-**Design principles**
-
-- **Vanilla JS, no framework.** Small helper primitives (`$`, `val`, `store`, `esc`, `toast`, `status`, `download`) keep the code readable and dependency-free.
-- **Theme tokens.** All visual styling is driven by CSS custom properties on `:root`; a "paper" is a complete palette applied live via `applyTheme()`.
-- **Resilient storage.** The `store` wrapper transparently falls back to an in-memory map when `localStorage` is unavailable or full, and surfaces quota warnings.
-- **Progressive enhancement.** Core journaling works with zero configuration; AI and sync layers activate only when you connect them.
-- **Composition layer (V1).** A thin exposure layer changes *what's visible*, not *what's capable* — the command palette, day navigation, and sources/snippets/links live here.
-
----
-
-## Data Model
-
-All state is namespaced under the `thedaily:` prefix in `localStorage`.
-
-| Key | Purpose |
-| --- | --- |
-| `thedaily:entry:<YYYY-MM-DD>` | One serialized journal entry per day |
-| `thedaily:settings` | Reading Studio + preferences |
-| `thedaily:github` | GitHub connection config |
-| `thedaily:azuredevops` | Azure DevOps connection config |
-| `thedaily:sync` | Active sync-target preferences |
-| `thedaily:ai` | AI provider config |
-| `thedaily:promptIdx` | Current daily-prompt index |
-| `thedaily:constCache` | Cached parsed repo entries for Constellation |
-| `thedaily:v1objects` | Sources, snippets, links, research notes |
-
-### Entry shape
-
-```jsonc
-{
-  "savedAt": "2026-08-31T16:53:00.000Z",
-  "date": "2026-08-31",
-  "location": "Kansas City, KS",
-  "mood": 4,                         // 0–5 (0 = unset)
-  "feelings": ["Calm", "Proud"],
-  "entry": "Today I ... [[image:img_...]] ...",
-  "grateful": "…",
-  "highlight": "…",
-  "intention": "…",
-  "tags": ["work", "family"],
-  "images": [
-    {
-      "id": "img_abc123",
-      "name": "sunset",
-      "mime": "image/jpeg",
-      "dataUrl": "data:image/jpeg;base64,…",
-      "w": 1600, "h": 1067, "size": 148231,
-      "ghUrl": null, "ghName": null,   // set after GitHub sync
-      "azPath": null, "azCommit": null, "azRepoKey": null
-    }
-  ]
-}
-```
-
-### Synced Markdown
-
-Each day is committed as a clean, human-readable Markdown file (`<folder>/YYYY-MM-DD.md`) that round-trips back into the Constellation via `parseEntryMarkdown()`. Photos are written to `<folder>/images/<date>/` and referenced relatively (Azure DevOps) or by raw URL (GitHub).
-
----
-
-## AI Integration
-
-AI in The Daily is **entirely optional, opt-in, and bring-your-own-endpoint**. Nothing calls a model until you connect one, and even then the app degrades gracefully — every AI feature has a deterministic, non-AI fallback. The intelligence is designed to *amplify your own thinking and words*, never to replace or fabricate them.
-
-### How AI is wired in
-
-All model traffic funnels through **two functions**, which keeps the integration small, auditable, and provider-agnostic:
-
-| Function | Responsibility |
-| --- | --- |
-| `aiResolve()` | Inspects your saved config, detects the dialect (OpenAI / Azure / local), and returns the correct `url` + `headers`. |
-| `aiChat(messages, opts)` | The single call site for every feature. Sends an OpenAI-style `messages` array, applies `temperature` / `max_tokens`, parses the response, and throws helpful errors. |
-
-Capability is gated by `aiReady()` (true only when a base URL **and** model are configured). The UI reflects this live via `reflectAIReady()` — the `✦ AI` pill appears and `[data-ai]` buttons enable only when a model is connected. Config is persisted under `thedaily:ai` and never transmitted anywhere except your chosen endpoint.
-
-```
- feature (Compose, Reflect, Ghost, …)
-        │  builds a messages[] array
-        ▼
-   aiChat(messages, opts)
-        │  asks aiResolve() for url + headers
-        ▼
-   fetch() ──► your endpoint (OpenAI · Azure · localhost)
-        │
-        ▼
-   choices[0].message.content ──► rendered in-app
-```
-
-### Provider support & endpoint resolution
-
-`aiResolve()` normalizes wildly different endpoint shapes so you rarely have to think about URLs:
-
-- **OpenAI-compatible** — ensures a `/v1` suffix and appends `/chat/completions`; auth via `Authorization: Bearer <key>`. Works for OpenAI and any compatible gateway.
-- **Azure OpenAI** — detected by `*.openai.azure.com` or a `/openai/deployments/` path. Builds `…/openai/deployments/<deployment>/chat/completions?api-version=<ver>` and authenticates with the `api-key` header. The **model field is your deployment name**.
-- **Local (Ollama / LM Studio)** — detected by `localhost`, `127.0.0.1`, private IP ranges, or ports `1234` / `11434`. Rewrites to the server origin + `/v1`; key optional.
-
-The **🐞 Debug** button surfaces the resolved endpoint, detected dialect, auth mode, model, and page protocol — including an explicit **mixed-content warning** when an `https://` page tries to reach an `http://` local model.
-
-### The seven AI surfaces
-
-Each feature builds a purpose-specific system prompt and calls the same `aiChat()` core:
-
-| # | Surface | Function(s) | What it does |
-| --- | --- | --- | --- |
-| 1 | **Compose With Me** | `composeOpen` · `cxNextQuestion` · `cxGenerate` | Interviews you with short, adaptive follow-ups, then weaves *your own answers* into a first-person draft. Actions: Use / Append / Rewrite / more questions. |
-| 2 | **Ghost autocomplete** | `scheduleGhost` · `acceptGhost` | Faint 4–9 word continuations in your language and voice; press `Tab` to accept. Debounced (~900 ms) and only at the end of the text. |
-| 3 | **Reflection** | `aiReflect` | 2–3 warm sentences naming one feeling, one strength/win, and one gentle, non-prescriptive question. Never gives medical advice. |
-| 4 | **Unstick** | `aiUnstick` | A tiny nudge — one clause or micro-question — when you stall on a blank or half-finished page. |
-| 5 | **Patterns synthesis** | `aiSynthesis` | Reads up to your last **21 entries** and surfaces genuine themes, emotional trends, and one gentle observation. Never diagnoses. |
-| 6 | **Structured-capture enrichment** | `capDevelop` | Turns a one-line seed into a schema-complete Idea/Experiment/Decision/etc. Returns **strict JSON** for the exact field set; marks unknowns `Pending`. |
-| 7 | **Builder retrospective** | `builderRetro` | Compiles a month of structured captures into a grounded retrospective (Shipped, Ideas, Experiments, Decisions, Learnings, Open Loops, Next Focus). Optionally commits to `retrospectives/`. |
-
-### Voice calibration & language mirroring
-
-A shared helper, **`styleContext()`**, is appended to the system prompt of the voice-sensitive features (Compose, Ghost, Reflect, Unstick). It:
-
-- Samples snippets of your **own recent entries** (via `recentEntryTexts()` — up to 4 entries, ~220 chars each).
-- Instructs the model to **mirror your vocabulary, sentence length, punctuation habits, and level of formality**.
-- Enforces **language fidelity** — it must respond in the *same language you write in* and must **not** upgrade your register (casual stays casual).
-
-The **Compose voice** setting (`composeVoice` in the Reading Studio) lets you override this with `mine` (default, calibrated to your entries), `warm`, `brief`, or `poetic`.
-
-### Fact-grounding & guardrails
-
-The integration is deliberately conservative to protect the integrity of your record:
-
-- **Never invents your day.** Compose and drafting prompts are explicitly constrained to *only* use what you supplied.
-- **Never fabricates evidence.** Structured-capture enrichment (`capDevelop`) runs at **low temperature (0.2)**, must return valid JSON for the exact schema, and is told to use `Pending` for anything missing rather than inventing metrics, people, or results. Invalid JSON safely falls back to the deterministic template.
-- **No medical advice / no diagnosis.** Reflection and Patterns synthesis are prompted to stay supportive and non-clinical.
-- **Graceful degradation.** If AI is off or a call fails, features fall back: Compose offers a scripted question set, captures use deterministic templates, and the rest simply prompt you to connect a model.
-
-### Tuning reference
-
-Observed generation settings per surface (defaults: `temperature 0.8`, `max_tokens 240`):
-
-| Surface | Temperature | Max tokens | Rationale |
-| --- | :---: | :---: | --- |
-| Ghost autocomplete | 0.6 | 24 | Short, safe, predictable continuations |
-| Reflection | 0.6 | 200 | Warm but focused |
-| Patterns synthesis | 0.6 | 280 | Grounded, specific observations |
-| Compose — next question | 0.8 | 50 | Curious, varied follow-ups |
-| Compose — draft | 0.7 (0.9 on rewrite) | 420 | Natural prose; more variety when rewriting |
-| Capture enrichment | 0.2 | 900 | Deterministic, structured, fact-safe |
-| Retrospective | 0.2 | 1400 | Long, grounded synthesis |
-
-### AI privacy model
-
-- **Direct-to-endpoint.** Requests go straight from your browser to the endpoint you configured — there is **no proxy or middleman**.
-- **Keys stay local.** Your API key lives only in `localStorage` (`thedaily:ai`) on your device.
-- **Least privilege recommended.** Prefer a **local model** or a **scoped, low-limit key**. The AI settings modal states this explicitly.
-- **Test & inspect.** Use **Test link** to verify connectivity and **🐞 Debug** to see exactly where traffic will go before you send anything real.
-
-> ⚠️ Because calls originate in the browser, your key is exposed to the page (as with any client-side app). Never embed a high-privilege production key; use a throwaway scoped key or a local model.
-
----
-
-## Configuration
-
-All configuration is stored **only in your browser** and can be cleared at any time from **Your data & local storage**.
-
-### AI Assistant
-
-> For the full picture — surfaces, resolution logic, guardrails, and tuning — see [**AI Integration**](#ai-integration). This is the quick **setup** reference.
-
-The Daily speaks the **OpenAI-compatible chat completions** dialect and auto-detects Azure vs. local endpoints.
-
-| Provider | Base URL example | Model field | Notes |
-| --- | --- | --- | --- |
-| **OpenAI** | `https://api.openai.com/v1` | `gpt-4o-mini` | Bearer key |
-| **Azure OpenAI** | `https://<resource>.openai.azure.com` | *deployment name* | Requires API version (e.g. `2024-02-15-preview`) |
-| **Local** | `http://localhost:1234/v1` | *loaded model id* | Ollama / LM Studio; blank key |
-
-**Setup steps**
-1. Open the **AI Assistant** modal (`✎` / command palette → *AI settings*).
-2. Pick a **provider** — the base URL and a sensible default model auto-fill.
-3. Enter your **model** (or Azure **deployment name**) and **API key** (blank for local).
-4. **Save**, then **Test link** to confirm. Use **🐞 Debug** to inspect the resolved endpoint before sending real data.
-
-**LM Studio checklist:** start the **Server**, **load** the model, enable **CORS** in Server Settings, then restart. Open The Daily locally (an `https://` page can't call `http://`).
-
-### GitHub Sync
-
-1. Open **Sync** → **GitHub**.
-2. Provide **owner/user**, **repository**, **branch** (default `main`), and **folder** (default `journal`).
-3. Paste a **fine-grained Personal Access Token** scoped to **one repository** with **Contents: read and write**.
-4. **Save**, then **Test**.
-
-A single sync commits the day's Markdown plus any new embedded images via the GitHub Contents API. Existing paths are updated (SHA-aware); new paths are added.
-
-### Azure DevOps Repos Sync
-
-1. Open **Sync** → **Azure DevOps Repos**.
-2. Provide **organization**, **project**, **repository**, **branch**, and **folder**.
-3. Paste an **Azure DevOps PAT** with **Code: read & write**.
-4. **Save**, then **Test**.
-
-Azure DevOps uses the Git **Pushes** REST API to commit the journal Markdown and all new media **in a single atomic commit** against the current branch tip.
-
-> You can enable **both** targets — The Daily fans out the sync and reports per-provider success/failure.
-
----
-
-## Reading Studio
-
-| Tab | Controls |
-| --- | --- |
-| **Paper** | Palette swatches, appearance mode (Auto / Light / Dark), accent color (+ custom), paper texture |
-| **Type** | Writing font pairing, writing size |
-| **Comfort** | Display name, line height, measure (line width), letter spacing, daily prompt toggle, ghost hints toggle, focus mode, compose voice |
-
-Everything renders through CSS variables, so changes are instant and global. **Reset to defaults** restores the original look without touching your entries or sync config.
-
----
-
-## Structured Captures
-
-Designed for builders who want their journal to double as a decision and knowledge log.
-
-| Type | Icon | Key fields |
-| --- | --- | --- |
-| **Idea** | 💡 | Problem, Why it matters, Proposed approach, Assumptions, Unknowns, Next experiment |
-| **Experiment** | ⚗ | Hypothesis, Variables, Success criteria, Method, Result, Learning, Decision triggered |
-| **Decision** | ◆ | Context, Decision, Alternatives, Rationale, Tradeoffs, Expected impact, Review trigger |
-| **Learning** | ▣ | Topic, Insight, Evidence, Application, Open question |
-| **Win** | ★ | Achievement, Impact, Who benefited, Evidence, Follow-on opportunity |
-| **Memory** | ⬡ | Subject, Context, Memory, Why it matters, Use when, Sensitivity |
-
-Each capture is emitted as a portable Markdown callout with a unique **Artifact ID**. **Builder Intelligence** aggregates counts and surfaces open (Pending) items; **Monthly Retrospective** compiles them — optionally enriched by AI that is instructed **never to invent facts** — and can be committed to `retrospectives/<YYYY-MM>.md`.
-
----
-
-## Browse & Constellation
-
-**Browse** opens a hub with six lenses:
-
-- **Timeline** — reverse-chronological entries with word counts.
-- **Projects** — tags rolled up into project views with capture counts.
-- **Search** — full-text across entries, captures, code, files, and links.
-- **Briefing** — days, captures, and open structured work at a glance.
-- **Sources** — imported files, snippets, links (text/code indexed locally).
-- **Map** — launches the Constellation.
-
-**Constellation** reads your repository, parses each day, and lays out a **force-directed graph**: entry nodes sized by word count and colored by mood, image thumbnails hydrated on demand, and tag hubs that pull related days together. Click any star to preview it or **load it back into the editor**.
-
----
-
-## Export Formats
-
-| Format | Function | Contents |
-| --- | --- | --- |
-| **Markdown** | `saveJournal()` | Full day with mood, feelings, markers, tags, embedded images |
-| **JSON** | `saveJournalAsJson()` | Complete structured entry object |
-| **DOCX** | `saveJournalAsDocx()` | Word document with embedded, sized photos |
-| **Email** | `saveJournalAsEmail()` | `mailto:` draft with a text-safe rendering |
-
----
-
-## Keyboard Shortcuts & Commands
-
-| Shortcut | Action |
-| --- | --- |
-| `/` (in editor) | Open slash command menu |
-| `Ctrl` / `⌘` + `K` | Open the command palette |
-| `Shift` + `←` / `→` | Previous / next day |
-| `Tab` | Accept ghost autocomplete |
-| `Esc` | Close any open modal, studio, palette, or overlay |
-| `Enter` (in compose) | Send answer |
-
-The **command palette** groups actions under **Think, Explore, Create, System** — Compose, Capture, Research, Search, Browse, Patterns, Add source, Studio, Sync, AI settings, and About.
-
----
-
-## Privacy & Security
-
-- **Local-first.** All entries and settings live in your browser's `localStorage`. Nothing is transmitted unless you export or sync.
-- **Your keys, your device.** AI keys and Git tokens are stored only in your browser and sent **directly** from your device to the endpoint you configured — never to any intermediary.
-- **Least privilege.** Use **fine-grained, single-repository** tokens with the minimum scopes (Contents/Code read & write). Prefer scoped, low-limit keys or a **local** model.
-- **No third-party analytics or trackers.**
-- **Transparent storage.** Inspect, edit, or clear every stored key from the **Your data & local storage** panel.
-
-> ⚠️ Because this is a client-side app, anyone with access to your browser profile can read your local data. Treat exported files and tokens accordingly, and clear storage on shared machines.
-
----
-
-## Accessibility
-
-- Semantic landmarks, `aria-label`s, and `role` attributes throughout.
-- Full **keyboard** operability for navigation, palette, and slash menu.
-- **`prefers-reduced-motion`** honored — animations collapse gracefully.
-- Visible **`:focus-visible`** outlines.
-- **Print** stylesheet renders a clean, chrome-free page.
-- A `<noscript>` fallback explains the JavaScript requirement.
-
----
-
-## Browser Support
-
-| Feature | Chrome | Edge | Firefox | Safari |
-| --- | :---: | :---: | :---: | :---: |
-| Core journaling | ✅ | ✅ | ✅ | ✅ |
-| Photos / compression | ✅ | ✅ | ✅ | ✅ |
-| AI / Sync (`fetch`) | ✅ | ✅ | ✅ | ✅ |
-| DOCX export | ✅ | ✅ | ✅ | ✅ |
-| **Dictation** (Web Speech API) | ✅ | ✅ | ⚠️ | ⚠️ |
-
-Dictation relies on the Web Speech API and is best supported in Chromium browsers.
-
----
-
-## Development Guide
-
-The Daily is a single file, but it is organized into clearly commented sections.
-
-**Conventions**
-
-- Keep the app **dependency-free**; the only external script is `docx` (lazy, CDN) for Word export.
-- Prefer the existing helper primitives over new abstractions.
-- Style exclusively through **CSS custom properties** so themes stay consistent.
-- Never introduce behavior that transmits user data without explicit user action.
-- Guard optional features behind capability checks (`aiReady()`, `ghConfigured()`, `azConfigured()`).
-
-**Local loop**
+Edit `.env` and fill in the integrations you use (see [Configure `.env`](#configure-env)). Every one of them is optional; with an empty `.env` you still get a fully working local journal.
 
 ```bash
-git clone <your-fork>
-cd the-daily
-python -m http.server 8080   # edit index.html, refresh
+python relay.py          # Windows: py relay.py      (or: npm run relay)
 ```
 
-**Manual test checklist**
+```
+The Daily relay 1.0.0  →  http://127.0.0.1:8000
+  GitHub on · Azure DevOps off · Work items off · AI on (openai) · Client key off
+```
 
-- [ ] Write, autosave, reload — entry persists.
-- [ ] Add/paste/drag a photo — inline embed + compression toast.
-- [ ] Switch days with `Shift`+`←/→` — correct entry loads.
-- [ ] Studio changes apply live and survive reload.
-- [ ] Export MD / JSON / DOCX / Email.
-- [ ] Configure + Test AI, GitHub, and Azure DevOps.
-- [ ] Sync a day, then open Constellation and confirm it appears.
+Open **http://127.0.0.1:8000**. Press `Ctrl+C` to stop the relay. Restart it after you change `.env`.
+
+> **Use the same address every time.** Your journal is stored per address, and `127.0.0.1:8000` and `localhost:8000` count as different addresses. Pick one and bookmark it.
+
+## Configure `.env`
+
+`.env` is already listed in `.gitignore`, so git won't commit it. Real environment variables override values in the file, which is handy for CI or a secrets manager.
+
+### GitHub
+
+1. Create a **fine-grained personal access token**: GitHub → Settings → Developer settings → Fine-grained tokens.
+   - **Repository access:** *Only select repositories*, and pick just your journal repo.
+   - **Permissions:** *Contents: Read and write*. Leave everything else at *No access*.
+   - **Expiration:** set one; 90 days is a reasonable default.
+2. Fill in:
+
+```ini
+DAILY_GITHUB_TOKEN=github_pat_...
+DAILY_GITHUB_OWNER=your-user-or-org
+DAILY_GITHUB_REPOSITORY=your-journal-repo
+DAILY_GITHUB_BRANCH=main
+DAILY_GITHUB_ROOT=journal
+```
+
+The relay only reads and writes `.md` files under `DAILY_GITHUB_ROOT`.
+
+### Azure DevOps and Boards
+
+1. Create a PAT at User settings → Personal access tokens.
+   - **Organization:** only the one you need, not "All accessible organizations".
+   - **Scopes:** *Code → Read & write* for repository sync, plus *Work Items → Read & write* if you enable Boards.
+2. Fill in:
+
+```ini
+DAILY_ADO_ENABLED=true
+DAILY_ADO_PAT=...
+DAILY_ADO_ORGANIZATION=your-org
+DAILY_ADO_PROJECT=your-project
+DAILY_ADO_REPOSITORY=your-repo      # leave empty for Boards only
+DAILY_ADO_WIT_ENABLED=true          # turns on the Work Items drawer
+```
+
+### AI provider
+
+| Provider | `.env` |
+| --- | --- |
+| **OpenAI** | `DAILY_AI_PROVIDER=openai` · `DAILY_AI_API_KEY=sk-...` · `DAILY_AI_MODEL=gpt-4o-mini` |
+| **Azure OpenAI / AI Foundry** | `DAILY_AI_PROVIDER=azure` · `DAILY_AI_BASE_URL=https://<resource>.openai.azure.com` · `DAILY_AI_API_KEY=...` · `DAILY_AI_MODEL=<deployment name>` · `DAILY_AI_API_VERSION=2024-10-21` |
+| **Local: Ollama / LM Studio** | `DAILY_AI_PROVIDER=compatible` · `DAILY_AI_BASE_URL=http://localhost:11434/v1` (Ollama) or `http://localhost:1234/v1` (LM Studio) · `DAILY_AI_MODEL=llama3.1` · no key |
+
+The relay decides which model is used and caps each request at `DAILY_AI_MAX_TOKENS`, so the page can't switch you to a more expensive model. Streaming responses are passed straight through. If a newer model rejects `max_tokens` or a custom `temperature`, the relay adjusts the request and retries once.
+
+**What gets sent:** an AI action sends the relevant entry text, and sometimes related recent entries, to the provider you configured. That provider's data-retention policies apply. If your notes are sensitive, use a local model; then nothing leaves your machine.
+
+### All settings
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DAILY_HOST` | `127.0.0.1` | Address to listen on. Non-loopback addresses require `DAILY_CLIENT_KEY`. |
+| `DAILY_PORT` | `8000` | Port. |
+| `DAILY_CLIENT_KEY` | *(unset)* | Optional shared secret required on every `/api` and `/v1` call (see [Security](#the-relay)). |
+| `DAILY_ALLOWED_ORIGINS` | *(unset)* | Extra browser origins allowed to call the relay, space-separated. |
+| `DAILY_ALLOWED_HOSTS` | *(unset)* | Extra `Host` names to accept, e.g. a hosts-file alias. |
+| `DAILY_GITHUB_*` | | `TOKEN`, `OWNER`, `REPOSITORY`, `BRANCH` (`main`), `ROOT` (`journal`). |
+| `DAILY_ADO_ENABLED` | `false` | Turns on Azure DevOps. |
+| `DAILY_ADO_*` | | `PAT`, `ORGANIZATION`, `PROJECT`, `REPOSITORY`, `BRANCH` (`main`), `ROOT` (`journal`). |
+| `DAILY_ADO_WIT_ENABLED` | `false` | Work Items drawer. |
+| `DAILY_ADO_WIT_TYPES` | `Bug,Task,User Story` | Types offered when the live list isn't available. |
+| `DAILY_ADO_WIT_DEFAULT_TYPE` | first type | Default for new items. |
+| `DAILY_ADO_WIT_MULTI_PROJECT` | `true` | Allow switching projects in the drawer. |
+| `DAILY_ADO_WIT_PROJECTS` | *(all)* | Optional comma-separated allow-list of projects. |
+| `DAILY_AI_PROVIDER` | `openai` | `openai`, `azure` or `compatible`. |
+| `DAILY_AI_BASE_URL` | OpenAI's URL | Provider endpoint. |
+| `DAILY_AI_API_KEY` | *(unset)* | Required for `openai` and `azure`. |
+| `DAILY_AI_MODEL` | *(unset)* | Model, or deployment name on Azure. |
+| `DAILY_AI_API_VERSION` | `2024-10-21` | Azure only. |
+| `DAILY_AI_MAX_TOKENS` | `4000` | Upper limit per request. |
+| `DAILY_MAX_BODY_MB` | `8` | Maximum request size; entries with inline images can be large. |
+| `DAILY_UPSTREAM_TIMEOUT` | `60` | Seconds to wait for GitHub, Azure DevOps or the AI provider. |
+| `DAILY_ENTERPRISE_ENABLED` / `_UI` | `false` | Experimental enterprise graph. Stored in `.daily-data/`. |
 
 ---
 
-## Project Structure
+## Running without the relay
 
+The Daily also runs as a plain static page: `npm start` (Express on port 3000) or opening `public/index.html` directly. The public hosted copy works this way. Everything works except Azure OpenAI and Work Items, which need the relay.
+
+In this mode there's no `.env` for credentials. You enter tokens in **Repository** and **Studio → Models**, and the browser stores them for that site and calls GitHub, Azure DevOps or OpenAI directly. That is how most bring-your-own-key web tools work, and it's fine on your own computer with narrowly scoped tokens. See [Keys stored in the browser](#keys-stored-in-the-browser) for what to keep in mind.
+
+```bash
+npm ci && npm start      # http://localhost:3000  (Node.js 20+)
 ```
-index.html
-├── <style>        Design tokens, themes, component styles, responsive + print
-├── markup
-│   ├── Top bar    Brand, day lens, primary nav (Studio · Browse · Sync · About)
-│   ├── Hero       Stardate, greeting, streak ribbon
-│   ├── Stage      Prompt, writer (rich contenteditable), meta, capture rail,
-│   │              mood, toolbar, tags, export bar
-│   ├── Studio     Reading Studio drawer (Paper · Type · Comfort)
-│   ├── Modals     Capture, Builder, Compose, Patterns, About, AI, Sync
-│   └── Constellation  Full-screen graph + detail panel
-└── <script>
-    ├── Core           storage, helpers, rich media canvas
-    ├── Reading Studio  palettes, pairings, theme application
-    ├── Content         prompts, feelings, tags, mood, counts
-    ├── Photos          compression + inline embedding
-    ├── Voice/Compose   interview flow, calibration, drafting
-    ├── Patterns        analytics + AI synthesis
-    ├── AI              provider resolution + chat
-    ├── GitHub / Azure  repository sync
-    ├── Constellation   parse → graph → force layout → render
-    ├── Captures        structured artifacts + retrospectives
-    └── V1 layer        command palette, day nav, sources/snippets/links
-```
+
+## Where your data lives
+
+| Data | With the relay | Without the relay | In "Export entire journal"? |
+| --- | --- | --- | --- |
+| Journal entries | Browser `localStorage` (`daily:entry:*`) | same | ✅ Yes |
+| App and appearance settings | Browser `localStorage` (`daily:settings`) | same | ✅ Yes (restore is optional) |
+| GitHub / Azure DevOps tokens | **`.env` on your computer** | Browser `localStorage` (`daily:gh`, `daily:az`) | ❌ Never |
+| AI key | **`.env` on your computer** | Browser `localStorage` (`daily:ai`) | ❌ Never |
+| Diagnostics log | Browser `sessionStorage`, cleared when the tab closes | same | Separate export, with secrets redacted |
+
+- Browsers allow roughly **5 MB** of storage per site, and images use it up fastest. The app warns you near the limit.
+- Clearing browsing data or site data for the address **deletes your local journal**. Push to a repository or export backups regularly.
+- **Studio → Advanced → Danger zone** has *Remove repository credentials* and *Delete local journal*.
 
 ---
+
+## Security & privacy
+
+### Security model
+
+- **No backend database and no accounts.** Your journal lives in your browser and in the repository you choose.
+- **Credentials stay on your computer.** With the relay, tokens and keys live only in `.env`. `/api/config` returns names such as owner, repo and model, never secrets. The relay never logs request bodies or headers, and it removes credential values from any error message it passes on.
+- **No third-party code.** A Content-Security-Policy limits which services the page can contact and blocks other sites from embedding it.
+- **Safe rendering.** Markdown links are limited to safe schemes, raw HTML in entries is escaped, and work-item HTML passes through an allow-list sanitizer.
+- **Exports never contain credentials**, and the diagnostics export redacts anything that looks like a key, token, secret or password.
+
+### The relay
+
+The relay holds working credentials, so it only does work for the page it serves:
+
+| Protection | What it stops |
+| --- | --- |
+| Listens on `127.0.0.1` only, and refuses any other address unless `DAILY_CLIENT_KEY` is set | Other devices on your network using your credentials. |
+| `Host` header allow-list | DNS-rebinding attacks, where a website tricks your browser into talking to the relay. |
+| Blocks cross-site browser requests (`Origin` / `Sec-Fetch-Site`) | Another website you have open quietly pushing to your repo or spending your AI quota. |
+| Optional client key (`DAILY_CLIENT_KEY`) | Other programs or users on the same computer. Open the app once as `http://127.0.0.1:8000/#relay-key=<key>`; the page saves it and sends it only to the relay. |
+| Repository paths confined to `DAILY_*_ROOT`, `.md` only, no `..` | Writing outside your journal folder or reading other files in the repo. |
+| Model fixed by `.env`, `max_tokens` capped, unknown request fields dropped | Runaway AI costs. |
+| Static files only from `public/` | Serving `.env`, `relay.py` or anything else from the project folder. |
+
+### Looking after `.env`
+
+- It's already in `.gitignore`. Before your first commit, `git status` should not list it.
+- Don't paste it into issues or chats, and keep it out of screenshots.
+- Keep it out of cloud-synced folders if you can. On macOS and Linux, restrict who can read it: `chmod 600 .env`.
+- Use least-privilege tokens with expiry dates, as described above, and rotate them when they expire.
+- If a token leaks, **revoke it at the provider**. Deleting it from `.env` doesn't revoke it.
+
+### Keys stored in the browser
+
+This only applies when you run [without the relay](#running-without-the-relay). The masked (••••) fields stop people reading the key off your screen. They are not encryption: the key is stored as plain text in your browser profile.
+
+| Situation | Why it matters | What to do |
+| --- | --- | --- |
+| Shared or public computer | Keys stay saved after you close the tab. | Only connect accounts on your own device, or use the relay. |
+| Other projects on the same local address | Browsers share storage by address, so other apps at `localhost:3000` can read it. | Use a dedicated port, e.g. `PORT=4517 npm start`. |
+| Browser extensions you don't trust | Extensions with "read and change data on all sites" can see page storage. | Keep to trusted extensions, or use a separate browser profile. |
+| Broad or non-expiring tokens | Scope decides the damage if a key leaks. | Fine-grained, single-repo tokens with an expiry, and AI keys with a spend limit. |
+
+### Your journal content
+
+Entries stay on your device until you **push** them to your repository or run an **AI action**. Then that provider's access controls and data policies apply. For sensitive notes, keep the repository private and use a local model.
+
+See [CHANGELOG.md](CHANGELOG.md) for this release's security changes and [SECURITY.md](SECURITY.md) to report a vulnerability.
+
+---
+
+## Deploying a hosted copy
+
+The included workflow (`.github/workflows/main_thedaily.yml`) builds and tests the app, then deploys the **static** app to the Azure App Service named `thedaily` on every push to `main`. That hosted copy runs [without the relay](#running-without-the-relay): each visitor's data and tokens stay in their own browser.
+
+> **Never deploy `relay.py` with your `.env` to a public server.** Anyone who could reach it could push to your repository and use your AI key. The relay is designed for your own computer.
+
+Checklist:
+
+- [ ] **Windows App Service:** `web.config` starts the app with iisnode and routes every request through Express. In *Configuration → Path mappings*, the `/` virtual path must point to `site\wwwroot` (not `dist` or any other folder), with no other virtual directories.
+- [ ] Set `NODE_ENV=production` in the App Service settings. This hides stack traces and turns on HSTS.
+- [ ] Turn on **HTTPS Only**, with a minimum of TLS 1.2.
+- [ ] Protect the `main` branch, since pushing to it deploys.
+- [ ] Limit who can see or edit the `AZUREAPPSERVICE_*` secrets and the App Service itself.
+- [ ] Add any self-hosted AI endpoint to `EXTRA_CONNECT_SRC`, and remove unused providers from `connect-src` in `app.js`.
+- [ ] Keep dependencies current with `npm run audit` and Dependabot.
+- [ ] Leave `JOURNAL_API_KEY` / `GITHUB_TOKEN` unset unless you need the legacy `POST /journal/save` endpoint.
+
+## Testing
+
+```bash
+npm test                 # Node tests + relay tests
+npm run test:relay       # relay only (Python, no Node needed):
+python -m unittest discover -s test -p "test_*.py"
+```
+
+The relay tests run `relay.py` against a fake GitHub, Azure DevOps and OpenAI, so no real credentials or network access are needed. They cover:
+
+- pushing, listing and reading files on both providers
+- path traversal attempts
+- cross-site requests, DNS rebinding, and the client key
+- the AI proxy: model override, token cap, streaming and retry
+- Work Items queries, creation, updates and comments
+- `.env` parsing
+- a check that no secret ever appears in a response or the relay's log
+
+The Node tests cover the Express host's headers, error pages, the `/journal/save` gate and the markdown link check.
 
 ## Troubleshooting
 
-| Symptom | Likely cause / fix |
+| Symptom | Fix |
 | --- | --- |
-| **AI "Could not reach…"** | Local model over `http://` from an `https://` page (mixed content). Open locally; enable CORS in LM Studio and restart. |
-| **GitHub 401 / 404** | Bad or unscoped token, or wrong owner/repo. Use a fine-grained token with Contents R/W on that repo. |
-| **Azure "Branch not found"** | Branch name mismatch — confirm the exact branch and that the repo is initialized. |
-| **DOCX export does nothing** | `docx` CDN blocked (tracking prevention). Allow `unpkg.com` or export Markdown/JSON instead. |
-| **"Storage full" toast** | `localStorage` quota reached (often from many photos). Export a backup, then clear old data. |
-| **Dictation unavailable** | Web Speech API needs Chrome/Edge. |
+| Relay prints `GitHub off` (or ADO/AI off) | A required value is missing from `.env`. GitHub needs token, owner and repository; ADO needs `DAILY_ADO_ENABLED=true` plus PAT, org and project; AI needs model, plus a key for `openai` or `azure`. Restart after editing. |
+| `421 Unrecognized Host header` | You opened the relay through a name it doesn't know. Use `127.0.0.1` or `localhost`, or add the name to `DAILY_ALLOWED_HOSTS`. |
+| `403 Cross-site request blocked` | The page wasn't loaded from the relay itself. Open `http://127.0.0.1:8000`, or add the other origin to `DAILY_ALLOWED_ORIGINS`. |
+| `401 Missing or invalid X-Daily-Client-Key` | `DAILY_CLIENT_KEY` is set. Open `http://127.0.0.1:8000/#relay-key=<key>` once. |
+| Work Items says "The relay isn't reachable" | Open the app through the relay, not from a file or `npm start`. |
+| Push fails with `GitHub 403/404` | The token lacks *Contents: write*, isn't granted that repo, has expired, or owner/repo is misspelled. |
+| `Azure DevOps branch 'main' not found` | Set `DAILY_ADO_BRANCH`, or push an initial commit to the repo. |
+| AI returns `AI provider 401/404` | Check the key, and on Azure the deployment name (`DAILY_AI_MODEL`) and API version. |
+| My entries "disappeared" | You're on a different address (`localhost` vs `127.0.0.1`, or another port, browser or profile), or site data was cleared. Use your usual address, or **Pull** from your repository. |
+| `Address already in use` | Something else is on port 8000. Set `DAILY_PORT=8010`. |
+| "Browser storage is full" | Export a backup, remove large images, or push to a repo and prune locally. |
+
+## Known limitations
+
+- **No conflict check in relay mode.** A push overwrites the remote file. Browser mode on GitHub asks first if the remote copy changed. Avoid editing the same note on two devices at once.
+- **Images stay inline in relay mode.** Pasted images are committed inside the Markdown rather than as separate files under `assets/`.
+- **Single user.** Sync between devices goes through your repository, and the app doesn't merge simultaneous edits.
+- **Roughly 5 MB of browser storage** per address.
+- **Enterprise graph is experimental** and off by default.
+- The `devops/dev/*.bicep` files are empty placeholders.
+
+## Project structure
+
+```
+.
+├── relay.py                # local relay: serves the app, holds credentials from .env (stdlib only)
+├── .env.example            # copy to .env and fill in; .env is git-ignored
+├── public/
+│   ├── index.html          # The Daily (entire client app)
+│   └── stylesheets/
+├── app.js, bin/www         # Express static host for the hosted copy (npm start)
+├── web.config              # Windows App Service / IIS startup (iisnode → bin/www)
+├── routes/journal.js       # legacy POST /journal/save (off by default)
+├── views/error.ejs         # Express error page (not an app page)
+├── test/
+│   ├── test_relay.py       # relay end-to-end tests against fake upstreams
+│   └── security.test.js    # Express host tests
+├── .github/workflows/      # main_thedaily.yml (test + deploy to Azure)
+├── SECURITY.md, CHANGELOG.md, LICENSE (MIT)
+```
 
 ---
 
-## Roadmap
+## Disclaimer
 
-- [ ] Optional end-to-end encryption for local storage.
-- [ ] Import/restore from exported JSON and from a synced repo.
-- [ ] Full-text search across the synced repository (not just local).
-- [ ] Weekly/annual retrospective templates.
-- [ ] PWA install + offline app shell.
-- [ ] Additional export targets (PDF).
+The Daily is a personal, open-source project provided **"as is", without warranty of any kind**, as stated in the [MIT License](LICENSE). By using it you accept that:
 
-> Ideas and pull requests are welcome — see **Contributing**.
-
----
-
-## Contributing
-
-1. **Fork** and create a feature branch: `git checkout -b feature/your-idea`.
-2. Keep the app **single-file** and **dependency-free**.
-3. Run the **manual test checklist** above.
-4. Match the existing code style and commenting conventions.
-5. Open a PR with a clear description, screenshots for UI changes, and notes on privacy/security impact.
-
-Please file bugs and feature requests as issues with reproduction steps and browser/OS details.
-
----
-
-## Versioning
-
-The Daily follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`). This document describes **v2.0**. Because the app is a single file, a release is simply a tagged `index.html`.
-
----
+- **You are responsible for your own data and credentials.** That includes your `.env` file and any tokens you enter. The authors are not liable for data loss, leaked credentials, unwanted repository changes, AI usage charges, or any other damage from using this software. Keep backups.
+- **It is not a secure vault.** Don't put passwords, secret keys, financial or government ID numbers, or other secrets in journal entries.
+- **It is not built or certified for regulated data.** Don't record protected health information (PHI), personal data about others, or your employer's confidential or proprietary information unless you have confirmed that's allowed. The app makes no HIPAA, GDPR, SOC 2 or similar compliance claims.
+- **Third-party services have their own terms.** GitHub, Azure DevOps, OpenAI, Azure OpenAI/AI Foundry and other providers' terms, pricing, retention and privacy policies apply to what you send them.
+- **AI output can be wrong.** Summaries, extracted artifacts, tags, drafted work items and pattern suggestions may be incomplete, inaccurate or invented. Review them before relying on them.
+- **No affiliation.** Not affiliated with or endorsed by GitHub, Microsoft, OpenAI, Obsidian or any other company named here. Trademarks belong to their owners.
+- **No guarantee of availability or support.**
 
 ## License
 
-Released under the **MIT License** — free and open. Save it, share it, host it anywhere.
+[MIT](LICENSE) © 2025-2026 Tehau DeBarthe. You're free to use, modify and share it, including commercially; just keep the copyright and license notice.
 
-```
-MIT License — © 2026 The Daily contributors
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction… (see LICENSE for full text)
-```
-
----
-
-## Acknowledgments
-
-- **Typography:** Fraunces, Newsreader, Lora, Spectral, Caveat, Inter, IBM Plex Mono (Google Fonts).
-- **Word export:** [`docx`](https://github.com/dolanmiu/docx).
-- **Everyone who journals** — this is built so the page almost writes itself.
-
-<div align="center">
-
-*Write a little. Understand a lot.*
-
-</div>
+Found a security issue? Please follow [SECURITY.md](SECURITY.md) rather than opening a public issue.
