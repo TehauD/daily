@@ -232,6 +232,11 @@ class Settings:
         self.ai_missing = missing
         self.ai_enabled = env_bool("DAILY_AI_ENABLED", True) and not missing
 
+        # Journal folder ("vault"): entries mirrored as Markdown files on this computer
+        self.vault_enabled = env_bool("DAILY_VAULT", True)
+        vd = os.path.expanduser(env("DAILY_VAULT_DIR", "vault"))
+        self.vault_dir = (Path(vd) if os.path.isabs(vd) else HERE / vd).resolve()
+
         # Enterprise (experimental)
         self.ent_enabled = env_bool("DAILY_ENTERPRISE_ENABLED")
         self.ent_ui = self.ent_enabled and env_bool("DAILY_ENTERPRISE_UI")
@@ -508,6 +513,30 @@ def gh_push(rel: str, markdown: str, message: str, opts: dict | None = None) -> 
     return res
 
 
+def gh_delete(rel: str, message: str, opts: dict | None = None) -> dict:
+    """Delete a journal file (and nothing else). In PR mode the deletion goes on a branch with a pull request."""
+    opts = opts or {}
+    mode = opts.get("mode") or "commit"
+    path = "/".join(x for x in (S.gh_root, rel) if x)
+    target = S.gh_branch
+    if mode == "pr":
+        target = pr_branch(rel)
+        if not gh_ref_sha(target):
+            base = gh_ref_sha(S.gh_branch)
+            if not base:
+                raise HttpError(404, f"GitHub branch '{S.gh_branch}' not found")
+            upstream("POST", f"{gh_base()}/git/refs", gh_headers(), {"ref": f"refs/heads/{target}", "sha": base})
+    current = gh_file_sha(path, target)
+    if not current:
+        return {"provider": "GitHub", "path": path, "deleted": False, "missing": True, "mode": mode}
+    upstream("DELETE", f"{gh_base()}/contents/{qpath(path)}", gh_headers(),
+             {"message": message, "sha": current, "branch": target})
+    res = {"provider": "GitHub", "path": path, "deleted": True, "branch": target, "mode": mode}
+    if mode == "pr":
+        res["pr"] = gh_open_pr(target, message, "Removes a journal entry.")
+    return res
+
+
 def gh_list() -> list:
     ref = upstream("GET", f"{gh_base()}/git/ref/heads/{qpath(S.gh_branch)}", gh_headers())
     tree_sha = (ref.get("object") or {}).get("sha")
@@ -617,6 +646,34 @@ def ado_push(rel: str, markdown: str, message: str, opts: dict | None = None) ->
            "sha": sha if sha != "exists" else "", "assets": len(assets), "unchanged": not changes, "mode": mode}
     if mode == "pr":
         res["pr"] = ado_open_pr(branch, opts.get("title") or message, pr_body(opts))
+    return res
+
+
+def ado_delete(rel: str, message: str, opts: dict | None = None) -> dict:
+    opts = opts or {}
+    mode = opts.get("mode") or "commit"
+    path = "/" + "/".join(x for x in (S.ado_root, rel) if x)
+    base_head = ado_ref(S.ado_branch)
+    if not base_head:
+        raise HttpError(404, f"Azure DevOps branch '{S.ado_branch}' not found")
+    branch, old, parents, check_branch = S.ado_branch, base_head, None, S.ado_branch
+    if mode == "pr":
+        branch = pr_branch(rel)
+        head = ado_ref(branch)
+        if head:
+            old, check_branch = head, branch
+        else:
+            old, parents = "0" * 40, [base_head]
+    if not ado_item_id(path, check_branch):
+        return {"provider": "Azure DevOps", "path": path, "deleted": False, "missing": True, "mode": mode}
+    commit = {"comment": message, "changes": [{"changeType": "delete", "item": {"path": path}}]}
+    if parents:
+        commit["parents"] = parents
+    upstream("POST", f"{ado_repo_base()}/pushes?api-version=7.1", ado_headers(),
+             {"refUpdates": [{"name": f"refs/heads/{branch}", "oldObjectId": old}], "commits": [commit]})
+    res = {"provider": "Azure DevOps", "path": path, "deleted": True, "branch": branch, "mode": mode}
+    if mode == "pr":
+        res["pr"] = ado_open_pr(branch, message, "Removes a journal entry.")
     return res
 
 
@@ -1595,7 +1652,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.fail(403, "Origin not allowed")
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", origin)
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Daily-Client-Key, api-key, Authorization")
         self.send_header("Access-Control-Max-Age", "600")
         self.send_header("Vary", "Origin")
@@ -1606,6 +1663,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self._dispatch("POST")
+
+    def do_PUT(self):
+        self._dispatch("PUT")
 
     def do_HEAD(self):
         self._dispatch("GET")
@@ -1686,6 +1746,9 @@ class Handler(BaseHTTPRequestHandler):
                 raise HttpError(404, "AI is not configured on the relay")
             return self.send_json(200, {"object": "list", "data": [{"id": S.ai_model, "object": "model"}]})
 
+        if path.startswith("/api/vault"):
+            return self._vault(method, path, qs)
+
         if path.startswith("/api/repositories/"):
             provider = (qs.get("provider") or [""])[0]
             if path == "/api/repositories/push" and method == "POST":
@@ -1703,6 +1766,15 @@ class Handler(BaseHTTPRequestHandler):
                         "title": str(b.get("title") or msg)[:200], "date": str(b.get("date") or "")[:10],
                         "summary": str(b.get("summary") or "")[:600]}
                 return self.send_json(200, self._provider(provider, "push")(rel, md, msg, opts))
+            if path == "/api/repositories/delete" and method == "POST":
+                b = self.read_json()
+                provider = b.get("provider") or ""
+                rel = safe_rel_path(b.get("path") or "")
+                mode = str(b.get("mode") or S.publish_mode).lower()
+                if mode not in ("commit", "pr"):
+                    raise HttpError(400, "mode must be 'commit' or 'pr'")
+                msg = str(b.get("message") or "Delete journal entry")[:200]
+                return self.send_json(200, self._provider(provider, "delete")(rel, msg, {"mode": mode}))
             if path == "/api/repositories/files" and method == "GET":
                 return self.send_json(200, {"value": self._provider(provider, "list")()})
             if path == "/api/repositories/content" and method == "GET":
@@ -1773,15 +1845,47 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(200, ent_ingest(self.read_json()))
         raise HttpError(404, "Not found")
 
+    def _vault(self, method: str, path: str, qs: dict):
+        if path == "/api/vault" and method == "GET":
+            if not S.vault_enabled:
+                return self.send_json(200, {"enabled": False})
+            return self.send_json(200, {"enabled": True, "id": vault_id(), "path": str(S.vault_dir)})
+        if not S.vault_enabled:
+            raise HttpError(404, "The journal folder is turned off (DAILY_VAULT=false)")
+        if path == "/api/vault/list" and method == "GET":
+            return self.send_json(200, vault_list())
+        if path == "/api/vault/file" and method == "GET":
+            return self.send_json(200, vault_read((qs.get("path") or [""])[0]))
+        if path == "/api/vault/file" and method == "PUT":
+            b = self.read_json()
+            content = b.get("content")
+            if not isinstance(content, str):
+                raise HttpError(400, "content is required")
+            try:
+                return self.send_json(200, vault_write(b.get("path") or "", content, b.get("ifMatch") if "ifMatch" in b else "*"))
+            except Conflict:
+                cur = vault_read(b.get("path") or "") if vault_path(b.get("path") or "").exists() else {"etag": None, "content": None}
+                return self.send_json(409, {"error": {"message": "The file changed in the journal folder"},
+                                            "etag": cur["etag"], "content": cur["content"]})
+        if path == "/api/vault/delete" and method == "POST":
+            b = self.read_json()
+            try:
+                return self.send_json(200, vault_delete(b.get("path") or "", b.get("ifMatch") if "ifMatch" in b else "*"))
+            except Conflict:
+                cur = vault_read(b.get("path") or "")
+                return self.send_json(409, {"error": {"message": "The file changed in the journal folder"},
+                                            "etag": cur["etag"], "content": cur["content"]})
+        raise HttpError(404, "Not found")
+
     def _provider(self, provider: str, op: str):
         if provider == "github":
             if not S.gh_enabled:
                 raise HttpError(404, "GitHub is not configured on the relay")
-            return {"push": gh_push, "list": gh_list, "content": gh_content, "asset": gh_asset}[op]
+            return {"push": gh_push, "list": gh_list, "content": gh_content, "asset": gh_asset, "delete": gh_delete}[op]
         if provider == "ado":
             if not S.ado_enabled:
                 raise HttpError(404, "Azure DevOps is not configured on the relay")
-            return {"push": ado_push, "list": ado_list, "content": ado_content, "asset": ado_asset}[op]
+            return {"push": ado_push, "list": ado_list, "content": ado_content, "asset": ado_asset, "delete": ado_delete}[op]
         raise HttpError(400, "provider must be 'github' or 'ado'")
 
     def _track_provider(self, qs: dict) -> str:
@@ -1974,6 +2078,128 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.flush()
 
 
+
+# --------------------------------------------------------------------------- journal folder (vault)
+#
+# The browser keeps the journal in IndexedDB; with the relay running, every entry is also a
+# Markdown file in DAILY_VAULT_DIR, laid out like the repository (YYYY/MM/DD/slug--id.md).
+# Edits made to those files in another editor flow back into the app. Writes are atomic,
+# conditional on an etag (so two writers can't silently clobber each other), and deletes
+# move files to .trash/ rather than removing them.
+
+VAULT_SKIP = {".trash", ".git", ".obsidian", ".daily", "node_modules"}
+VAULT_META = ".daily-vault.json"
+_vault_lock = threading.Lock()
+
+
+def vault_etag(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()[:24]
+
+
+def vault_id() -> str:
+    meta = S.vault_dir / VAULT_META
+    try:
+        return json.loads(meta.read_text("utf-8")).get("id") or ""
+    except (OSError, ValueError):
+        pass
+    S.vault_dir.mkdir(parents=True, exist_ok=True)
+    vid = hashlib.sha256(os.urandom(16)).hexdigest()[:16]
+    meta.write_text(json.dumps({"id": vid, "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                "app": "The Daily"}, indent=2) + "\n", "utf-8")
+    return vid
+
+
+def vault_path(rel: str) -> Path:
+    if not S.vault_enabled:
+        raise HttpError(404, "The journal folder is turned off (DAILY_VAULT=false)")
+    rel = safe_rel_path(rel)
+    if rel.split("/")[0] in VAULT_SKIP:
+        raise HttpError(400, "Invalid path")
+    target = (S.vault_dir / rel).resolve()
+    if S.vault_dir not in target.parents:
+        raise HttpError(403, "Path is outside the journal folder")
+    return target
+
+
+def vault_list() -> dict:
+    vid = vault_id()
+    files = []
+    root = S.vault_dir
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in VAULT_SKIP and not d.startswith(".")]
+        for fn in filenames:
+            if not fn.lower().endswith(".md") or fn.startswith("."):
+                continue
+            full = Path(dirpath) / fn
+            try:
+                if root not in full.resolve().parents:
+                    continue
+                data = full.read_bytes()
+                st = full.stat()
+            except OSError:
+                continue
+            rel = full.relative_to(root).as_posix()
+            files.append({"path": rel, "etag": vault_etag(data), "size": len(data), "mtime": int(st.st_mtime * 1000)})
+            if len(files) >= 20000:
+                break
+    files.sort(key=lambda f: f["path"])
+    return {"id": vid, "files": files}
+
+
+def vault_read(rel: str) -> dict:
+    p = vault_path(rel)
+    try:
+        data = p.read_bytes()
+    except FileNotFoundError:
+        raise HttpError(404, "No such file in the journal folder") from None
+    return {"path": safe_rel_path(rel), "etag": vault_etag(data), "content": data.decode("utf-8", "replace")}
+
+
+def vault_write(rel: str, content: str, if_match) -> dict:
+    p = vault_path(rel)
+    data = content.encode("utf-8")
+    with _vault_lock:
+        try:
+            cur = p.read_bytes()
+        except FileNotFoundError:
+            cur = None
+        cur_tag = vault_etag(cur) if cur is not None else None
+        # if_match: "*" = no check, None = the file must not exist yet, else the expected etag
+        if if_match != "*" and (if_match or None) != cur_tag:
+            raise Conflict(409, "The file changed in the journal folder")
+        if cur is not None and cur == data:
+            return {"path": safe_rel_path(rel), "etag": cur_tag, "unchanged": True}
+        p.parent.mkdir(parents=True, exist_ok=True)
+        tmp = p.with_name("." + p.name + ".tmp")
+        tmp.write_bytes(data)
+        os.replace(tmp, p)
+    return {"path": safe_rel_path(rel), "etag": vault_etag(data)}
+
+
+def vault_delete(rel: str, if_match) -> dict:
+    p = vault_path(rel)
+    with _vault_lock:
+        try:
+            cur = p.read_bytes()
+        except FileNotFoundError:
+            return {"path": safe_rel_path(rel), "deleted": False, "missing": True}
+        if if_match != "*" and if_match != vault_etag(cur):
+            raise Conflict(409, "The file changed in the journal folder")
+        stamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+        dest = S.vault_dir / ".trash" / stamp / safe_rel_path(rel)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(p, dest)
+        # tidy empty day/month/year folders
+        d = p.parent
+        while d != S.vault_dir and S.vault_dir in d.parents:
+            try:
+                d.rmdir()
+            except OSError:
+                break
+            d = d.parent
+    return {"path": safe_rel_path(rel), "deleted": True, "trash": dest.relative_to(S.vault_dir).as_posix()}
+
+
 def public_config() -> dict:
     """Everything the page needs to switch into relay mode — and nothing secret."""
     return {
@@ -1987,6 +2213,7 @@ def public_config() -> dict:
                       "project": S.ado_project if S.wit_enabled else "", "types": S.wit_types,
                       "defaultType": S.wit_default_type, "multiProject": S.wit_multi_project},
         "features": {"enterprise": S.ent_enabled, "enterpriseUI": S.ent_ui},
+        "vault": {"enabled": S.vault_enabled},
         "provider": {"default": S.provider_default, "available": S.providers, "mirror": S.mirror,
                      "publishMode": S.publish_mode, "prBranchPrefix": S.pr_prefix, "assets": S.assets},
         "capabilities": {
@@ -2050,6 +2277,7 @@ def main() -> int:
     print(f"  GitHub {on(S.gh_enabled)} (issues {on(S.gh_issues)}, projects {on(S.gh_projects)}, actions {on(S.gh_actions)})"
           f" | Azure DevOps {on(S.ado_enabled)} (boards {on(S.wit_enabled)}, pipelines {on(S.ado_pipelines)})", flush=True)
     print(f"  Work items {on(S.wit_enabled)} | Client key {on(bool(S.client_key))}", flush=True)
+    print(f"  Journal folder {('on: ' + str(S.vault_dir)) if S.vault_enabled else 'off'}", flush=True)
     if S.ai_enabled:
         host = urllib.parse.urlsplit(S.ai_base).hostname or S.ai_base
         print(f"  AI on: {S.ai_label} | model {S.ai_model} | auth {S.ai_auth} | {host}", flush=True)

@@ -1,0 +1,71 @@
+/* Core UI: dialogs, the conflict resolver, change banners, the demo note and the
+   storage card in Studio. Uses the app's tokens so light, dark and high-contrast follow. */
+
+.dm-back{position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 55%,rgba(0,0,0,.35));backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:dmFade .16s ease both}
+.dm{width:min(520px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--canvas);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 70px -24px rgba(0,0,0,.45);animation:dmRise .2s cubic-bezier(.2,.8,.2,1) both}
+.dm.wide{width:min(980px,100%)}
+.dm-head{padding:20px 22px 6px}
+.dm-head h2{margin:0;font:650 17px/1.3 var(--font);letter-spacing:-.01em}
+.dm-head p{margin:6px 0 0;color:var(--soft);font-size:13px;line-height:1.55}
+.dm-body{padding:10px 22px;overflow:auto;min-height:0}
+.dm-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 22px 18px;border-top:1px solid var(--line2)}
+.dm-foot .btn{padding:8px 14px;font-size:13px}
+.btn.danger{color:#fff;background:var(--err);border-color:var(--err)}
+.btn.danger:hover{filter:brightness(1.05)}
+.dm-note{color:var(--soft);font-size:12.5px;line-height:1.55;margin:6px 0}
+.dm-check{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:10px 0 4px;cursor:pointer}
+.dm-check input{margin-top:3px}
+.dm-list{margin:4px 0 6px;padding-left:18px;font-size:13px;line-height:1.7}
+.dm-empty{color:var(--faint);font-style:italic}
+@keyframes dmFade{from{opacity:0}}
+@keyframes dmRise{from{opacity:0;transform:translateY(8px) scale(.99)}}
+@media (prefers-reduced-motion:reduce){.dm-back,.dm{animation:none}}
+
+/* conflict resolver */
+.rs-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px}
+.rs-bulk .btn{padding:6px 11px;font-size:12px}
+.rs-count{margin-left:auto;font:11.5px var(--mono);color:var(--soft)}
+.rs-ctx{margin:0 0 10px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--line2) 45%,transparent);color:var(--soft);font:12px/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.rs-gap{color:var(--faint);font-style:italic}
+.rs-c{border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));border-radius:10px;margin:0 0 12px;overflow:hidden}
+.rs-c.done{border-color:var(--line)}
+.rs-cols{display:grid;grid-template-columns:1fr 1fr}
+.rs-side{min-width:0;padding:10px 12px}
+.rs-side+.rs-side{border-left:1px solid var(--line2)}
+.rs-side h3{margin:0 0 6px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.rs-side pre{margin:0;font:12.5px/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.rs-pick{display:flex;gap:2px;padding:6px;border-top:1px solid var(--line2);background:color-mix(in srgb,var(--line2) 40%,transparent)}
+.rs-pick button{flex:1;border:1px solid transparent;background:transparent;color:var(--soft);border-radius:6px;padding:6px 8px;font:600 12px var(--font);cursor:pointer}
+.rs-pick button:hover{color:var(--ink)}
+.rs-pick button[aria-checked="true"]{background:var(--canvas);color:var(--ink);border-color:var(--line);box-shadow:0 1px 2px -1px rgba(0,0,0,.2)}
+.rs-edit{margin:4px 0 8px}
+.rs-edit summary{cursor:pointer;font:600 12.5px var(--font);color:var(--soft)}
+.rs-edit textarea{margin-top:8px;font:12.5px/1.55 var(--mono)}
+@media (max-width:640px){.rs-cols{grid-template-columns:1fr}.rs-side+.rs-side{border-left:0;border-top:1px solid var(--line2)}}
+
+/* "changed elsewhere" banner above the editor */
+.dm-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--warn) 8%,var(--canvas));font-size:12.5px}
+.dm-banner span{flex:1;min-width:200px}
+.dm-banner .btn{padding:5px 10px;font-size:12px}
+.toast-act{margin-left:10px;border:1px solid currentColor;background:transparent;color:inherit;border-radius:6px;padding:2px 8px;font:600 12px var(--font);cursor:pointer;pointer-events:auto}
+
+/* hosted demo */
+.demo-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 14px;padding:8px 10px 8px 12px;border:1px solid var(--line2);border-radius:9px;background:color-mix(in srgb,var(--accent-soft) 35%,var(--canvas));font-size:12.5px;color:var(--soft)}
+.demo-note b{color:var(--ink);font-weight:600}
+.demo-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.demo-txt{flex:1;min-width:220px}
+.demo-acts{display:flex;align-items:center;gap:4px}
+.demo-acts button,.demo-acts a{border:0;background:transparent;color:var(--accent);font:600 12.5px var(--font);padding:4px 7px;border-radius:6px;cursor:pointer;text-decoration:none}
+.demo-acts button:hover,.demo-acts a:hover{background:var(--accent-soft)}
+.demo-acts .demo-x{color:var(--faint);font-weight:400}
+
+/* Studio storage card */
+.core-storage .ct{gap:8px}
+.core-dim{font:11.5px var(--mono);color:var(--faint)}
+.core-err{flex-basis:100%;font-size:12px;color:var(--err)}
+.core-path{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:11.5px var(--mono);padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--line2) 60%,transparent)}
+
+/* Accessibility: the status bar used opacity to look quiet, which dropped its text below
+   WCAG AA contrast. It now stays fully opaque (the color tokens keep it quiet) except
+   while you type, when it steps back on purpose. */
+.wrap:not(:has(#entry:focus)) .ribbon{opacity:1!important}

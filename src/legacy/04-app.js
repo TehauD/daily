@@ -6,9 +6,9 @@ const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','
 const LS={entry:d=>'daily:entry:'+d,sha:d=>'daily:sha:'+d,set:'daily:settings',gh:'daily:gh',az:'daily:az',ai:'daily:ai',pi:'daily:promptIdx',prompt:d=>'daily:prompt:'+d};
 /* quota-guarded storage */
 let _quotaWarned=false;
-const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},
-  set:(k,v)=>{try{localStorage.setItem(k,v);return true;}catch(e){if(e&&(e.name==='QuotaExceededError'||e.code===22||e.code===1014)){if(!_quotaWarned){_quotaWarned=true;toast('⚠ Browser storage is full — export a backup (Studio) or remove large images. Recent change not saved locally.');setTimeout(()=>_quotaWarned=false,4000);}}return false;}},
-  rm:k=>{try{localStorage.removeItem(k)}catch{}},keys:()=>{try{return Object.keys(localStorage)}catch{return[]}}};
+/* Storage is provided by the core (src/core/storage/store.ts): journal data in IndexedDB,
+   preferences in localStorage, same synchronous get/set/rm/keys API as before. */
+const store=window.DailyStore;
 let curDate=todayISO(), mode='write', saveTimer=null;
 function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3000);}
 const DEFAULTS={name:'',theme:'auto',width:900,assets:true,stream:true,obsidian:true};
@@ -104,7 +104,7 @@ function updateDateUI(){$('dCur').textContent=label(curDate);$('dCur').classList
 function setMode(m){if(mode==='write')mdBuffer=htmlToMD($('entry'));else if(mode==='source')mdBuffer=$('source').value;mode=m;const w=$('writer');w.classList.remove('mode-write','mode-source','mode-preview','rich');w.classList.add('mode-'+m);if(m==='write')w.classList.add('rich');document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));refreshPane();}
 /* telemetry */
 const short=n=>n<1000?String(n):n<1e6?(n/1000).toFixed(n<1e4?1:0).replace('.0','')+'k':(n/1e6).toFixed(1)+'m';
-const bytesL=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+const bytesL=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':n<1073741824?(n/1048576).toFixed(1)+' MB':(n/1073741824).toFixed(1)+' GB';
 function metrics(){const t=entryText();const words=(t.match(/\S+/g)||[]).length,chars=[...t].length,lines=t?t.split(/\n/).length:0,code=Math.floor((t.match(/```/g)||[]).length/2),size=new TextEncoder().encode(t).length;return{words,chars,lines,code,size,read:Math.max(0,Math.ceil(words/200)),arts:candidates(t).length};}
 /* ============================================================ OBSIDIAN-ALIGNED TAG SCHEMA
    Nested tags: type/*, status/*, area/*, project/*  (Obsidian graph + Properties compatible)
@@ -133,7 +133,7 @@ function autoTagInline(md,force){if(!force&&!obsidianTagPref())return md||'';con
 function applyAutoTags(){const before=entryText();const after=autoTagInline(before,true);if(after===before){toast('No new element tags to add.');return;}setEntryText(after);scheduleSave();renderRibbon();toast('Auto-tagged decisions · learnings · blockers…');}
 function currentProject(){const raw=explicitTags(entryText()).filter(x=>!isReservedTag(x)).map(x=>x.replace(/^project\//,''));if(!raw.length)return'';const f={};raw.forEach(x=>f[x]=(f[x]||0)+1);return Object.entries(f).sort((a,b)=>b[1]-a[1])[0][0];}
 function storageBytes(){let n=0;store.keys().forEach(k=>{if(k.indexOf('daily:')===0){n+=k.length+((store.get(k)||'').length);}});return n*2;}
-function renderQuota(){const b=storageBytes();const cap=5*1024*1024;const pct=Math.min(100,Math.round(b/cap*100));const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+' ('+pct+'%)';q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent='Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.';if($('backupStat'))$('backupStat').textContent=(n=>'· '+n+(n===1?' entry':' entries')+' stored')(allEntries().length)+'';}
+function renderQuota(){const inf=(window.DailyStore&&DailyStore.info)||{},idb=inf.mode==='indexeddb';const b=idb&&inf.usage!=null?inf.usage:storageBytes();const cap=idb?(inf.quota||0):5*1024*1024;const pct=cap?Math.min(100,Math.round(b/cap*100)):0;const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+(cap&&pct>=1?' ('+pct+'%)':'');q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent=idb?('Using '+bytesL(b)+(cap?' of '+bytesL(cap)+' available':'')+' in this browser’s database'+(inf.persisted?', protected from automatic clean-up.':'.')):('Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.');if($('backupStat'))$('backupStat').textContent=(n=>'· '+n+(n===1?' entry':' entries')+' stored')(allEntries().length)+'';}
 function renderRibbon(){const m=metrics();$('rMetrics').textContent=`${short(m.words)}w · ${short(m.chars)}c · ${m.read}m · ${m.lines}L · ${m.code}CB · ${m.arts}A · ${bytesL(m.size)}`;$('rStatus').title=`Words: ${m.words}\nCharacters: ${m.chars}\nReading time: ${m.read} min\nLines: ${m.lines}\nCode blocks: ${m.code}\nArtifacts: ${m.arts}\nSize: ${bytesL(m.size)}`;const p=currentProject();const c=$('rCtx');if(p){c.textContent='#'+p;c.classList.remove('empty')}else{c.textContent='no project';c.classList.add('empty')}const gh=ghReady(),az=azReady();$('rRepo').classList.toggle('ready',gh||az);$('rRepo').title=`Repositories — GitHub ${gh?'✓':'○'} · Azure ${az?'✓':'○'}`;renderQuota();}
 const CAND=[[/\b(?:we chose|i chose|decided to|the decision was|going with|opted for)\b/i,'◆ decision','type/decision'],[/\b(?:i learned|turns out|the fix was|solved it|root cause|realized that|lesson[: ])/i,'▣ learning','type/learning'],[/\b(?:hypothesis|experiment|i tried|testing whether|let'?s see if|A\/B)\b/i,'⚗ experiment','type/experiment'],[/\b(?:blocked by|couldn'?t because|not enabled|not approved|no owner|gated|waiting on)\b/i,'⛌ blocker','type/blocker'],[/\b(?:idea|what if|could we|might be worth|opportunity to)\b/i,'💡 idea','type/idea'],[/\b(?:shipped|launched|delivered|completed|done|finished|win\b)/i,'★ win','type/win']];
 function candidates(t){const out=[];(t||'').split(/\n+/).forEach(line=>{const l=line.trim();if(l.length<12)return;for(const[re,lab,tag]of CAND){if(re.test(l)){out.push({label:lab,text:l,tag:tag});break;}}});return out;}
@@ -168,7 +168,7 @@ function buildFrontmatter(e){const tags=collectTags(e.text);const projects=proje
     'title: '+yamlStr(e.date+(projects.length?(' · '+projects[0]):'')),
     'date: '+e.date,
     'created: '+created,
-    'modified: '+now,
+    'modified: '+(e.updated||e.savedAt||now),
     'type: journal'];
   if(e.prompt)lines.push('prompt: '+yamlStr(e.prompt));
   lines.push('tags:',yamlList(tags));

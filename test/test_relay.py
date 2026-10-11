@@ -162,6 +162,16 @@ class FakeUpstream(BaseHTTPRequestHandler):
                 data = base64.b64decode(b["content"])
                 Fake.gh.setdefault(br, {})[path] = data
                 return self._json(201, {"content": {"sha": blob_sha(data)}, "commit": {"html_url": "https://github.example/c/1"}})
+            if self.command == "DELETE":
+                b = self._body()
+                br = b.get("branch", "main")
+                cur = Fake.gh.get(br, {}).get(path)
+                if cur is None:
+                    return self._json(404, {"message": "Not Found"})
+                if b.get("sha") != blob_sha(cur):
+                    return self._json(409, {"message": "sha mismatch"})
+                del Fake.gh[br][path]
+                return self._json(200, {"commit": {"sha": "del1"}})
         if p.startswith(R + "/git/ref/heads/"):
             br = urllib.parse.unquote(p.split("/git/ref/heads/", 1)[1])
             if br in Fake.gh_refs:
@@ -275,6 +285,9 @@ class FakeUpstream(BaseHTTPRequestHandler):
                 return self._json(409, {"message": "TF401028: ref has been updated"})
             Fake.ado_pushes.append(b)
             for ch in b["commits"][0]["changes"]:
+                if ch["changeType"] == "delete":
+                    Fake.ado.setdefault(br, {}).pop(ch["item"]["path"], None)
+                    continue
                 c = ch["newContent"]
                 data = base64.b64decode(c["content"]) if c["contentType"] == "base64encoded" else c["content"].encode()
                 Fake.ado.setdefault(br, {})[ch["item"]["path"]] = data
@@ -353,7 +366,7 @@ class FakeUpstream(BaseHTTPRequestHandler):
             return self._json(200, {"choices": [{"message": {"content": "Hello from fake AI"}}]})
         return self._json(404, {"message": "fake: no route " + self.path})
 
-    do_GET = do_POST = do_PUT = do_PATCH = handle_any
+    do_GET = do_POST = do_PUT = do_PATCH = do_DELETE = handle_any
 
 
 import urllib.parse  # noqa: E402  (used by the fake handler)
@@ -362,6 +375,8 @@ import urllib.parse  # noqa: E402  (used by the fake handler)
 class RelayTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        import tempfile
+        cls.vault_tmp = tempfile.TemporaryDirectory()
         cls.up = ThreadingHTTPServer(("127.0.0.1", 0), FakeUpstream)
         threading.Thread(target=cls.up.serve_forever, daemon=True).start()
         up = f"http://127.0.0.1:{cls.up.server_address[1]}"
@@ -379,6 +394,7 @@ class RelayTest(unittest.TestCase):
             "DAILY_AI_MODEL": "gpt-test", "DAILY_AI_MAX_TOKENS": "500",
             "DAILY_PROVIDER": "github", "DAILY_GITHUB_PROJECT_NUMBER": "3",
             "DAILY_GITHUB_PROJECTS_TOKEN": PROJ_TOKEN,
+            "DAILY_VAULT_DIR": cls.vault_tmp.name,
         }
         env = {k: v for k, v in os.environ.items() if not k.startswith("DAILY_")}
         env.update(envs)
@@ -393,6 +409,7 @@ class RelayTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.log = stop_relay(cls.proc, cls.logf)
         cls.up.shutdown()
+        cls.vault_tmp.cleanup()
         for s in (GH_TOKEN, ADO_PAT, AI_KEY, PROJ_TOKEN):
             assert s not in cls.log, "secret leaked into relay log"
 
@@ -658,6 +675,50 @@ class RelayTest(unittest.TestCase):
         self.assertEqual((r["provider"], run["result"], run["status"], run["branch"]), ("Azure Pipelines", "partial", "completed", "main"))
         code, x, _ = self.req("POST", "/api/runs/rerun?provider=ado", {"id": 501})
         self.assertEqual((code, Fake.ado_builds[-1]["definition"]["id"]), (200, 4))
+
+    def test_repository_delete(self):
+        Fake.gh["main"]["journal/2026/10/11/gone--d1.md"] = b"# gone\n"
+        code, j, _ = self.req("POST", "/api/repositories/delete", {"provider": "github", "path": "2026/10/11/gone--d1.md"})
+        self.assertEqual((code, j["deleted"]), (200, True), j)
+        self.assertNotIn("journal/2026/10/11/gone--d1.md", Fake.gh["main"])
+        code, j, _ = self.req("POST", "/api/repositories/delete", {"provider": "github", "path": "2026/10/11/gone--d1.md"})
+        self.assertEqual((code, j["deleted"], j["missing"]), (200, False, True))
+        code, j, _ = self.req("POST", "/api/repositories/delete", {"provider": "github", "path": "../secrets.md"})
+        self.assertEqual(code, 400)
+        code, j, _ = self.req("POST", "/api/repositories/delete", {"provider": "github", "path": "2026/x.txt"})
+        self.assertEqual(code, 400)
+        Fake.ado["main"]["/journal/2026/10/11/gone--d2.md"] = b"# gone\n"
+        code, j, _ = self.req("POST", "/api/repositories/delete", {"provider": "ado", "path": "2026/10/11/gone--d2.md"})
+        self.assertEqual((code, j["deleted"]), (200, True), j)
+        self.assertNotIn("/journal/2026/10/11/gone--d2.md", Fake.ado["main"])
+        self.assertEqual(Fake.ado_pushes[-1]["commits"][0]["changes"], [{"changeType": "delete", "item": {"path": "/journal/2026/10/11/gone--d2.md"}}])
+
+    def test_vault_round_trip(self):
+        code, v, _ = self.req("GET", "/api/vault")
+        self.assertEqual((code, v["enabled"]), (200, True))
+        self.assertTrue(v["id"])
+        rel = "2026/10/11/note--v1.md"
+        code, w, _ = self.req("PUT", "/api/vault/file", {"path": rel, "content": "# one\n", "ifMatch": None})
+        self.assertEqual(code, 200, w)
+        code, again, _ = self.req("PUT", "/api/vault/file", {"path": rel, "content": "# one\n", "ifMatch": None})
+        self.assertEqual(code, 409)            # "must not exist" no longer holds
+        self.assertEqual(again["etag"], w["etag"])
+        code, w2, _ = self.req("PUT", "/api/vault/file", {"path": rel, "content": "# two\n", "ifMatch": w["etag"]})
+        self.assertEqual(code, 200, w2)
+        code, stale, _ = self.req("PUT", "/api/vault/file", {"path": rel, "content": "# three\n", "ifMatch": w["etag"]})
+        self.assertEqual((code, stale["content"]), (409, "# two\n"))
+        code, lst, _ = self.req("GET", "/api/vault/list")
+        self.assertIn(rel, [f["path"] for f in lst["files"]])
+        code, f, _ = self.req("GET", "/api/vault/file?path=" + urllib.parse.quote(rel))
+        self.assertEqual((f["content"], f["etag"]), ("# two\n", w2["etag"]))
+        code, d, _ = self.req("POST", "/api/vault/delete", {"path": rel, "ifMatch": w2["etag"]})
+        self.assertEqual((code, d["deleted"]), (200, True), d)
+        self.assertTrue(d["trash"].startswith(".trash/"))
+        code, lst, _ = self.req("GET", "/api/vault/list")
+        self.assertNotIn(rel, [f["path"] for f in lst["files"]])          # trash is not listed
+        for bad in ("../x.md", "/etc/passwd", ".trash/2026/a.md", "2026/a.txt", "a/../../b.md"):
+            code, _, _ = self.req("PUT", "/api/vault/file", {"path": bad, "content": "x"})
+            self.assertIn(code, (400, 403), bad)
 
     def test_path_rules(self):
         for bad in ("../secrets.md", "2026/../../x.md", "a/b.txt", "", "/etc/passwd"):

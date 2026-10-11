@@ -6,19 +6,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Daily — Developer Intelligence Journal</title>
 <meta name="color-scheme" content="light dark">
+<meta name="description" content="A local-first journal for engineering and research work: write plainly, link everything, publish Markdown to GitHub or Azure DevOps on your terms.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230969da'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23fff'/%3E%3C/svg%3E">
+<meta property="og:title" content="The Daily — Developer Intelligence Journal">
+<meta property="og:description" content="Write plainly. The Daily structures, links and keeps every entry — in your browser, as Markdown, published only when you say so.">
+<meta property="og:type" content="website">
 <style>
 :root{
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-  --bg:#ffffff;--canvas:#ffffff;--ink:#1f2328;--soft:#57606a;--faint:#8c959f;
+  --bg:#ffffff;--canvas:#ffffff;--ink:#1f2328;--soft:#57606a;--faint:#656d76;
   --line:#d0d7de;--line2:#eaeef2;--accent:#0969da;--accent-soft:#ddf4ff;
   --ok:#1a7f37;--warn:#9a6700;--err:#cf222e;--radius:6px;--measure:900px;--hl:#fff3b0;
 }
-:root[data-theme="dark"]{--bg:#0d1117;--canvas:#0d1117;--ink:#e6edf3;--soft:#8b949e;--faint:#6e7681;
+:root[data-theme="dark"]{--bg:#0d1117;--canvas:#0d1117;--ink:#e6edf3;--soft:#8b949e;--faint:#8d96a0;
   --line:#30363d;--line2:#21262d;--accent:#2f81f7;--accent-soft:#0c2d6b;--ok:#3fb950;--warn:#d29922;--err:#f85149;--hl:#5a4a00;}
-:root[data-theme="light"]{--bg:#ffffff;--canvas:#ffffff;--ink:#1f2328;--soft:#57606a;--faint:#8c959f;
+:root[data-theme="light"]{--bg:#ffffff;--canvas:#ffffff;--ink:#1f2328;--soft:#57606a;--faint:#656d76;
   --line:#d0d7de;--line2:#eaeef2;--accent:#0969da;--accent-soft:#ddf4ff;--ok:#1a7f37;--warn:#9a6700;--err:#cf222e;--hl:#fff3b0;}
-@media (prefers-color-scheme:dark){:root[data-theme="auto"],:root:not([data-theme]){--bg:#0d1117;--canvas:#0d1117;--ink:#e6edf3;--soft:#8b949e;--faint:#6e7681;
+@media (prefers-color-scheme:dark){:root[data-theme="auto"],:root:not([data-theme]){--bg:#0d1117;--canvas:#0d1117;--ink:#e6edf3;--soft:#8b949e;--faint:#8d96a0;
   --line:#30363d;--line2:#21262d;--accent:#2f81f7;--accent-soft:#0c2d6b;--ok:#3fb950;--warn:#d29922;--err:#f85149;--hl:#5a4a00;}}
 *{box-sizing:border-box}html,body{margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6}
@@ -320,7 +327,7 @@ noscript{display:block;max-width:600px;margin:60px auto;text-align:center}
 <header class="top"><div class="top-in">
   <div class="brand">
     <span class="sig"></span><span class="n">THE DAILY</span>
-    <div class="today"><button class="step" id="dPrev" title="Previous day">‹</button><button class="cur" id="dCur">Today</button><button class="step" id="dNext" title="Next day">›</button><input type="date" id="dateInput"></div>
+    <div class="today"><button class="step" id="dPrev" title="Previous day">‹</button><button class="cur" id="dCur">Today</button><button class="step" id="dNext" title="Next day">›</button><input type="date" id="dateInput" aria-label="Choose a date"></div>
   </div>
   <nav class="nav">
     <!--<button class="save" id="navSave" onclick="quickSave()" title="Save & Push (⌘S)">⚡ Save</button>-->
@@ -386,7 +393,7 @@ noscript{display:block;max-width:600px;margin:60px auto;text-align:center}
     </div>
   </div>
   <div class="writer rich mode-write" id="writer">
-    <div id="entry" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-ph="Start writing. Press / for scaffolds (auto-tagged), #project/… for projects — decisions, learnings & blockers tag themselves for the Obsidian graph."></div>
+    <div id="entry" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Journal entry" spellcheck="true" data-ph="Start writing. Press / for scaffolds (auto-tagged), #project/… for projects — decisions, learnings & blockers tag themselves for the Obsidian graph."></div>
     <textarea id="source" spellcheck="false" aria-label="Markdown source"></textarea>
     <div id="preview"></div>
     <div class="aibar" id="aibar"></div>
@@ -542,7 +549,7 @@ noscript{display:block;max-width:600px;margin:60px auto;text-align:center}
 <!-- APPLICATION CONSOLE -->
 <div class="mback" id="consoleModal" onclick="if(event.target===this)closeModal('consoleModal')"><div class="modal wide console-modal"><div class="mhead"><button class="mx" onclick="closeModal('consoleModal')">✕</button><h3 class="mt">Console</h3><div class="ms">Application runtime events. Filter, inspect, correlate, and export.</div></div><div class="mbody"><div class="console-tools"><select id="consoleCat" onchange="renderConsole()"><option value="all">All events</option><option value="error">Errors</option><option value="ai">AI</option><option value="repository">Repository</option><option value="storage">Storage</option><option value="editor">Editor</option><option value="graph">Graph</option></select><input id="consoleSearch" placeholder="Search events or trace ID" oninput="renderConsole()"><button onclick="clearConsole()">Clear</button><button onclick="exportConsole()">Export</button></div><div id="consoleBody"></div></div></div></div>
 <div class="mback" id="pulseModal" onclick="if(event.target===this)closeModal('pulseModal')"><div class="modal wide pmodal"><div class="mhead"><button class="mx" onclick="closeModal('pulseModal')">✕</button><h3 class="mt">Workspace Pulse</h3><div class="ms">Thought to retained, connected, versioned value.</div></div><div class="ptabs"><button class="ptab on" data-t="overview" onclick="pulseTab('overview')">Overview</button><button class="ptab" data-t="flow" onclick="pulseTab('flow')">Flow</button><button class="ptab" data-t="graph" onclick="pulseTab('graph')">Graph</button><button class="ptab" data-t="evidence" onclick="pulseTab('evidence')">Evidence</button></div><div class="mbody"><div class="pfilters"><select id="pPeriod" onchange="renderPulse()"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="180">6 months</option><option value="all">All time</option></select><select id="pProject" onchange="renderPulse()"><option value="all">All projects</option></select><button onclick="exportPulse()">Export evidence</button><span class="phealth" id="pHealth">● measured locally</span></div><div id="pBody"></div></div></div></div><div id="toast"></div>
-<script id="app">
+<script type="text/x-daily-module" id="app">
 'use strict';
 /* ============================================================ CORE ============================================================ */
 const $=id=>document.getElementById(id);
@@ -551,9 +558,9 @@ const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','
 const LS={entry:d=>'daily:entry:'+d,sha:d=>'daily:sha:'+d,set:'daily:settings',gh:'daily:gh',az:'daily:az',ai:'daily:ai',pi:'daily:promptIdx',prompt:d=>'daily:prompt:'+d};
 /* quota-guarded storage */
 let _quotaWarned=false;
-const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},
-  set:(k,v)=>{try{localStorage.setItem(k,v);return true;}catch(e){if(e&&(e.name==='QuotaExceededError'||e.code===22||e.code===1014)){if(!_quotaWarned){_quotaWarned=true;toast('⚠ Browser storage is full — export a backup (Studio) or remove large images. Recent change not saved locally.');setTimeout(()=>_quotaWarned=false,4000);}}return false;}},
-  rm:k=>{try{localStorage.removeItem(k)}catch{}},keys:()=>{try{return Object.keys(localStorage)}catch{return[]}}};
+/* Storage is provided by the core (src/core/storage/store.ts): journal data in IndexedDB,
+   preferences in localStorage, same synchronous get/set/rm/keys API as before. */
+const store=window.DailyStore;
 let curDate=todayISO(), mode='write', saveTimer=null;
 function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3000);}
 const DEFAULTS={name:'',theme:'auto',width:900,assets:true,stream:true,obsidian:true};
@@ -649,7 +656,7 @@ function updateDateUI(){$('dCur').textContent=label(curDate);$('dCur').classList
 function setMode(m){if(mode==='write')mdBuffer=htmlToMD($('entry'));else if(mode==='source')mdBuffer=$('source').value;mode=m;const w=$('writer');w.classList.remove('mode-write','mode-source','mode-preview','rich');w.classList.add('mode-'+m);if(m==='write')w.classList.add('rich');document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));refreshPane();}
 /* telemetry */
 const short=n=>n<1000?String(n):n<1e6?(n/1000).toFixed(n<1e4?1:0).replace('.0','')+'k':(n/1e6).toFixed(1)+'m';
-const bytesL=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+const bytesL=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':n<1073741824?(n/1048576).toFixed(1)+' MB':(n/1073741824).toFixed(1)+' GB';
 function metrics(){const t=entryText();const words=(t.match(/\S+/g)||[]).length,chars=[...t].length,lines=t?t.split(/\n/).length:0,code=Math.floor((t.match(/```/g)||[]).length/2),size=new TextEncoder().encode(t).length;return{words,chars,lines,code,size,read:Math.max(0,Math.ceil(words/200)),arts:candidates(t).length};}
 /* ============================================================ OBSIDIAN-ALIGNED TAG SCHEMA
    Nested tags: type/*, status/*, area/*, project/*  (Obsidian graph + Properties compatible)
@@ -678,7 +685,7 @@ function autoTagInline(md,force){if(!force&&!obsidianTagPref())return md||'';con
 function applyAutoTags(){const before=entryText();const after=autoTagInline(before,true);if(after===before){toast('No new element tags to add.');return;}setEntryText(after);scheduleSave();renderRibbon();toast('Auto-tagged decisions · learnings · blockers…');}
 function currentProject(){const raw=explicitTags(entryText()).filter(x=>!isReservedTag(x)).map(x=>x.replace(/^project\//,''));if(!raw.length)return'';const f={};raw.forEach(x=>f[x]=(f[x]||0)+1);return Object.entries(f).sort((a,b)=>b[1]-a[1])[0][0];}
 function storageBytes(){let n=0;store.keys().forEach(k=>{if(k.indexOf('daily:')===0){n+=k.length+((store.get(k)||'').length);}});return n*2;}
-function renderQuota(){const b=storageBytes();const cap=5*1024*1024;const pct=Math.min(100,Math.round(b/cap*100));const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+' ('+pct+'%)';q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent='Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.';if($('backupStat'))$('backupStat').textContent=(n=>'· '+n+(n===1?' entry':' entries')+' stored')(allEntries().length)+'';}
+function renderQuota(){const inf=(window.DailyStore&&DailyStore.info)||{},idb=inf.mode==='indexeddb';const b=idb&&inf.usage!=null?inf.usage:storageBytes();const cap=idb?(inf.quota||0):5*1024*1024;const pct=cap?Math.min(100,Math.round(b/cap*100)):0;const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+(cap&&pct>=1?' ('+pct+'%)':'');q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent=idb?('Using '+bytesL(b)+(cap?' of '+bytesL(cap)+' available':'')+' in this browser’s database'+(inf.persisted?', protected from automatic clean-up.':'.')):('Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.');if($('backupStat'))$('backupStat').textContent=(n=>'· '+n+(n===1?' entry':' entries')+' stored')(allEntries().length)+'';}
 function renderRibbon(){const m=metrics();$('rMetrics').textContent=`${short(m.words)}w · ${short(m.chars)}c · ${m.read}m · ${m.lines}L · ${m.code}CB · ${m.arts}A · ${bytesL(m.size)}`;$('rStatus').title=`Words: ${m.words}\nCharacters: ${m.chars}\nReading time: ${m.read} min\nLines: ${m.lines}\nCode blocks: ${m.code}\nArtifacts: ${m.arts}\nSize: ${bytesL(m.size)}`;const p=currentProject();const c=$('rCtx');if(p){c.textContent='#'+p;c.classList.remove('empty')}else{c.textContent='no project';c.classList.add('empty')}const gh=ghReady(),az=azReady();$('rRepo').classList.toggle('ready',gh||az);$('rRepo').title=`Repositories — GitHub ${gh?'✓':'○'} · Azure ${az?'✓':'○'}`;renderQuota();}
 const CAND=[[/\b(?:we chose|i chose|decided to|the decision was|going with|opted for)\b/i,'◆ decision','type/decision'],[/\b(?:i learned|turns out|the fix was|solved it|root cause|realized that|lesson[: ])/i,'▣ learning','type/learning'],[/\b(?:hypothesis|experiment|i tried|testing whether|let'?s see if|A\/B)\b/i,'⚗ experiment','type/experiment'],[/\b(?:blocked by|couldn'?t because|not enabled|not approved|no owner|gated|waiting on)\b/i,'⛌ blocker','type/blocker'],[/\b(?:idea|what if|could we|might be worth|opportunity to)\b/i,'💡 idea','type/idea'],[/\b(?:shipped|launched|delivered|completed|done|finished|win\b)/i,'★ win','type/win']];
 function candidates(t){const out=[];(t||'').split(/\n+/).forEach(line=>{const l=line.trim();if(l.length<12)return;for(const[re,lab,tag]of CAND){if(re.test(l)){out.push({label:lab,text:l,tag:tag});break;}}});return out;}
@@ -713,7 +720,7 @@ function buildFrontmatter(e){const tags=collectTags(e.text);const projects=proje
     'title: '+yamlStr(e.date+(projects.length?(' · '+projects[0]):'')),
     'date: '+e.date,
     'created: '+created,
-    'modified: '+now,
+    'modified: '+(e.updated||e.savedAt||now),
     'type: journal'];
   if(e.prompt)lines.push('prompt: '+yamlStr(e.prompt));
   lines.push('tags:',yamlList(tags));
@@ -1132,11 +1139,11 @@ function boot(){applyS();syncPromptForCurrentDay();
   if(ghReady()||azReady()){setTimeout(()=>pullRepos({silent:true}).then(r=>{try{sessionStorage.setItem('daily:lastPull',String(Date.now()))}catch{}if(r&&(r.added||r.updated)){const cur=loadEntry(curDate);if(cur&&document.activeElement!==$('entry')){setEntryText(cur.text);renderRibbon();}toast('Synced '+r.added+' entries from your repository.');}}).catch(()=>{}),400);}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 </script>
-<script id="pulse-release">
+<script type="text/x-daily-module" id="pulse-release">
 (function(){'use strict';let tab='overview',pick=0,E=[];try{E=JSON.parse(sessionStorage.getItem('daily:pulse:v1')||'[]')}catch{}const uid=()=>crypto?.randomUUID?.()||Date.now().toString(36);function redact(v,k='',d=0){if(d>6)return'[depth]';if(/key|token|secret|password|authorization/i.test(k))return'[REDACTED]';if(Array.isArray(v))return v.map(x=>redact(x,'',d+1));if(v&&typeof v==='object'){let o={};for(const k in v)o[k]=redact(v[k],k,d+1);return o}return v}window.workspaceEvents={emit(x){x=redact(Object.assign({schemaVersion:'1.0',id:uid(),traceId:x?.traceId||uid(),timestamp:new Date().toISOString(),level:'info'},x));E.push(x);if(E.length>500)E.shift();sessionStorage.setItem('daily:pulse:v1',JSON.stringify(E));if($('pulseModal')?.classList.contains('open'))renderPulse()},all:()=>E.slice()};function scoped(){let n=$('pPeriod')?.value||'30',p=$('pProject')?.value||'all',cut=n==='all'?0:Date.now()-(+n-1)*86400000;return allEntries().filter(e=>new Date(e.date+'T12:00').getTime()>=cut&&(p==='all'||projectSlugs(e.text||'').includes(p)))}function evs(){let n=$('pPeriod')?.value||'30',cut=n==='all'?0:Date.now()-(+n-1)*86400000;return E.filter(e=>new Date(e.timestamp).getTime()>=cut)}function model(){let es=scoped(),ev=evs(),a=es.flatMap(e=>candidates(e.text||'')),r=ev.filter(e=>e.category==='repository'),ai=ev.filter(e=>e.category==='ai'),comm=new Set(r.filter(e=>e.name==='repository.commit.completed').map(e=>e.attributes?.date));return{es,ev,a,r,ai,comm,st:[['Capture',es.length],['Structure',es.filter(e=>candidates(e.text||'').length).length],['Connect',es.filter(e=>graphTags(e.text||'').length).length],['Augment',new Set(ai.filter(e=>e.name==='ai.response.completed').map(e=>e.traceId)).size],['Commit',comm.size],['Reuse',es.filter(e=>/\[\[/.test(e.text||'')).length]]}}function projects(){let s=$('pProject'),v=s.value,ps=[...new Set(allEntries().flatMap(e=>projectSlugs(e.text||'')))].sort();s.innerHTML='<option value="all">All projects</option>'+ps.map(x=>`<option value="${esc(x)}">#${esc(x)}</option>`).join('');if(ps.includes(v))s.value=v}window.openPulse=function(t){projects();openModal('pulseModal');pulseTab(t||tab)};window.pulseTab=function(t){tab=t;document.querySelectorAll('.ptab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));renderPulse()};window.renderPulse=function(){let b=$('pBody'),m=model();$('pHealth').textContent=m.ev.some(e=>e.level==='error')?'● attention needed':'● measured locally';tab==='overview'?overview(b,m):tab==='flow'?flow(b,m):tab==='graph'?graph(b,m):evidence(b,m)};function overview(b,m){let k=[['Entries',m.es.length],['Decisions',m.a.filter(x=>x.tag==='type/decision').length],['Commits',m.comm.size],['AI runs',new Set(m.ai.filter(x=>x.name==='ai.response.completed').map(x=>x.traceId)).size],['Open loops',m.a.filter(x=>x.tag==='type/blocker').length]];b.innerHTML=`<div class="pkpis">${k.map(x=>`<div class="pk"><b>${x[1]}</b><small>${x[0]}</small></div>`).join('')}</div><div class="yield">${m.st.map((x,i)=>`<div class="ys"><span>${x[0]}</span><b>${x[1]}</b><small>${i?Math.round(x[1]/Math.max(1,m.st[i-1][1])*100):100}% yield</small></div>`).join('')}</div><div class="pgrid"><div class="panel"><div class="ph">KNOWLEDGE PULSE</div><div class="pb">${chart(m)}</div></div><div class="panel"><div class="ph">KNOWLEDGE CONTINUITY</div><div class="pb">${heat(m)}</div></div><div class="panel"><div class="ph">REPOSITORY EVIDENCE</div><div class="pb">${repo(m)}</div></div><div class="panel"><div class="ph">CURRENT OPERATION</div><div class="pb">${current(m)}</div></div></div>`}function days(m,n=14){let a=[],end=new Date(todayISO()+'T12:00');for(let i=n-1;i>=0;i--){let d=new Date(end-i*86400000),iso=d.toISOString().slice(0,10),es=m.es.filter(e=>e.date===iso),v=es.length+es.flatMap(e=>candidates(e.text||'')).length;a.push({iso,v})}return a}function chart(m){let a=days(m),W=600,H=170,p=20,max=Math.max(1,...a.map(x=>x.v)),pts=a.map((x,i)=>[p+i*(W-2*p)/(a.length-1),H-p-x.v*(H-2*p)/max]),line=pts.map(x=>x.join(',')).join(' ');return`<svg class="pulse-svg" viewBox="0 0 ${W} ${H}"><polyline points="${line}" fill="none" stroke="var(--accent)" stroke-width="2"/>${pts.map((x,i)=>`<circle cx="${x[0]}" cy="${x[1]}" r="3" fill="var(--accent)"><title>${a[i].iso}: ${a[i].v}</title></circle>`).join('')}</svg>`}function heat(m){let a=days(m,56);return`<div class="heat">${a.map(x=>{let l=Math.min(3,x.v),git=m.r.some(e=>e.status==='success'&&e.attributes?.date===x.iso);return`<i class="hc l${l}${git?' git':''}" title="${x.iso}: ${x.v} retained signals"></i>`}).join('')}</div><p class="muted">Fill = retained signals · green outline = repository evidence</p>`}function repo(m){let x=m.r.filter(e=>/completed|failed/.test(e.name)).slice(-4).reverse();return x.length?x.map(e=>`<p><b>${esc(e.name)}</b><br><span class="muted">${esc(e.attributes?.provider||e.attributes?.providers?.join(' + ')||'repository')} · ${e.durationMs||0} ms</span></p>`).join(''):'<span class="muted">No repository evidence in this session.</span>'}function current(m){let e=[...m.ai].reverse().find(x=>/completed|failed/.test(x.name));return e?`<b>${esc(e.name)}</b><p class="muted">${e.durationMs||0} ms · ${esc(e.status||e.level)}</p><button class="btn" onclick="pulseTab('flow')">Inspect flow</button>`:'<span class="muted">AI idle. Run an operation to populate the live flow.</span>'}function flow(b,m){let g={};m.ev.forEach(e=>(g[e.traceId]=g[e.traceId]||[]).push(e));let x=Object.values(g).filter(a=>a.some(e=>/ai|repository/.test(e.category))).pop()||[];if(!x.length){b.innerHTML='<p class="muted">Run AI or push to a repository to generate a trace waterfall.</p>';return}let st=Math.min(...x.map(e=>+new Date(e.timestamp))),en=Math.max(...x.map(e=>+new Date(e.timestamp)+(e.durationMs||20))),tot=Math.max(1,en-st);b.innerHTML=`<div class="panel"><div class="ph">EXECUTION WATERFALL · ${esc(x[0].traceId)}</div><div class="pb">${x.map(e=>{let l=(+new Date(e.timestamp)-st)/tot*100,w=Math.max(2,(e.durationMs||20)/tot*100),c=e.level==='error'?'bad':e.status==='success'?'good':'';return`<div class="wfrow"><span>${esc(e.name)}</span><div class="track"><i class="barx ${c}" style="left:${l}%;width:${Math.min(100-l,w)}%"></i></div><span>${e.durationMs||0} ms</span></div>`}).join('')}</div></div>`}function graph(b,m){let ts=['decision','learning','experiment','blocker','win'],ns=[{id:'entries',x:80,y:210,n:m.es.length},...ts.map((t,i)=>({id:t,x:270+(i%2)*170,y:80+Math.floor(i/2)*130,n:m.a.filter(a=>a.tag==='type/'+t).length})),{id:'commit',x:720,y:150,n:m.comm.size},{id:'reuse',x:720,y:300,n:m.st[5][1]}],by=Object.fromEntries(ns.map(n=>[n.id,n])),ed=ts.filter(t=>by[t].n).map(t=>['entries',t,'strong']);['decision','experiment','win'].forEach(t=>{if(by[t].n&&by.commit.n)ed.push([t,'commit','weak'])});['decision','learning'].forEach(t=>{if(by[t].n&&by.reuse.n)ed.push([t,'reuse','weak'])});b.innerHTML=`<p class="muted">Solid = explicit classification · dashed = metadata relationship</p><div class="graphx"><svg viewBox="0 0 800 420">${ed.map(e=>`<line class="edge ${e[2]}" x1="${by[e[0]].x}" y1="${by[e[0]].y}" x2="${by[e[1]].x}" y2="${by[e[1]].y}"/>`).join('')}${ns.map(n=>`<g class="node"><circle cx="${n.x}" cy="${n.y}" r="${12+Math.min(22,n.n*2)}" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="${n.x}" y="${n.y+3}" text-anchor="middle">${n.n}</text><text x="${n.x}" y="${n.y+40}" text-anchor="middle">${n.id}</text></g>`).join('')}</svg></div>`}function evidence(b,m){let x=[...m.ev].reverse();if(!x.length){b.innerHTML='<p class="muted">No session evidence.</p>';return}pick=Math.min(pick,x.length-1);b.innerHTML=`<div class="evlayout"><div class="evlist">${x.map((e,i)=>`<div class="ev ${i===pick?'on':''}" onclick="pulseEvidence(${i})"><b>${esc(e.name)}</b><br>${esc(e.category)} · ${new Date(e.timestamp).toLocaleTimeString()}</div>`).join('')}</div><div class="evdetail"><pre>${esc(JSON.stringify(x[pick],null,2))}</pre></div></div>`}window.pulseEvidence=i=>{pick=i;renderPulse()};window.exportPulse=()=>download('workspace-pulse-'+todayISO()+'.json',JSON.stringify({schemaVersion:'1.0',scope:'local entries and session events',generatedAt:new Date().toISOString(),events:E},null,2),'application/json');const A=window.aiChat;window.aiChat=async function(msg,opt={}){let id=uid(),st=performance.now(),first=null,cb=opt.onToken;workspaceEvents.emit({traceId:id,category:'ai',name:'ai.request.started',attributes:{model:getAI().model,provider:getAI().prov,roles:msg.map(x=>x.role)},measurements:{inputCharacters:msg.reduce((n,x)=>n+String(x.content||'').length,0)}});if(cb)opt=Object.assign({},opt,{onToken:x=>{if(first===null){first=performance.now();workspaceEvents.emit({traceId:id,category:'ai',name:'ai.first_token',durationMs:Math.round(first-st)})}cb(x)}});try{let r=await A(msg,opt);workspaceEvents.emit({traceId:id,category:'ai',name:'ai.response.completed',status:'success',durationMs:Math.round(performance.now()-st),measurements:{outputCharacters:String(r).length,timeToFirstTokenMs:first?Math.round(first-st):null}});return r}catch(e){workspaceEvents.emit({traceId:id,category:'ai',name:'ai.response.failed',level:'error',status:'failed',durationMs:Math.round(performance.now()-st),attributes:{error:e.message}});throw e}};function wrap(name,provider){let F=window[name];window[name]=async function(){let id=uid(),st=performance.now();workspaceEvents.emit({traceId:id,category:'repository',name:'repository.commit.started',attributes:{provider,date:curDate}});try{let r=await F.apply(this,arguments);workspaceEvents.emit({traceId:id,category:'repository',name:'repository.commit.completed',status:'success',durationMs:Math.round(performance.now()-st),attributes:{provider,date:curDate,path:r?.path,url:r?.url}});return r}catch(e){workspaceEvents.emit({traceId:id,category:'repository',name:'repository.commit.failed',level:'error',status:'failed',durationMs:Math.round(performance.now()-st),attributes:{provider,date:curDate,error:e.message}});throw e}}}wrap('ghCommit','GitHub');wrap('azCommit','Azure DevOps');workspaceEvents.emit({category:'entry',name:'workspace.session.started',attributes:{release:'1.4.0-workspace-pulse'}})})();
-</script><script id="ia-release">
+</script><script type="text/x-daily-module" id="ia-release">
 (function(){'use strict';let aiTab='live',consolePick=0,consoleSeen=0;const ev=()=>workspaceEvents?.all?.()||[];function aiEvents(){return ev().filter(x=>x.category==='ai')}function lastAI(){return[...aiEvents()].reverse().find(x=>/completed|failed|started/.test(x.name))}function refreshBadge(){let n=ev().filter((x,i)=>i>=consoleSeen&&(x.level==='error'||x.status==='failed')).length,b=$('consoleBadge');if(b){b.textContent=n||'';b.classList.toggle('show',n>0)}}const originalEmit=workspaceEvents.emit.bind(workspaceEvents);workspaceEvents.emit=function(x){let r=originalEmit(x);refreshBadge();if($('aiHub')?.classList.contains('open'))renderAIHub();return r};window.openAIHub=function(){let h=$('aiHub');h.classList.add('open');h.setAttribute('aria-hidden','false');let l=lastAI();aiTab=l?.status==='failed'?'diagnostics':l?.name?.includes('started')?'live':'history';renderAIHub()};window.closeAIHub=function(){let h=$('aiHub');h.classList.remove('open');h.setAttribute('aria-hidden','true')};window.aiHubTab=function(t){aiTab=t;document.querySelectorAll('.hub-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.a===t));renderAIHub()};window.renderAIHub=function(){document.querySelectorAll('.hub-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.a===aiTab));let b=$('aiHubBody'),a=aiEvents(),l=lastAI(),state=l?.name?.includes('started')?'Running':l?.status==='failed'?'Error':l?'Idle · last '+(l.durationMs||0)+' ms':'Idle';$('aiHubState').textContent=state;if(aiTab==='live')renderLive(b,a,l);else if(aiTab==='history')renderAIHistory(b,a);else if(aiTab==='context')renderContext(b,a);else renderDiagnostics(b,l)};function renderLive(b,a,l){let trace=l?.traceId,group=a.filter(x=>x.traceId===trace),started=group.some(x=>x.name.includes('started')),first=group.some(x=>x.name.includes('first')),done=group.some(x=>x.name.includes('completed')),failed=group.some(x=>x.name.includes('failed'));let stages=[['Context',started],['Request',started],['Streaming',first],['Review',done]];b.innerHTML=`<h3>${l?esc(l.name.replace('ai.','').replaceAll('.',' ')):'AI is idle'}</h3><div class="ai-pipeline">${stages.map((x,i)=>`<div class="ai-stage ${failed&&i===3?'':x[1]?'done':started&&i===2?'active':''}">${x[0]}</div>`).join('')}</div>${group.length?waterfall(group):'<p class="muted">Run Curate, Discover, Shorten, or Builder Memory to populate the live execution trace.</p>'}${failed?'<p style="color:var(--err)">The latest AI operation failed. Open Diagnostics for details.</p>':''}`};function waterfall(g){let st=Math.min(...g.map(e=>+new Date(e.timestamp))),en=Math.max(...g.map(e=>+new Date(e.timestamp)+(e.durationMs||20))),total=Math.max(1,en-st);return`<div class="panel"><div class="ph">AI EXECUTION</div><div class="pb">${g.map(e=>{let left=(+new Date(e.timestamp)-st)/total*100,w=Math.max(2,(e.durationMs||20)/total*100),c=e.level==='error'?'bad':e.status==='success'?'good':'';return`<div class="wfrow"><span>${esc(e.name.replace('ai.',''))}</span><div class="track"><i class="barx ${c}" style="left:${left}%;width:${Math.min(100-left,w)}%"></i></div><span>${e.durationMs||0} ms</span></div>`}).join('')}</div></div>`}function renderAIHistory(b,a){let traces={};a.forEach(e=>(traces[e.traceId]=traces[e.traceId]||[]).push(e));let groups=Object.values(traces).reverse();b.innerHTML=groups.length?groups.map(g=>{let last=g[g.length-1],first=g[0];return`<div class="ai-record" onclick="aiTab='diagnostics';renderAIHub()"><div class="row1"><span>${esc(first.name.replace('ai.request.started','AI operation'))}</span><span>${last.status||last.level}</span></div><code>${new Date(first.timestamp).toLocaleTimeString()} · ${last.durationMs||0} ms · ${esc(first.attributes?.model||'model not reported')}</code></div>`}).join(''):'<p class="muted">No AI operations have been recorded in this tab session.</p>'}function renderContext(b,a){let req=[...a].reverse().find(e=>e.name==='ai.request.started'),n=req?.measurements?.inputCharacters||0,msg=req?.measurements?.messageCount||req?.attributes?.roles?.length||0,pct=Math.min(100,Math.round(n/24000*100));b.innerHTML=req?`<h3>Latest context envelope</h3><div class="ctx-meter"><i style="width:${pct}%"></i></div><dl class="diag-grid"><dt>Input characters</dt><dd>${n.toLocaleString()}</dd><dt>Messages</dt><dd>${msg}</dd><dt>Roles</dt><dd>${esc((req.attributes?.roles||[]).join(', '))}</dd><dt>Model</dt><dd>${esc(req.attributes?.model||'Not reported')}</dd><dt>Provider</dt><dd>${esc(req.attributes?.provider||'Not reported')}</dd><dt>Trace ID</dt><dd>${esc(req.traceId)}</dd></dl><p class="muted">Prompt bodies are intentionally not retained by default. The Console contains metadata events and normalized diagnostics.</p>`:'<p class="muted">No AI request context has been recorded.</p>'}function renderDiagnostics(b,l){if(!l){b.innerHTML='<p class="muted">No AI diagnostics are available.</p>';return}b.innerHTML=`<dl class="diag-grid"><dt>Event</dt><dd>${esc(l.name)}</dd><dt>Status</dt><dd>${esc(l.status||l.level)}</dd><dt>Trace ID</dt><dd>${esc(l.traceId)}</dd><dt>Duration</dt><dd>${l.durationMs||0} ms</dd><dt>Provider</dt><dd>${esc(l.attributes?.provider||'Not reported')}</dd><dt>Model</dt><dd>${esc(l.attributes?.model||'Not reported')}</dd><dt>Error</dt><dd>${esc(l.attributes?.error||'None')}</dd></dl><div class="bar"><button class="btn" onclick="closeAIHub();openConsole('ai','${esc(l.traceId)}')">Open trace in Console</button></div>`}window.openConsole=function(cat,query){openModal('consoleModal');if(cat)$('consoleCat').value=cat;if(query)$('consoleSearch').value=query;consoleSeen=ev().length;refreshBadge();renderConsole()};window.renderConsole=function(){let cat=$('consoleCat').value,q=$('consoleSearch').value.toLowerCase(),x=[...ev()].reverse().filter(e=>(cat==='all'||cat==='error'?(cat==='all'||e.level==='error'||e.status==='failed'):e.category===cat)&&(!q||JSON.stringify(e).toLowerCase().includes(q)));consolePick=Math.min(consolePick,Math.max(0,x.length-1));$('consoleBody').innerHTML=x.length?`<div class="console-layout"><div class="console-list">${x.map((e,i)=>`<div class="console-row ${i===consolePick?'on':''}" onclick="selectConsole(${i})"><span>${new Date(e.timestamp).toLocaleTimeString()}</span><span class="lvl ${e.level}">${esc(e.level)}</span><span>${esc(e.name)}</span></div>`).join('')}</div><div class="console-detail"><pre>${esc(JSON.stringify(x[consolePick],null,2))}</pre></div></div>`:'<p class="muted">No events match the current filter.</p>';window.__consoleView=x};window.selectConsole=i=>{consolePick=i;renderConsole()};window.clearConsole=function(){sessionStorage.removeItem('daily:pulse:v1');location.reload()};window.exportConsole=()=>download('the-daily-console-'+todayISO()+'.json',JSON.stringify({schemaVersion:'1.0',exportedAt:new Date().toISOString(),events:ev()},null,2),'application/json');window.renderBrowseAnalysis=function(b,entries){let a=entries.flatMap(e=>candidates(e.text||'')),st=[['Capture',entries.length],['Structure',entries.filter(e=>candidates(e.text||'').length).length],['Connect',entries.filter(e=>graphTags(e.text||'').length).length],['Version',new Set(ev().filter(e=>e.category==='repository'&&e.name==='repository.commit.completed').map(e=>e.attributes?.date)).size],['Reuse',entries.filter(e=>/\[\[/.test(e.text||'')).length]];let end=new Date(todayISO()+'T12:00'),days=[];for(let i=55;i>=0;i--){let d=new Date(end-i*86400000),iso=d.toISOString().slice(0,10),es=entries.filter(e=>e.date===iso),v=es.length+es.flatMap(e=>candidates(e.text||'')).length;days.push({iso,v})}b.innerHTML=`<div class="analysis-controls"><span class="muted">Workspace-derived analysis · AI usage remains in AI</span></div><div class="analysis-yield">${st.map((x,i)=>`<div><span>${x[0]}</span><b>${x[1]}</b><small>${i?Math.round(x[1]/Math.max(1,st[i-1][1])*100):100}% yield</small></div>`).join('')}</div><div class="analysis-grid"><div class="analysis-card"><h4>KNOWLEDGE CONTINUITY</h4><div class="inside"><div class="browse-heat">${days.map(x=>`<i class="l${Math.min(3,x.v)}" title="${x.iso}: ${x.v} retained signals"></i>`).join('')}</div></div></div><div class="analysis-card"><h4>ARTIFACT DISTRIBUTION</h4><div class="inside">${['decision','learning','experiment','blocker','win'].map(t=>`<p><b>${a.filter(x=>x.tag==='type/'+t).length}</b> <span class="muted">${t}${t==='decision'?'s':''}</span></p>`).join('')}</div></div></div>`};refreshBadge()})();
-</script><script id="condensed-surface">
+</script><script type="text/x-daily-module" id="condensed-surface">
 (function(){'use strict';window.openStudioHome=function(){openModal('studioModal')};window.openAIHubSafe=function(){var h=document.getElementById('aiHub');if(!h){if(typeof openIntel==='function')openIntel();return}h.classList.add('open');h.setAttribute('aria-hidden','false');var trigger=document.getElementById('rSpark');if(trigger)trigger.setAttribute('aria-expanded','true');try{if(typeof window.openAIHub==='function')window.openAIHub();else if(typeof window.renderAIHub==='function')window.renderAIHub()}catch(err){var body=document.getElementById('aiHubBody');if(body)body.innerHTML='<p class="muted">AI panel opened. Runtime details are available in Console.</p><div class="bar"><button class="btn" onclick="closeAIHub();openIntel()">Run AI</button><button class="btn" onclick="closeAIHub();openModal(\'studioModal\')">Configure</button></div>';console.error('AI panel render failed',err)}};var priorClose=window.closeAIHub;window.closeAIHub=function(){var h=document.getElementById('aiHub');if(h){h.classList.remove('open');h.setAttribute('aria-hidden','true')}var trigger=document.getElementById('rSpark');if(trigger)trigger.setAttribute('aria-expanded','false');if(priorClose&&priorClose!==window.closeAIHub)try{priorClose()}catch(_){}};window.addEventListener('keydown',function(e){if(!(e.ctrlKey||e.metaKey)||!e.shiftKey)return;if(e.key.toLowerCase()==='a'){e.preventDefault();openAIHubSafe()}if(e.key.toLowerCase()==='c'){e.preventDefault();openConsole()}})})();
 </script>
 <!-- AMBIENT AI COMPANION 1.7.0 -->
@@ -1184,7 +1191,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <div class="intel-body" id="intelBody"></div>
 </aside>
 
-<script id="intelligence-layer-release">
+<script type="text/x-daily-module" id="intelligence-layer-release">
 (function(){'use strict';
 const KEY='daily:intelligence:v3',q=id=>document.getElementById(id);
 const DEFAULT={presence:'ambient',profile:'builder',confidence:.90,cooldownMinutes:15,memoryWindowDays:90,weeklyCoach:'weekly',indicatorStyle:'minimal',sources:{journal:true,github:true,azure:true,evidence:true,projects:true},categories:{decisions:true,actions:true,evidence:true,projects:true,patterns:true,opportunities:true,relationships:false,creativeSpark:true}};
@@ -1212,7 +1219,7 @@ function boot(){const e=q('entry'),src=q('source');if(!e||!q('intelIndicator'))r
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
-<script id="multi-file-storage-release">
+<script type="text/x-daily-module" id="multi-file-storage-release">
 /* MULTI-FILE DAILY STORAGE 2.0
    Canonical identity: entry.id. Date is an index, never a primary key.
    Repository layout: <root>/YYYY/MM/DD/<slug>--<id>.md
@@ -1245,40 +1252,64 @@ function canonicalEntries(){const unique=new Map();rawEntries().forEach(e=>{cons
 function duplicateInventory(){const groups=new Map();rawEntries().forEach(e=>{const key=repositoryIdentity(e);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e)});return [...groups.values()].filter(g=>g.length>1)}
 allEntries=function(){return canonicalEntries().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.created||'').localeCompare(b.created||'')||(a.id||'').localeCompare(b.id||''))};
 window.dailyEntryIntegrity={rawCount:()=>rawEntries().length,uniqueCount:()=>canonicalEntries().length,duplicateCount:()=>rawEntries().length-canonicalEntries().length,entries:()=>rawEntries().map(e=>Object.assign({},e)),groups:()=>duplicateInventory().map(g=>g.map(e=>({id:e.id,date:e.date,title:e.title,source:e.source,repositoryKey:e.repositoryKey||''}))),repair:()=>{const groups=duplicateInventory();let removed=0;groups.forEach(group=>{const ordered=[...group].sort((a,b)=>(b.updated||b.savedAt||'').localeCompare(a.updated||a.savedAt||''));ordered.slice(1).forEach(e=>{store.rm(entryKey(e.date,e.id));store.rm(shaKey('github',e.id));store.rm(shaKey('azure',e.id));removed++})});renderDayNotes();renderRibbon();return removed}};
-collect=function(){const prev=loadEntry(curDate,curEntryId);const pid=store.get(LS.prompt(curDate))||curPromptId;const pr=PROMPT_BY_ID[pid];const titleField=document.getElementById('entryTitle');const title=(titleField&&titleField.value.trim())||entryTitle({text:entryText()});return normalizeEntry({id:curEntryId||uid(),date:curDate,title,slug:slugify(title),created:(prev&&prev.created)||isoNow(),savedAt:isoNow(),updated:isoNow(),text:entryText(),project:currentProject(),promptId:pid,prompt:pr?pr.q:'',source:prev&&prev.source||'local'},curDate,curEntryId)};
+collect=function(){const prev=loadEntry(curDate,curEntryId);const pid=store.get(LS.prompt(curDate))||curPromptId;const pr=PROMPT_BY_ID[pid];const titleField=document.getElementById('entryTitle');const title=(titleField&&titleField.value.trim())||entryTitle({text:entryText()});return normalizeEntry({id:curEntryId||uid(),date:curDate,title,slug:slugify(title),created:(prev&&prev.created)||isoNow(),savedAt:isoNow(),updated:isoNow(),text:entryText(),project:currentProject(),promptId:pid,prompt:pr?pr.q:'',source:prev&&prev.source||'local',repositoryKey:prev&&prev.repositoryKey||undefined,repositoryPath:prev&&prev.repositoryPath||undefined,repositorySha:prev&&prev.repositorySha||undefined,contentFingerprint:prev&&prev.contentFingerprint||undefined},curDate,curEntryId)};
 flush=function(){if(!curEntryId)curEntryId=uid();const e=collect();curEntryId=e.id;saveEntry(e);setStatus('saved');renderDayNotes();renderRibbon()};
 function selectEntry(date,id){if(curEntryId)flush();curDate=date;curEntryId=id||'';let e=loadEntry(date,curEntryId);if(!e){e=normalizeEntry({date,id:curEntryId||uid(),title:'Untitled note',text:''},date,curEntryId);curEntryId=e.id;saveEntry(e)}setEntryText(e.text||'');const title=document.getElementById('entryTitle');if(title)title.value=e.title||'';updateDateUI();syncPromptForCurrentDay();if(mode!=='write')setMode('write');renderDayNotes();renderRibbon();setStatus('saved')}
 window.openEntry=selectEntry;
 openDay=function(iso){flush();curDate=iso;let list=entriesForDate(iso),e=list[list.length-1];if(!e){e=normalizeEntry({date:iso,title:'Untitled note',text:''},iso);saveEntry(e)}curEntryId=e.id;setEntryText(e.text||'');updateDateUI();syncPromptForCurrentDay();if(mode!=='write')setMode('write');renderDayNotes();renderRibbon();setStatus('saved');if(!(e.text||'').trim()&&(ghReady()||azReady()))pullDay(iso).catch(()=>{})};
 function newDailyNote(){if(curEntryId)flush();const e=normalizeEntry({date:curDate,title:'Untitled note',text:''},curDate);saveEntry(e);selectEntry(curDate,e.id);document.getElementById('entryTitle')?.select();toast('New note created for '+curDate+'.')}
-function deleteDailyNote(){const list=entriesForDate(curDate);if(!curEntryId||!confirm('Delete this local note? Repository history is not changed.'))return;store.rm(entryKey(curDate,curEntryId));store.rm(shaKey('github',curEntryId));store.rm(shaKey('azure',curEntryId));const next=list.filter(e=>e.id!==curEntryId).pop();if(next)selectEntry(curDate,next.id);else newDailyNote()}
+async function deleteDailyNote(){if(!curEntryId)return;const e=loadEntry(curDate,curEntryId);if(!e)return;const S=window.DailySync;const choice=S?await S.confirmDelete(e):(confirm('Delete this local note? Repository history is not changed.')?{remote:false}:null);if(!choice)return;removeEntry(e);if(S)S.forget(e.id);if(choice.remote&&S)S.deleteRemote(e,choice.targets).catch(err=>toast('Couldn’t delete the repository copy: '+esc(err.message)))}
 window.newDailyNote=newDailyNote;window.deleteDailyNote=deleteDailyNote;
 function renderDayNotes(){const sel=document.getElementById('dayNotes');if(!sel)return;const list=entriesForDate(curDate);sel.innerHTML=list.map((e,i)=>'<option value="'+esc(e.id)+'">'+esc(entryTitle(e))+(list.length>1?' · '+(i+1):'')+'</option>').join('');sel.value=curEntryId;const count=document.getElementById('dayNoteCount');if(count)count.textContent=list.length+' '+(list.length===1?'file':'files');const title=document.getElementById('entryTitle'),e=loadEntry(curDate,curEntryId);if(title&&document.activeElement!==title)title.value=e?.title||''}
 function installUI(){if(document.getElementById('multiFileBar'))return;const host=document.querySelector('.prompt');if(!host)return;const bar=document.createElement('div');bar.id='multiFileBar';bar.className='mfbar';bar.innerHTML='<input id="entryTitle" class="mf-title" maxlength="100" aria-label="Note title" placeholder="Note title"><span class="mf-sp"></span><span id="dayNoteCount" class="muted"></span><select id="dayNotes" aria-label="Files for selected day"></select><button type="button" id="newDayNote" title="New file for this day">＋ New</button><button type="button" id="deleteDayNote" title="Delete local file">Delete</button>';host.parentNode.insertBefore(bar,host);document.getElementById('dayNotes').onchange=e=>selectEntry(curDate,e.target.value);document.getElementById('newDayNote').onclick=newDailyNote;document.getElementById('deleteDayNote').onclick=deleteDailyNote;document.getElementById('entryTitle').addEventListener('input',()=>{scheduleSave();renderDayNotes()});renderDayNotes()}
 const style=document.createElement('style');style.textContent='.mfbar{display:flex;align-items:center;gap:7px;margin:0 0 12px}.mf-title{min-width:120px;max-width:420px;flex:1;border:0;border-bottom:1px solid var(--line2);background:transparent;color:var(--ink);font:650 14px var(--font);padding:6px 3px;outline:0}.mf-title:focus{border-color:var(--accent)}.mf-sp{flex:1}.mfbar select,.mfbar button{height:29px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font:600 11px var(--font);padding:0 8px}.mfbar button{cursor:pointer}.mfbar button:hover{border-color:var(--accent);color:var(--accent)}@media(max-width:700px){.mfbar{flex-wrap:wrap}.mf-title{flex-basis:100%;max-width:none}.mf-sp{display:none}}';document.head.appendChild(style);
 const oldBF=buildFrontmatter;
 buildFrontmatter=function(e){e=normalizeEntry(e);let fm=oldBF(e);const insert='id: '+yamlStr(e.id)+'\ntitle: '+yamlStr(e.title)+'\nslug: '+yamlStr(e.slug)+'\nschema_version: 2\n';fm=fm.replace(/^---\n(?:title:[^\n]*\n)?/, '---\n'+insert);return fm};
-buildMD=function(){const e=collect();e.text=autoTagInline(e.text);const cs=candidates(e.text);const capLine=cs.length?'> [!abstract] Artifacts\n> '+cs.map(c=>c.label).filter((v,i,a)=>a.indexOf(v)===i).join(' · ')+'\n\n':'';const projects=projectSlugs(e.text);const footProjects=projects.length?'\n\n**Projects:** '+projects.map(p=>'[['+p+']]').join(' '):'';return buildFrontmatter(e)+'\n\n# '+e.title+'\n\n'+capLine+(e.text||'_(no entry)_')+footProjects+'\n\n---\n_The Daily · '+new Date().toLocaleString()+'_\n'};
+buildMD=function(src){const e=src?normalizeEntry(Object.assign({},src)):collect();e.text=autoTagInline(e.text);const cs=candidates(e.text);const capLine=cs.length?'> [!abstract] Artifacts\n> '+cs.map(c=>c.label).filter((v,i,a)=>a.indexOf(v)===i).join(' · ')+'\n\n':'';const projects=projectSlugs(e.text);const footProjects=projects.length?'\n\n**Projects:** '+projects.map(p=>'[['+p+']]').join(' '):'';return buildFrontmatter(e)+'\n\n# '+e.title+'\n\n'+capLine+(e.text||'_(no entry)_')+footProjects+'\n\n---\n_The Daily · '+String(e.updated||e.savedAt||isoNow()).slice(0,16).replace('T',' ')+' UTC_\n'};
 function repoRelPath(e){const [y,m,d]=dayParts(e.date);return [y,m,d,e.slug+'--'+e.id+'.md'].join('/')}
 function rootJoin(root,rel){return [String(root||'').replace(/^\/+|\/+$/g,''),rel].filter(Boolean).join('/')}
 function dateFromPath(path){const m=String(path||'').match(/(?:^|\/)(\d{4})\/(\d{2})\/(\d{2})\//);if(m)return m[1]+'-'+m[2]+'-'+m[3];return (String(path||'').match(/(\d{4}-\d{2}-\d{2})/)||[])[1]||''}
 const oldParse=parseEntryMD;
-parseEntryMD=function(md,fallbackDate){const p=oldParse(md,fallbackDate);const fm=/^---\n([\s\S]*?)\n---/.exec(String(md||'') .replace(/\r\n?/g,'\n'));if(fm){const y=fm[1];const get=k=>{const x=new RegExp('(?:^|\\n)'+k+':\\s*"?([^"\\n]+)"?').exec(y);return x?x[1].trim():''};p.id=safeId(get('id')||'');p.title=get('title')||firstTitle(p.text)||'Note';p.slug=get('slug')||slugify(p.title)}p.id=p.id||safeId('import-'+p.date+'-'+slugify(p.title||firstTitle(p.text)));p.title=p.title||firstTitle(p.text)||'Note';p.slug=p.slug||slugify(p.title);return p};
+parseEntryMD=function(md,fallbackDate){const p=oldParse(md,fallbackDate);const fm=/^---\n([\s\S]*?)\n---/.exec(String(md||'') .replace(/\r\n?/g,'\n'));if(fm){const y=fm[1];const get=k=>{const x=new RegExp('(?:^|\\n)'+k+':\\s*"?([^"\\n]+)"?').exec(y);return x?x[1].trim():''};p.id=safeId(get('id')||'');p.title=get('title')||firstTitle(p.text)||'Note';p.slug=get('slug')||slugify(p.title)}{const L=String(p.text||'').split('\n');if(L.length&&/^#\s+/.test(L[0])&&(!p.title||L[0].replace(/^#\s+/,'').trim()===String(p.title).trim())){if(!p.title)p.title=L[0].replace(/^#\s+/,'').trim();L.shift();while(L.length&&!L[0].trim())L.shift();while(L.length&&/^>/.test(L[0]))L.shift();while(L.length&&!L[0].trim())L.shift();p.text=L.join('\n').trim()}}p.id=p.id||safeId('import-'+p.date+'-'+slugify(p.title||firstTitle(p.text)));p.title=p.title||firstTitle(p.text)||'Note';p.slug=p.slug||slugify(p.title);return p};
 externalizeImagesGH=async function(c,md){const e=collect(),day=repoRelPath(e).replace(/\/[^/]+$/,'');const rx=/!\[[^\]]*\]\((data:([^;)]+);base64,([^)]+))\)/g;const found=[];let m;while((m=rx.exec(md)))found.push({full:m[1],mime:m[2],b64:m[3]});if(!found.length)return md;let out=md,idx=0;const seen={};for(const f of found){if(seen[f.full])continue;idx++;const ext=(f.mime.split('/')[1]||'png').split('+')[0];const name=e.id+'-'+idx+'.'+ext;const rel=day+'/assets/'+name;await ghPutFile(c,rootJoin(c.path,rel),f.b64,'Journal asset '+name);seen[f.full]='assets/'+name}Object.entries(seen).forEach(([data,rel])=>{out=out.split('('+data+')').join('('+rel+')')});return out};
-ghCommit=async function(){const c=getGH(),e=collect();let md=buildMD();if(assetsPref()){try{md=await externalizeImagesGH(c,md)}catch(err){toast('Image upload failed ('+err.message+') - committing inline.');md=buildMD()}}const path=rootJoin(c.path,repoRelPath(e));const api='https://api.github.com/repos/'+c.owner+'/'+c.repo+'/contents/'+path.split('/').map(encodeURIComponent).join('/');let sha=null;try{const g=await fetch(api+'?ref='+encodeURIComponent(c.branch)+'&t='+Date.now(),{headers:ghH(c.token),cache:'no-store'});if(g.ok)sha=(await g.json()).sha}catch(_){}const known=store.get(shaKey('github',e.id));if(sha&&known&&sha!==known&&!confirm('This note changed in GitHub since your last sync. Overwrite the remote copy?'))throw new Error('Push canceled - remote changed');const body={message:'Journal '+e.date+' - '+e.title,content:b64(md),branch:c.branch};if(sha)body.sha=sha;const r=await fetch(api,{method:'PUT',headers:{...ghH(c.token),'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('GitHub '+r.status+': '+(await r.text()).slice(0,120));const j=await r.json();if(j.content?.sha)store.set(shaKey('github',e.id),j.content.sha);return{provider:'GitHub',path,url:j.commit?.html_url||''}};
+ghCommit=async function(){const c=getGH(),e=collect();let md=buildMD();if(assetsPref()){try{md=await externalizeImagesGH(c,md)}catch(err){toast('Image upload failed ('+err.message+') - committing inline.');md=buildMD()}}const path=rootJoin(c.path,repoRelPath(e));const api='https://api.github.com/repos/'+c.owner+'/'+c.repo+'/contents/'+path.split('/').map(encodeURIComponent).join('/');let sha=null,remoteMd='';try{const g=await fetch(api+'?ref='+encodeURIComponent(c.branch)+'&t='+Date.now(),{headers:ghH(c.token),cache:'no-store'});if(g.ok){const gj=await g.json();sha=gj.sha;remoteMd=gj.content?b64decode(gj.content):''}}catch(_){}const known=store.get(shaKey('github',e.id));if(sha&&known&&sha!==known){const out=window.DailySync?await DailySync.resolveRemoteChange({provider:'GitHub',entry:e,fetchRemote:async()=>remoteMd}):(confirm('This note changed in GitHub since your last sync. Overwrite the remote copy?')?{text:e.text}:null);if(!out)throw new Error('Push canceled - remote changed');const e2=window.DailySync?DailySync.applyText(e,out.text):e;md=buildMD(e2);if(assetsPref()){try{md=await externalizeImagesGH(c,md)}catch(_){}}}const body={message:'Journal '+e.date+' - '+e.title,content:b64(md),branch:c.branch};if(sha)body.sha=sha;const r=await fetch(api,{method:'PUT',headers:{...ghH(c.token),'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('GitHub '+r.status+': '+(await r.text()).slice(0,120));const j=await r.json();if(j.content?.sha)store.set(shaKey('github',e.id),j.content.sha);if(window.DailySync)DailySync.afterPush(collect(),md);return{provider:'GitHub',path,url:j.commit?.html_url||''}};
 azCommit=async function(){const c=getAZ(),e=collect(),base='https://dev.azure.com/'+c.org+'/'+c.project+'/_apis/git/repositories/'+c.repo,H={'Authorization':'Basic '+btoa(':'+c.token),'Content-Type':'application/json'};const refs=await(await fetch(base+'/refs?filter=heads/'+c.branch+'&api-version=7.1',{headers:H})).json(),oldId=refs.value?.[0]?.objectId;if(!oldId)throw new Error('Azure branch '+c.branch+' not found.');const path='/'+rootJoin(c.path,repoRelPath(e));let exists=false;try{exists=(await fetch(base+'/items?path='+encodeURIComponent(path)+'&versionDescriptor.version='+encodeURIComponent(c.branch)+'&versionDescriptor.versionType=branch&api-version=7.1',{headers:H})).ok}catch(_){}const payload={refUpdates:[{name:'refs/heads/'+c.branch,oldObjectId:oldId}],commits:[{comment:'Journal '+e.date+' - '+e.title,changes:[{changeType:exists?'edit':'add',item:{path},newContent:{content:buildMD(),contentType:'rawtext'}}]}]};const r=await fetch(base+'/pushes?api-version=7.1',{method:'POST',headers:H,body:JSON.stringify(payload)});if(!r.ok)throw new Error('Azure '+r.status+': '+(await r.text()).slice(0,120));return{provider:'Azure DevOps',path}};
 ghList=async function(){const c=getGH(),ref=encodeURIComponent(c.branch);const rr=await fetch('https://api.github.com/repos/'+c.owner+'/'+c.repo+'/git/ref/heads/'+ref,{headers:ghH(c.token),cache:'no-store'});if(!rr.ok)throw new Error('GitHub ref '+rr.status);const rj=await rr.json(),treeSha=rj.object?.sha;const tr=await fetch('https://api.github.com/repos/'+c.owner+'/'+c.repo+'/git/trees/'+treeSha+'?recursive=1&t='+Date.now(),{headers:ghH(c.token),cache:'no-store'});if(!tr.ok)throw new Error('GitHub tree '+tr.status);const tj=await tr.json(),root=String(c.path||'').replace(/^\/+|\/+$/g,''),prefix=root?root+'/':'';return (tj.tree||[]).filter(x=>x.type==='blob'&&x.path.startsWith(prefix)&&/\.md$/i.test(x.path)&&(dateFromPath(x.path)||/\d{4}-\d{2}-\d{2}\.md$/i.test(x.path))).map(x=>({name:x.path.split('/').pop(),path:x.path,sha:x.sha}))};
 azList=async function(){const c=getAZ(),base='https://dev.azure.com/'+c.org+'/'+c.project+'/_apis/git/repositories/'+c.repo,H={'Authorization':'Basic '+btoa(':'+c.token)},scope=c.path?'/'+c.path:'/';const u=base+'/items?scopePath='+encodeURIComponent(scope)+'&recursionLevel=Full&versionDescriptor.version='+encodeURIComponent(c.branch)+'&versionDescriptor.versionType=branch&api-version=7.1';const r=await fetch(u,{headers:H});if(r.status===404)return[];if(!r.ok)throw new Error('Azure '+r.status);const j=await r.json();return(j.value||[]).filter(it=>!it.isFolder&&/\.md$/i.test(it.path||'')&&(dateFromPath(it.path)||/\d{4}-\d{2}-\d{2}\.md$/i.test(it.path||'')))};
-function storePulled(p,name,f,overwrite){const rawPath=String(f.path||f.name||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');const repositoryKey=name.toLowerCase().replace(/\s+/g,'-')+':'+rawPath.toLowerCase();const fileName=rawPath.split('/').pop()||'';const fileId=((fileName.match(/--([a-zA-Z0-9_-]+)\.md$/)||[])[1]||'').trim();const contentKey='content:'+String(name).toLowerCase()+':'+p.date+':'+stableHash(normalizedContent(p.text));const prior=rawEntries().find(x=>x.repositoryKey===repositoryKey||repositoryIdentity(x)===contentKey);const resolvedId=prior?.id||p.id||fileId||safeId('repo-'+stableHash(repositoryKey));const e=normalizeEntry({id:resolvedId,date:p.date,title:p.title,slug:p.slug,created:prior?.created||p.created||isoNow(),savedAt:isoNow(),updated:isoNow(),text:p.text,project:p.project,promptId:p.promptId||'',prompt:p.prompt||'',source:name,repositoryKey,repositoryPath:rawPath,repositorySha:f.sha||f.objectId||'',contentFingerprint:stableHash(normalizedContent(p.text))},p.date,resolvedId);if(prior&&!overwrite&&prior.contentFingerprint===e.contentFingerprint)return 'seen';if(prior&&prior.id!==e.id){store.rm(entryKey(prior.date,prior.id));store.rm(shaKey('github',prior.id));store.rm(shaKey('azure',prior.id))}saveEntry(e);if(name==='GitHub'&&f.sha)store.set(shaKey('github',e.id),f.sha);if(name==='Azure DevOps'&&f.objectId)store.set(shaKey('azure',e.id),f.objectId);if(p.promptId)store.set(LS.prompt(e.date),p.promptId);return prior?'updated':'added'}
+function storePulled(p,name,f,overwrite){
+  /* Decide what a pulled file means for the local copy, using the last-synced text as the
+     common ancestor: take the remote change, keep a local change, merge both, or queue a
+     conflict for the person to resolve. Local edits are never silently overwritten. */
+  const rawPath=String(f.path||f.name||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');const repositoryKey=name.toLowerCase().replace(/\s+/g,'-')+':'+rawPath.toLowerCase();const fileName=rawPath.split('/').pop()||'';const fileId=((fileName.match(/--([a-zA-Z0-9_-]+)\.md$/)||[])[1]||'').trim();const contentKey='content:'+String(name).toLowerCase()+':'+p.date+':'+stableHash(normalizedContent(p.text));
+  const all=rawEntries(),wantId=safeId(p.id||fileId||'');const prior=(p.id||fileId?all.find(x=>x.id===wantId):null)||all.find(x=>x.repositoryKey===repositoryKey)||all.find(x=>repositoryIdentity(x)===contentKey);
+  const resolvedId=prior?.id||(p.id||fileId?wantId:'')||safeId('repo-'+stableHash(repositoryKey));const remoteFp=stableHash(normalizedContent(p.text));const S=window.DailySync;const remoteSha=f.sha||f.objectId||'';
+  let text=p.text,result=prior?'updated':'added',conflict=null;
+  if(prior&&!overwrite){const localFp=stableHash(normalizedContent(prior.text));
+    if(localFp===remoteFp)result='seen';
+    else{const base=S?S.getBase(prior.id):null,baseFp=base!=null?stableHash(normalizedContent(base)):(prior.contentFingerprint||null);
+      if(baseFp&&localFp===baseFp){/* only the repository copy changed */}
+      else if(baseFp&&remoteFp===baseFp){result='local-ahead';text=prior.text}
+      else{const m=S?S.merge(base==null?'':base,prior.text,p.text):{clean:false};if(m.clean){text=m.text;result='merged'}else{result='conflict';text=prior.text;conflict={base:base==null?'':base,local:prior.text,remote:p.text}}}}}
+  const keepMeta=result==='local-ahead'||result==='conflict';
+  const e=normalizeEntry(Object.assign({},prior||{},{id:resolvedId,date:p.date,title:keepMeta&&prior?prior.title:p.title,slug:keepMeta&&prior?prior.slug:p.slug,created:prior?.created||p.created||isoNow(),savedAt:result==='seen'&&prior?prior.savedAt:isoNow(),updated:result==='seen'&&prior?prior.updated:isoNow(),text,project:p.project||prior?.project,promptId:p.promptId||prior?.promptId||'',prompt:p.prompt||prior?.prompt||'',source:name,repositoryKey,repositoryPath:rawPath,repositorySha:keepMeta&&prior?prior.repositorySha:remoteSha,contentFingerprint:keepMeta&&prior?prior.contentFingerprint:remoteFp}),p.date,resolvedId);
+  if(prior&&prior.id!==e.id){store.rm(entryKey(prior.date,prior.id));store.rm(shaKey('github',prior.id));store.rm(shaKey('azure',prior.id))}
+  if(prior&&prior.date!==e.date)store.rm(entryKey(prior.date,prior.id));
+  saveEntry(e);
+  if(!keepMeta){if(name==='GitHub'&&f.sha)store.set(shaKey('github',e.id),f.sha);if(name==='Azure DevOps'&&f.objectId)store.set(shaKey('azure',e.id),f.objectId);if(S)S.setBase(e.id,p.text)}
+  if(p.promptId)store.set(LS.prompt(e.date),p.promptId);
+  if(conflict&&S)S.queueConflict(Object.assign({id:e.id,date:e.date,title:e.title,provider:name,path:rawPath,remoteSha},conflict));
+  return result==='seen'?'seen':result}
 async function pullDay(date){const r=await pullRepos({silent:true,date});const list=entriesForDate(date);if(list.length&&!list.some(e=>e.id===curEntryId))selectEntry(date,list[list.length-1].id);return r}
 pullOne=async function(date){const r=await pullRepos({silent:true,date});return !!(r.added||r.updated||entriesForDate(date).length)};
-pullRepos=async function(opts={}){const overwrite=!!opts.overwrite,providers=[];if(ghReady())providers.push(['GitHub',ghList,ghFetch]);if(azReady())providers.push(['Azure DevOps',azList,azFetch]);if(!providers.length){if(!opts.silent){toast('Configure a repository first.');openModal('repoModal')}return{added:0,updated:0,seen:0,errors:[]}}setStatus('pushing');if(!opts.silent)toast('Pulling...');let added=0,updated=0,seen=0;const errors=[];for(const [name,list,fetchOne] of providers){try{const files=await list();for(const f of files){const path=f.path||f.name||'',pd=dateFromPath(path);if(opts.date&&pd&&pd!==opts.date)continue;seen++;try{const md=await fetchOne(f),fb=pd||(path.match(/(\d{4}-\d{2}-\d{2})/)||[])[1]||todayISO(),p=parseEntryMD(md,fb);const result=storePulled(p,name,f,overwrite);if(result==='added')added++;else if(result==='updated')updated++}catch(err){errors.push(name+': '+err.message)}}}catch(err){errors.push(name+' list: '+err.message)}}setStatus('saved');const current=loadEntry(curDate,curEntryId)||loadEntry(curDate);if(current&&document.activeElement!==document.getElementById('entry')){curEntryId=current.id;setEntryText(current.text)}renderDayNotes();renderRibbon();if(document.getElementById('browseModal')?.classList.contains('open')){const on=document.querySelector('#browseSeg button.on');browseTab(on?on.dataset.b:'constellation')}if(!opts.silent||added||updated){let msg='Pulled '+added+' new'+(updated?', '+updated+' updated':'')+(seen?' · '+seen+' files':'');if(errors.length)msg+=' · '+errors.length+' error(s)';toast(msg)}return{added,updated,seen,errors}};
+pullRepos=async function(opts={}){const overwrite=!!opts.overwrite,providers=[];if(ghReady())providers.push(['GitHub',ghList,ghFetch]);if(azReady())providers.push(['Azure DevOps',azList,azFetch]);if(!providers.length){if(!opts.silent){toast('Configure a repository first.');openModal('repoModal')}return{added:0,updated:0,seen:0,errors:[]}}setStatus('pushing');if(!opts.silent)toast('Pulling...');let added=0,updated=0,seen=0,conflicts=0,merged=0;const errors=[];for(const [name,list,fetchOne] of providers){try{const files=await list();for(const f of files){const path=f.path||f.name||'',pd=dateFromPath(path);if(opts.date&&pd&&pd!==opts.date)continue;seen++;try{const md=await fetchOne(f),fb=pd||(path.match(/(\d{4}-\d{2}-\d{2})/)||[])[1]||todayISO(),p=parseEntryMD(md,fb);const result=storePulled(p,name,f,overwrite);if(result==='added')added++;else if(result==='updated'||result==='merged')updated++;else if(result==='conflict')conflicts++;if(result==='merged')merged++}catch(err){errors.push(name+': '+err.message)}}if(!opts.date&&window.DailySync){const listed=new Set(files.map(x=>String(x.path||x.name||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'').toLowerCase())),pre=name.toLowerCase().replace(/\s+/g,'-')+':';const gone=rawEntries().filter(x=>x.repositoryKey&&x.repositoryKey.startsWith(pre)&&!listed.has(x.repositoryKey.slice(pre.length)));if(gone.length)DailySync.reviewRemoteDeletions(name,gone)}}catch(err){errors.push(name+' list: '+err.message)}}setStatus('saved');const current=loadEntry(curDate,curEntryId)||loadEntry(curDate);if(current&&document.activeElement!==document.getElementById('entry')){curEntryId=current.id;setEntryText(current.text)}renderDayNotes();renderRibbon();if(document.getElementById('browseModal')?.classList.contains('open')){const on=document.querySelector('#browseSeg button.on');browseTab(on?on.dataset.b:'constellation')}if(!opts.silent||added||updated||conflicts){let msg='Pulled '+added+' new'+(updated?', '+updated+' updated':'')+(merged?' ('+merged+' merged with your edits)':'')+(seen?' · '+seen+' files':'');if(conflicts)msg+=' · '+conflicts+' need your review';if(errors.length)msg+=' · '+errors.length+' error(s)';toast(msg)}if(conflicts&&window.DailySync)DailySync.openConflicts();return{added,updated,seen,errors,conflicts,merged}};
 exportMD=function(){const e=collect();download('the-daily-'+e.date+'-'+e.slug+'.md',buildMD(),'text/markdown');toast('Markdown exported.')};
 exportJSON=function(){const e=collect();download('the-daily-'+e.date+'-'+e.slug+'.json',JSON.stringify(e,null,2),'application/json');toast('JSON exported.')};
 exportHTML=function(){const e=collect(),doc='<!doctype html><meta charset=utf-8><title>'+esc(e.title)+'</title><body style="font-family:system-ui;max-width:720px;margin:40px auto;padding:0 20px">'+renderMD(buildMD());download('the-daily-'+e.date+'-'+e.slug+'.html',doc,'text/html');toast('HTML exported.')};
 handleImport=function(file){const rd=new FileReader();rd.onload=ev=>{let data;try{data=JSON.parse(ev.target.result)}catch(_){toast('Not a valid JSON backup.');return}if(!data||data.type!=='the-daily-backup'||!data.entries){toast('This file is not a The Daily backup.');return}const values=Object.entries(data.entries),incoming=values.map(([k,v])=>normalizeEntry(v,v.date||(data.version===1?k:todayISO()),v.id||(data.version===1?'daily-'+k:k)));let conflicts=incoming.filter(e=>loadEntry(e.date,e.id)).length;if(!confirm('Import '+incoming.length+' files?'+(conflicts?'\n\n'+conflicts+' file(s) already exist locally and will be overwritten.':'')))return;let ok=0,fail=0;incoming.forEach(e=>saveEntry(e)?ok++:fail++);if(data.settings&&confirm('Also restore appearance/AI settings from the backup?'))store.set(LS.set,JSON.stringify(data.settings));toast('Imported '+ok+' files'+(fail?' · '+fail+' failed':'')+'.');const cur=entriesForDate(curDate).pop();if(cur){curEntryId=cur.id;setEntryText(cur.text)}applyS();renderDayNotes();renderRibbon()};rd.readAsText(file)};
 const oldExportAll=exportAll;
 exportAll=function(){flush();const data={type:'the-daily-backup',version:2,exportedAt:isoNow(),settings:(()=>{try{return JSON.parse(store.get(LS.set)||'{}')}catch(_){return{}}})(),entries:{}};allEntries().forEach(e=>{data.entries[e.id]=e});download('the-daily-backup-'+todayISO()+'.json',JSON.stringify(data,null,2),'application/json');toast('Exported '+Object.keys(data.entries).length+' files as a backup.')};
+function removeEntry(e){store.rm(entryKey(e.date,e.id));store.rm(shaKey('github',e.id));store.rm(shaKey('azure',e.id));if(e.id!==curEntryId)return;curEntryId='';const next=entriesForDate(curDate).pop();if(next)selectEntry(curDate,next.id);else newDailyNote()}
+window.__dailyEntries={all:()=>rawEntries(),get:(d,id)=>loadEntry(d,id),findById:id=>rawEntries().find(x=>x.id===id)||null,save:e=>saveEntry(e),remove:e=>removeEntry(e),normalize:e=>normalizeEntry(e),relPath:e=>repoRelPath(normalizeEntry(e)),serialize:e=>buildMD(e),parse:(md,d)=>parseEntryMD(md,d),current:()=>({date:curDate,id:curEntryId}),select:(d,id)=>selectEntry(d,id),refresh:id=>{if(id!==curEntryId)return;const ed=document.getElementById('entry'),src=document.getElementById('source'),t=document.getElementById('entryTitle');const busy=[ed,src,t].some(x=>x&&x===document.activeElement);const e=loadEntry(curDate,curEntryId);if(!e)return;if(busy){window.DailySync&&DailySync.notifyExternalChange(e);return}setEntryText(e.text||'');if(t)t.value=e.title||'';renderDayNotes();renderRibbon()}};
 function initialize(){migrateLegacy();const list=entriesForDate(curDate);let e=list[list.length-1];if(!e){e=normalizeEntry({date:curDate,title:'Untitled note',text:''},curDate);saveEntry(e)}curEntryId=e.id;setEntryText(e.text||'');installUI();renderDayNotes();renderRibbon();workspaceEvents?.emit?.({category:'storage',name:'storage.multifile.ready',status:'success',attributes:{schemaVersion:2,layout:'YYYY/MM/DD/slug--id.md'}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize);else initialize();
 })();
@@ -1287,7 +1318,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .repo-shell{max-width:1160px}.repo-tabs{display:flex;gap:3px;padding:0 20px;border-bottom:1px solid var(--line2);overflow:auto}.repo-tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--soft);padding:12px;font:650 12px var(--font);cursor:pointer;white-space:nowrap}.repo-tab.on{color:var(--accent);border-color:var(--accent)}.repo-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;border:1px solid var(--line2);border-radius:9px;padding:8px 10px}.repo-bar .id{font:650 11px var(--mono);color:var(--soft)}.repo-bar .state{font:650 10px var(--mono);color:var(--ok)}.repo-bar .sp{flex:1}.repo-bar button{height:29px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font:650 11px var(--font);padding:0 10px;cursor:pointer}.repo-bar .primary{background:var(--accent);color:#fff;border-color:var(--accent)}.repo-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.repo-kpi,.repo-card{border:1px solid var(--line);border-radius:10px;background:var(--canvas)}.repo-kpi{padding:13px}.repo-kpi b{display:block;font-size:23px}.repo-kpi small{font:10px var(--mono);color:var(--faint)}.repo-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:10px}.repo-card h4{margin:0;padding:10px 12px;border-bottom:1px solid var(--line2);font:750 10px var(--mono);color:var(--soft)}.repo-card .in{padding:11px}.repo-row{display:grid;grid-template-columns:90px 1fr auto;gap:9px;padding:9px 0;border-bottom:1px solid var(--line2);cursor:pointer}.repo-row:hover b{color:var(--accent)}.repo-row time,.repo-row small{font:10px var(--mono);color:var(--faint)}.repo-event{display:grid;grid-template-columns:160px 1fr auto;gap:9px;border:1px solid var(--line2);border-radius:8px;padding:10px;margin-bottom:7px}.repo-event time,.repo-event code{font:10px var(--mono);color:var(--faint)}.repo-settings .mbody{padding:0}
 .studio-v2{max-width:1040px}.studio-layout{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:580px}.studio-rail{border-right:1px solid var(--line2);padding:12px}.studio-nav{display:block;width:100%;border:0;background:transparent;color:var(--soft);border-radius:7px;text-align:left;padding:9px 10px;margin:2px 0;font:650 12px var(--font);cursor:pointer}.studio-nav.on{background:var(--accent-soft);color:var(--accent)}.studio-nav small{display:block;font:9px var(--mono);color:var(--faint);margin-top:2px}.studio-content{padding:20px 24px;overflow:auto;max-height:72vh}.studio-section{display:none}.studio-section.on{display:block}.studio-section>h4{font-size:18px;margin:0}.studio-section>.intro{color:var(--soft);font-size:12px;margin:3px 0 18px}.studio-card{border:1px solid var(--line2);border-radius:9px;padding:12px;margin:10px 0}.studio-danger{border-color:color-mix(in srgb,var(--err) 35%,var(--line))}.studio-launch{display:none!important}@media(max-width:760px){.repo-kpis{grid-template-columns:repeat(2,1fr)}.repo-grid,.studio-layout{grid-template-columns:1fr}.studio-rail{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line2);padding:7px}.studio-nav{width:auto;white-space:nowrap}.studio-nav small{display:none}.repo-event{grid-template-columns:1fr}}
 </style>
-<script id="repo-studio-2-js">
+<script type="text/x-daily-module" id="repo-studio-2-js">
 (function(){'use strict';const $2=id=>document.getElementById(id),e=x=>String(x||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let rt='overview',st='workspace',settingsBody;const oldTab=window.browseTab,oldModal=window.openModal;
 function provider(){return ghReady()&&azReady()?'GitHub + Azure DevOps':ghReady()?'GitHub':azReady()?'Azure DevOps':'Local only'}function events(){try{return workspaceEvents.all().filter(x=>['repository','storage','entry'].includes(x.category))}catch(_){return[]}}function command(){let x=$2('repoIdentity'),s=$2('repoState');if(x)x.textContent=provider();if(s){let n=events().filter(x=>x.level==='error'||x.status==='failed').length;s.textContent=n?n+' issues':'● ready';s.style.color=n?'var(--err)':'var(--ok)'}}
 function overview(b){let a=allEntries(),p=[...new Set(a.flatMap(x=>projectSlugs(x.text||'')))],r=[...a].reverse().slice(0,7),v=events(),arts=a.flatMap(x=>candidates(x.text||'')),dupes=window.dailyEntryIntegrity?.duplicateCount?.()||0;b.innerHTML='<div class="repo-kpis">'+[['Unique entries',a.length],['Projects',p.length],['Artifacts',arts.length],['Duplicate records',dupes]].map(x=>'<div class="repo-kpi"><b>'+x[1]+'</b><small>'+x[0]+'</small></div>').join('')+'</div><div class="repo-grid"><div class="repo-card"><h4>RECENT ENTRIES</h4><div class="in">'+(r.length?r.map(x=>'<div class="repo-row" onclick="closeModal(\'browseModal\');openEntry(\''+e(x.date)+'\',\''+e(x.id)+'\')"><time>'+e(x.date)+'</time><b>'+e(x.title||'Untitled note')+'</b><small>'+e(x.project?'#'+x.project:x.source||'local')+'</small></div>').join(''):'<p class="muted">No retained entries.</p>')+'</div></div><div class="repo-card"><h4>REPOSITORY HEALTH</h4><div class="in"><p><b>'+e(provider())+'</b><br><span class="muted">Current destination</span></p><p><b>'+a.filter(x=>x.source&&x.source!=='local').length+'</b><br><span class="muted">Repository-hydrated entries</span></p><div class="bar"><button class="btn" onclick="repositoryTab(\'settings\')">Settings</button><button class="btn" onclick="repositoryTab(\'evidence\')">Evidence</button><button class="btn" onclick="repairRepositoryDuplicates()">Repair duplicates</button></div></div></div></div>'}
@@ -1329,7 +1360,7 @@ html[data-contrast=high]{--line:#69717c;--line2:#505965}
 .aw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 @media(max-width:760px){.aw-grid{grid-template-columns:1fr}}
 </style>
-<script id="appearance-studio-js">
+<script type="text/x-daily-module" id="appearance-studio-js">
 (function(){'use strict';
 const KEY='daily:appearance:v1';
 const BASE={accent:'#0969da',font:'system',fontSize:16,lineHeight:'1.7',paragraph:'balanced',density:'balanced',corners:'subtle',motion:'system',contrast:false,spellcheck:true};
@@ -1401,7 +1432,7 @@ apply();
 })();
 </script>
 
-<script id="local-relay-adapter">
+<script type="text/x-daily-module" id="local-relay-adapter">
 (function(){'use strict';
 /* Optional relay client key (DAILY_CLIENT_KEY). Open the app once as /#relay-key=<key>;
    it is saved locally, removed from the address bar, and attached to same-origin
@@ -1431,9 +1462,14 @@ async function relayPush(provider){const e=collect(),parts=String(e.date).split(
   const body={provider,path:rel,markdown:buildMD(),message:title,title,mode,knownSha:(sk&&store.get(sk))||'',date:e.date,summary:String(e.text||'').replace(/[#>*_`]/g,'').replace(/\s+/g,' ').trim().slice(0,300)};
   let r;try{r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
   catch(err){if(!/REMOTE_CHANGED/.test(err.message))throw err;
-    if(!confirm('“'+(e.title||e.date)+'” changed in '+name+' since your last sync.\n\nOverwrite the copy in '+name+' with this version?\n\nChoose Cancel, then Pull, to keep the remote changes.'))throw new Error('Push canceled: the note changed in '+name);
+    /* The repository copy changed since the last sync: merge both versions (asking only
+       where they truly conflict), then push the result. */
+    const cfg=window.__relayConfig||{},root=String((provider==='github'?cfg.github?.root:cfg.ado?.root)||'').replace(/^\/+|\/+$/g,'');const full=(root?root+'/':'')+rel;
+    const out=window.DailySync?await DailySync.resolveRemoteChange({provider:name,entry:e,fetchRemote:async()=>{const x=await fetch('/api/repositories/content?provider='+provider+'&path='+encodeURIComponent(full));if(!x.ok)throw new Error('Couldn’t read the '+name+' copy ('+x.status+')');return x.text()}}):(confirm('“'+(e.title||e.date)+'” changed in '+name+' since your last sync.\n\nOverwrite the copy in '+name+'?')?{text:e.text}:null);
+    if(!out)throw new Error('Push canceled: the note changed in '+name);
+    const e2=window.DailySync?DailySync.applyText(e,out.text):e;body.markdown=buildMD(e2);body.summary=String(e2.text||'').replace(/[#>*_`]/g,'').replace(/\s+/g,' ').trim().slice(0,300);
     body.force=true;r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
-  if(r&&r.sha&&mode!=='pr'&&sk)store.set(sk,r.sha);return r}
+  if(r&&r.sha&&mode!=='pr'&&sk)store.set(sk,r.sha);if(window.DailySync&&mode!=='pr')DailySync.afterPush(collect(),body.markdown);return r}
 window.ghCommit=async function(){const c=getGH();if(!c.relay)return directGhCommit();return relayPush('github')};
 window.azCommit=async function(){const c=getAZ();if(!c.relay)return directAzCommit();return relayPush('ado')};
 window.ghList=async function(){if(!getGH().relay)return directGhList();return (await relayJSON('/api/repositories/files?provider=github')).value||[]};
@@ -1497,7 +1533,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .wit-run .acts{grid-row:1/span 2;grid-column:3;display:flex;gap:6px;align-items:center}
 .wit-run .acts button,.wit-run .acts a{font:650 11px var(--font);border:1px solid var(--line);border-radius:6px;padding:4px 8px;background:var(--canvas);color:var(--ink);cursor:pointer;text-decoration:none}
 </style>
-<script id="provider-switch">
+<script type="text/x-daily-module" id="provider-switch">
 /* PROVIDER SWITCH — one active provider (GitHub or Azure DevOps) drives push, pull, work tracking
    and the integrations that only one of them has. The other can receive a mirrored copy. */
 (function(){'use strict';
@@ -1613,7 +1649,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .ent-shell{max-width:1260px}.ent-tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid var(--line2);overflow:auto}.ent-tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--soft);padding:12px 13px;font:700 11px var(--font);cursor:pointer;white-space:nowrap}.ent-tab.on{color:var(--accent);border-color:var(--accent)}.ent-command{display:flex;gap:8px;align-items:center;border:1px solid var(--line2);border-radius:10px;padding:9px 11px;margin-bottom:13px}.ent-command input,.ent-command select{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:8px 10px;font:11px var(--font)}.ent-command input{flex:1}.ent-command button{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:8px 11px;font-weight:700;cursor:pointer}.ent-command .primary{background:var(--accent);border-color:var(--accent);color:#fff}.ent-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.ent-kpi,.ent-card{border:1px solid var(--line);border-radius:11px;background:var(--canvas)}.ent-kpi{padding:13px}.ent-kpi b{display:block;font-size:22px}.ent-kpi small{font:9px var(--mono);color:var(--faint)}.ent-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:11px}.ent-card{overflow:hidden}.ent-card h4{margin:0;padding:10px 12px;border-bottom:1px solid var(--line2);font:800 10px var(--mono);color:var(--soft)}.ent-card .in{padding:12px}.ent-graph{height:520px;position:relative;background:radial-gradient(circle at center,color-mix(in srgb,var(--accent) 5%,transparent),transparent 65%)}.ent-graph svg{width:100%;height:100%}.ent-edge{stroke:var(--line);stroke-width:1}.ent-edge.strong{stroke:var(--accent);stroke-width:1.7;opacity:.65}.ent-node circle{stroke:var(--canvas);stroke-width:2}.ent-node text{fill:var(--soft);font:9px var(--mono)}.ent-node.person circle{fill:#2563eb}.ent-node.team circle{fill:#7c3aed}.ent-node.project circle{fill:#0f766e}.ent-node.decision circle{fill:#b45309}.ent-node.entry circle{fill:var(--accent)}.ent-list-row{display:grid;grid-template-columns:110px 1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}.ent-list-row:last-child{border:0}.ent-list-row small,.ent-list-row code{font:9px var(--mono);color:var(--faint)}.ent-pill{border:1px solid var(--line);border-radius:999px;padding:2px 7px;font:8px var(--mono);color:var(--soft)}.ent-empty{padding:36px;text-align:center;color:var(--faint)}.ent-policy{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ent-policy label{display:flex;gap:8px;padding:11px;border:1px solid var(--line2);border-radius:9px;font-size:11px}.ent-policy small{display:block;color:var(--faint);font:9px var(--mono)}.ent-warning{padding:11px;border-radius:9px;background:color-mix(in srgb,var(--warn) 10%,var(--canvas));border:1px solid color-mix(in srgb,var(--warn) 30%,var(--line));font-size:10px;color:var(--soft)}@media(max-width:780px){.ent-kpis{grid-template-columns:repeat(2,1fr)}.ent-grid,.ent-policy{grid-template-columns:1fr}.ent-command{flex-wrap:wrap}.ent-command input{flex-basis:100%}}
 </style>
 <div class="mback" id="enterpriseModal" onclick="if(event.target===this)closeModal('enterpriseModal')"><div class="modal wide ent-shell"><div class="mhead"><button class="mx" onclick="closeModal('enterpriseModal')">x</button><h3 class="mt">Enterprise Intelligence</h3><div class="ms">Federated organizational memory across journals, projects, decisions, and repositories.</div></div><nav class="ent-tabs" id="entTabs"></nav><div class="mbody"><div class="ent-command"><select id="entScope"><option value="personal">Personal</option><option value="team">Team</option><option value="department">Department</option><option value="enterprise" selected>Enterprise</option></select><input id="entQuery" placeholder="Search people, projects, decisions, evidence, and knowledge"><button onclick="enterpriseSearch()">Search</button><button class="primary" onclick="enterpriseRefresh()">Refresh graph</button></div><div id="entBody"></div></div></div></div>
-<script id="enterprise-platform-js">
+<script type="text/x-daily-module" id="enterprise-platform-js">
 (function(){'use strict';
 const EKEY='daily:enterprise:v1';const ENTITY_TYPES=['person','team','project','decision','entry','artifact','repository','risk','opportunity','agent'];let tab='overview',snapshot={nodes:[],edges:[],generatedAt:null,scope:'enterprise'};
 function ecfg(){try{return Object.assign({enabled:true,tenant:'local-enterprise',userId:'local-user',displayName:'Local User',team:'Default Team',department:'Default Department',defaultScope:'enterprise',visibility:'private',federationEndpoint:'/api/enterprise/graph'},JSON.parse(localStorage.getItem(EKEY)||'{}'))}catch(_){return{enabled:true}}}
@@ -1774,7 +1810,7 @@ let tries=0,t=setInterval(()=>{if(document.querySelector('.nav')&&document.query
   <div class="wit-diag" id="witDiag"></div>
   <div class="wit-body" id="witBody"></div>
 </aside>
-<script id="workitems-module">
+<script type="text/x-daily-module" id="workitems-module">
 (function(){'use strict';
 /* ---- state ---- */
 var CFG=null, TAB='focus', ITEMS=[], DETAILS={}, dismissedAmbient='', booting=false;
@@ -2427,7 +2463,7 @@ body.ws-on main.stage{margin-left:var(--ws-dl);margin-right:var(--ws-dr);margin-
   <div class="ws-rz" data-ws-rz="bottom"></div>
 </aside>
 
-<script id="workspace-shell-module">
+<script type="text/x-daily-module" id="workspace-shell-module">
 (function(){'use strict';
 var KEY='daily.workspace.v1';
 var S=load();
@@ -2672,7 +2708,7 @@ var t=0,iv=setInterval(function(){
 })();
 </script>
 
-<script id="vault-export-module">
+<script type="text/x-daily-module" id="vault-export-module">
 /* ============================================================
    VAULT EXPORT
    Turns the browser-held journal into something Obsidian can open
@@ -2974,7 +3010,7 @@ setTimeout(mount,1200);
   .st-row{grid-template-columns:1fr;gap:8px}
 }
 </style>
-<script id="refine-shell">
+<script type="text/x-daily-module" id="refine-shell">
 (function(){'use strict';
 var $=function(x){return document.getElementById(x)};
 var K={ui:'daily:ui.v2',intro:'daily:introSeen',studio:'daily:studioSection'};
@@ -3232,7 +3268,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 body.ws-on .intel-indicator{bottom:calc(var(--ws-db) + 18px);right:calc(var(--ws-dr) + 18px)}
 @media (max-width:560px){.ai-step{grid-template-columns:22px minmax(0,1fr)}.ai-step .dt,.ai-step .fx{grid-column:2}}
 </style>
-<script id="ai-studio">
+<script type="text/x-daily-module" id="ai-studio">
 (function(){'use strict';
 var $=function(x){return document.getElementById(x)};
 function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -3425,5 +3461,1748 @@ document.addEventListener('daily:ai',function(){if(built)renderState()});
 })();
 </script>
 
+<style id="core-css">
+/* Core UI: dialogs, the conflict resolver, change banners, the demo note and the
+   storage card in Studio. Uses the app's tokens so light, dark and high-contrast follow. */
+
+.dm-back{position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 55%,rgba(0,0,0,.35));backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:dmFade .16s ease both}
+.dm{width:min(520px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:var(--canvas);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 24px 70px -24px rgba(0,0,0,.45);animation:dmRise .2s cubic-bezier(.2,.8,.2,1) both}
+.dm.wide{width:min(980px,100%)}
+.dm-head{padding:20px 22px 6px}
+.dm-head h2{margin:0;font:650 17px/1.3 var(--font);letter-spacing:-.01em}
+.dm-head p{margin:6px 0 0;color:var(--soft);font-size:13px;line-height:1.55}
+.dm-body{padding:10px 22px;overflow:auto;min-height:0}
+.dm-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 22px 18px;border-top:1px solid var(--line2)}
+.dm-foot .btn{padding:8px 14px;font-size:13px}
+.btn.danger{color:#fff;background:var(--err);border-color:var(--err)}
+.btn.danger:hover{filter:brightness(1.05)}
+.dm-note{color:var(--soft);font-size:12.5px;line-height:1.55;margin:6px 0}
+.dm-check{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:10px 0 4px;cursor:pointer}
+.dm-check input{margin-top:3px}
+.dm-list{margin:4px 0 6px;padding-left:18px;font-size:13px;line-height:1.7}
+.dm-empty{color:var(--faint);font-style:italic}
+@keyframes dmFade{from{opacity:0}}
+@keyframes dmRise{from{opacity:0;transform:translateY(8px) scale(.99)}}
+@media (prefers-reduced-motion:reduce){.dm-back,.dm{animation:none}}
+
+/* conflict resolver */
+.rs-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px}
+.rs-bulk .btn{padding:6px 11px;font-size:12px}
+.rs-count{margin-left:auto;font:11.5px var(--mono);color:var(--soft)}
+.rs-ctx{margin:0 0 10px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--line2) 45%,transparent);color:var(--soft);font:12px/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.rs-gap{color:var(--faint);font-style:italic}
+.rs-c{border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));border-radius:10px;margin:0 0 12px;overflow:hidden}
+.rs-c.done{border-color:var(--line)}
+.rs-cols{display:grid;grid-template-columns:1fr 1fr}
+.rs-side{min-width:0;padding:10px 12px}
+.rs-side+.rs-side{border-left:1px solid var(--line2)}
+.rs-side h3{margin:0 0 6px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.rs-side pre{margin:0;font:12.5px/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.rs-pick{display:flex;gap:2px;padding:6px;border-top:1px solid var(--line2);background:color-mix(in srgb,var(--line2) 40%,transparent)}
+.rs-pick button{flex:1;border:1px solid transparent;background:transparent;color:var(--soft);border-radius:6px;padding:6px 8px;font:600 12px var(--font);cursor:pointer}
+.rs-pick button:hover{color:var(--ink)}
+.rs-pick button[aria-checked="true"]{background:var(--canvas);color:var(--ink);border-color:var(--line);box-shadow:0 1px 2px -1px rgba(0,0,0,.2)}
+.rs-edit{margin:4px 0 8px}
+.rs-edit summary{cursor:pointer;font:600 12.5px var(--font);color:var(--soft)}
+.rs-edit textarea{margin-top:8px;font:12.5px/1.55 var(--mono)}
+@media (max-width:640px){.rs-cols{grid-template-columns:1fr}.rs-side+.rs-side{border-left:0;border-top:1px solid var(--line2)}}
+
+/* "changed elsewhere" banner above the editor */
+.dm-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--warn) 8%,var(--canvas));font-size:12.5px}
+.dm-banner span{flex:1;min-width:200px}
+.dm-banner .btn{padding:5px 10px;font-size:12px}
+.toast-act{margin-left:10px;border:1px solid currentColor;background:transparent;color:inherit;border-radius:6px;padding:2px 8px;font:600 12px var(--font);cursor:pointer;pointer-events:auto}
+
+/* hosted demo */
+.demo-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 14px;padding:8px 10px 8px 12px;border:1px solid var(--line2);border-radius:9px;background:color-mix(in srgb,var(--accent-soft) 35%,var(--canvas));font-size:12.5px;color:var(--soft)}
+.demo-note b{color:var(--ink);font-weight:600}
+.demo-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.demo-txt{flex:1;min-width:220px}
+.demo-acts{display:flex;align-items:center;gap:4px}
+.demo-acts button,.demo-acts a{border:0;background:transparent;color:var(--accent);font:600 12.5px var(--font);padding:4px 7px;border-radius:6px;cursor:pointer;text-decoration:none}
+.demo-acts button:hover,.demo-acts a:hover{background:var(--accent-soft)}
+.demo-acts .demo-x{color:var(--faint);font-weight:400}
+
+/* Studio storage card */
+.core-storage .ct{gap:8px}
+.core-dim{font:11.5px var(--mono);color:var(--faint)}
+.core-err{flex-basis:100%;font-size:12px;color:var(--err)}
+.core-path{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:11.5px var(--mono);padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--line2) 60%,transparent)}
+
+/* Accessibility: the status bar used opacity to look quiet, which dropped its text below
+   WCAG AA contrast. It now stays fully opaque (the color tokens keep it quiet) except
+   while you type, when it steps back on purpose. */
+.wrap:not(:has(#entry:focus)) .ribbon{opacity:1!important}
+</style>
+<script id="daily-core">
+"use strict";
+(() => {
+  // src/core/storage/idb.ts
+  var DB_NAME = "the-daily";
+  var DB_VERSION = 1;
+  function req(r) {
+    return new Promise((resolve, reject) => {
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+    });
+  }
+  function done(tx) {
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  var Idb = class _Idb {
+    constructor(db) {
+      this.db = db;
+    }
+    static async open(factory = indexedDB, name = DB_NAME) {
+      const r = factory.open(name, DB_VERSION);
+      r.onupgradeneeded = () => {
+        const db2 = r.result;
+        if (!db2.objectStoreNames.contains("kv")) db2.createObjectStore("kv", { keyPath: "k" });
+        if (!db2.objectStoreNames.contains("meta")) db2.createObjectStore("meta", { keyPath: "k" });
+      };
+      const db = await new Promise((resolve, reject) => {
+        r.onsuccess = () => resolve(r.result);
+        r.onerror = () => reject(r.error);
+        r.onblocked = () => reject(new Error("IndexedDB is blocked by another open tab"));
+      });
+      return new _Idb(db);
+    }
+    async all() {
+      const tx = this.db.transaction("kv", "readonly");
+      const rows = await req(tx.objectStore("kv").getAll());
+      return rows;
+    }
+    async getMeta(k) {
+      const tx = this.db.transaction("meta", "readonly");
+      const row2 = await req(tx.objectStore("meta").get(k));
+      return row2?.v;
+    }
+    async setMeta(k, v) {
+      const tx = this.db.transaction("meta", "readwrite");
+      tx.objectStore("meta").put({ k, v });
+      await done(tx);
+    }
+    /** Apply puts (string value) and deletes (null) in one transaction. */
+    async write(changes) {
+      if (!changes.size) return;
+      const tx = this.db.transaction("kv", "readwrite");
+      const s = tx.objectStore("kv");
+      changes.forEach((v, k) => {
+        if (v === null) s.delete(k);
+        else s.put({ k, v });
+      });
+      await done(tx);
+    }
+    close() {
+      this.db.close();
+    }
+  };
+
+  // src/core/storage/store.ts
+  var BULK_PREFIXES = ["daily:entry:", "daily:sha:", "daily:base:", "daily:vault:", "daily:trash:"];
+  var isBulk = (k) => BULK_PREFIXES.some((p) => k.startsWith(p));
+  function safeLocal() {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+  var DailyStore = class _DailyStore {
+    constructor(db, local, onError) {
+      this.db = db;
+      this.local = local;
+      this.onError = onError;
+      this.mem = /* @__PURE__ */ new Map();
+      this.pending = /* @__PURE__ */ new Map();
+      this.scheduled = false;
+      this.flushing = Promise.resolve();
+      this.listeners = /* @__PURE__ */ new Set();
+      this.channel = null;
+      this.errorShown = false;
+      this.info = { mode: "localStorage", persisted: null, usage: null, quota: null, migratedAt: null, migratedCount: 0, lastError: null };
+    }
+    static async create(opts = {}) {
+      const local = opts.local === void 0 ? safeLocal() : opts.local;
+      const onError = opts.onError || (() => {
+      });
+      let db = null;
+      const factory = opts.idbFactory === void 0 ? typeof indexedDB !== "undefined" ? indexedDB : null : opts.idbFactory;
+      if (factory) {
+        try {
+          db = await Idb.open(factory, opts.dbName);
+        } catch {
+          db = null;
+        }
+      }
+      const s = new _DailyStore(db, local, onError);
+      if (db) {
+        s.info.mode = "indexeddb";
+        for (const row2 of await db.all()) s.mem.set(row2.k, row2.v);
+        await s.migrateFromLocalStorage();
+        s.openChannel(opts.channelName || "the-daily-store");
+      }
+      return s;
+    }
+    // ---------------------------------------------------------------- legacy-compatible API
+    get(k) {
+      if (this.db && isBulk(k)) return this.mem.has(k) ? this.mem.get(k) : null;
+      try {
+        return this.local ? this.local.getItem(k) : null;
+      } catch {
+        return null;
+      }
+    }
+    set(k, v) {
+      v = String(v);
+      if (this.db && isBulk(k)) {
+        if (this.mem.get(k) === v) return true;
+        this.mem.set(k, v);
+        this.queue(k, v);
+        this.emit(k, v, "local");
+        return true;
+      }
+      try {
+        this.local?.setItem(k, v);
+        this.emit(k, v, "local");
+        return true;
+      } catch (e) {
+        this.reportError(e);
+        return false;
+      }
+    }
+    rm(k) {
+      if (this.db && isBulk(k)) {
+        if (!this.mem.has(k)) return;
+        this.mem.delete(k);
+        this.queue(k, null);
+        this.emit(k, null, "local");
+        return;
+      }
+      try {
+        this.local?.removeItem(k);
+        this.emit(k, null, "local");
+      } catch {
+      }
+    }
+    keys() {
+      const out = /* @__PURE__ */ new Set();
+      if (this.db) this.mem.forEach((_, k) => out.add(k));
+      try {
+        if (this.local) {
+          for (let i = 0; i < this.local.length; i++) {
+            const k = this.local.key(i);
+            if (k !== null && !(this.db && isBulk(k))) out.add(k);
+          }
+        }
+      } catch {
+      }
+      return [...out];
+    }
+    // ---------------------------------------------------------------- events, durability
+    on(fn) {
+      this.listeners.add(fn);
+      return () => this.listeners.delete(fn);
+    }
+    /** Resolves once every change made so far is committed to IndexedDB. */
+    flush() {
+      if (this.pending.size) this.runFlush();
+      return this.flushing;
+    }
+    /** Ask the browser not to evict the journal under storage pressure. */
+    async requestPersistence() {
+      try {
+        const sm = navigator.storage;
+        if (!sm?.persisted) return null;
+        if (await sm.persisted()) {
+          this.info.persisted = true;
+          return true;
+        }
+        this.info.persisted = sm.persist ? await sm.persist() : false;
+        return this.info.persisted;
+      } catch {
+        return null;
+      }
+    }
+    async refreshInfo() {
+      try {
+        const sm = navigator.storage;
+        if (sm?.estimate) {
+          const e = await sm.estimate();
+          this.info.usage = e.usage ?? null;
+          this.info.quota = e.quota ?? null;
+        }
+        if (sm?.persisted) this.info.persisted = await sm.persisted();
+      } catch {
+      }
+      return this.info;
+    }
+    /** The copy of journal data taken from localStorage at upgrade time, if any. */
+    async legacyBackup() {
+      return this.db ? await this.db.getMeta("legacyBackup") ?? null : null;
+    }
+    async clearLegacyBackup() {
+      if (this.db) await this.db.setMeta("legacyBackup", null);
+    }
+    // ---------------------------------------------------------------- internals
+    emit(k, v, source) {
+      this.listeners.forEach((fn) => {
+        try {
+          fn(k, v, source);
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
+    queue(k, v) {
+      this.pending.set(k, v);
+      if (this.scheduled) return;
+      this.scheduled = true;
+      queueMicrotask(() => {
+        this.scheduled = false;
+        this.runFlush();
+      });
+    }
+    runFlush() {
+      if (!this.db || !this.pending.size) return;
+      const batch = new Map(this.pending);
+      this.pending.clear();
+      const db = this.db;
+      this.flushing = this.flushing.then(() => db.write(batch)).then(() => {
+        this.info.lastError = null;
+        this.channel?.postMessage({ changes: [...batch.entries()] });
+      }, (err) => {
+        batch.forEach((v, k) => {
+          if (!this.pending.has(k)) this.pending.set(k, v);
+        });
+        this.reportError(err);
+      });
+    }
+    reportError(err) {
+      const e = err;
+      const quota = e?.name === "QuotaExceededError";
+      this.info.lastError = quota ? "quota" : String(e?.message || err);
+      if (this.errorShown) return;
+      this.errorShown = true;
+      setTimeout(() => {
+        this.errorShown = false;
+      }, 8e3);
+      this.onError(quota ? "Browser storage is full. Export a backup (Studio → Backup & export) and free up space." : "Couldn’t save to browser storage: " + (e?.message || "unknown error"));
+    }
+    openChannel(name) {
+      if (typeof BroadcastChannel === "undefined") return;
+      try {
+        this.channel = new BroadcastChannel(name);
+        this.channel.onmessage = (ev) => {
+          const changes = ev.data && ev.data.changes;
+          if (!Array.isArray(changes)) return;
+          for (const [k, v] of changes) {
+            if (typeof k !== "string" || !isBulk(k)) continue;
+            if (v === null) this.mem.delete(k);
+            else this.mem.set(k, String(v));
+            this.emit(k, v, "remote");
+          }
+        };
+      } catch {
+        this.channel = null;
+      }
+    }
+    /**
+     * One-time upgrade from the localStorage layout used before 2.0. Journal keys are copied
+     * into IndexedDB and verified, a backup of the original values is kept in the database,
+     * and only then are they removed from localStorage to free its 5 MB for preferences.
+     */
+    async migrateFromLocalStorage() {
+      const db = this.db;
+      const local = this.local;
+      if (!db || !local) return;
+      const migratedAt = await db.getMeta("migratedAt");
+      this.info.migratedAt = migratedAt ?? null;
+      this.info.migratedCount = await db.getMeta("migratedCount") ?? 0;
+      const found = {};
+      try {
+        for (let i = 0; i < local.length; i++) {
+          const k = local.key(i);
+          if (k && isBulk(k)) {
+            const v = local.getItem(k);
+            if (v !== null) found[k] = v;
+          }
+        }
+      } catch {
+        return;
+      }
+      const keys = Object.keys(found);
+      if (!keys.length) {
+        if (!migratedAt) {
+          await db.setMeta("migratedAt", "fresh");
+          this.info.migratedAt = "fresh";
+        }
+        return;
+      }
+      const changes = /* @__PURE__ */ new Map();
+      for (const k of keys) if (!this.mem.has(k)) {
+        changes.set(k, found[k]);
+        this.mem.set(k, found[k]);
+      }
+      await db.write(changes);
+      const check = new Map((await db.all()).map((r) => [r.k, r.v]));
+      const verified = keys.every((k) => check.has(k));
+      if (!verified) return;
+      const prior = await db.getMeta("legacyBackup") || {};
+      await db.setMeta("legacyBackup", Object.assign(prior, found));
+      const at = (/* @__PURE__ */ new Date()).toISOString();
+      await db.setMeta("migratedAt", at);
+      await db.setMeta("migratedCount", this.info.migratedCount + changes.size);
+      this.info.migratedAt = at;
+      this.info.migratedCount += changes.size;
+      for (const k of keys) {
+        try {
+          local.removeItem(k);
+        } catch {
+        }
+      }
+    }
+  };
+
+  // src/core/boot/modules.ts
+  var MODULE_TYPE = "text/x-daily-module";
+  var domReady = typeof document !== "undefined" && document.readyState !== "loading";
+  var loaded = typeof document !== "undefined" && document.readyState === "complete";
+  if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", () => {
+      domReady = true;
+    }, { once: true });
+    window.addEventListener("load", () => {
+      loaded = true;
+    }, { once: true });
+  }
+  function startModules(root = document) {
+    const report = { started: [], failed: [] };
+    const nodes = Array.from(root.querySelectorAll(`script[type="${MODULE_TYPE}"]`));
+    for (const node of nodes) {
+      const id = node.id || "(anonymous)";
+      let failed = false;
+      const onError = (ev) => {
+        failed = true;
+        void ev;
+      };
+      window.addEventListener("error", onError);
+      const s = document.createElement("script");
+      if (node.id) s.id = node.id;
+      s.textContent = node.textContent || "";
+      node.replaceWith(s);
+      window.removeEventListener("error", onError);
+      (failed ? report.failed : report.started).push(id);
+    }
+    if (domReady) document.dispatchEvent(new Event("DOMContentLoaded", { bubbles: true }));
+    if (loaded) window.dispatchEvent(new Event("load"));
+    return report;
+  }
+
+  // src/core/bridge.ts
+  function entries() {
+    return window.__dailyEntries || null;
+  }
+  function relayConfig() {
+    return window.__relayConfig || null;
+  }
+
+  // src/core/sync/diff3.ts
+  function splitLines(text) {
+    const t = String(text ?? "").replace(/\r\n?/g, "\n");
+    return t === "" ? [] : t.split("\n");
+  }
+  function joinLines(lines) {
+    return lines.join("\n");
+  }
+  function lcsPairs(a, b, aLo, aHi, bLo, bHi) {
+    const n = aHi - aLo;
+    const m = bHi - bLo;
+    if (n === 0 || m === 0) return [];
+    if (n * m > 4e6) return [];
+    const w2 = m + 1;
+    const dp = new Uint32Array((n + 1) * w2);
+    for (let i2 = n - 1; i2 >= 0; i2--) {
+      for (let j2 = m - 1; j2 >= 0; j2--) {
+        dp[i2 * w2 + j2] = a[aLo + i2] === b[bLo + j2] ? dp[(i2 + 1) * w2 + j2 + 1] + 1 : Math.max(dp[(i2 + 1) * w2 + j2], dp[i2 * w2 + j2 + 1]);
+      }
+    }
+    const pairs = [];
+    let i = 0;
+    let j = 0;
+    while (i < n && j < m) {
+      if (a[aLo + i] === b[bLo + j]) {
+        pairs.push([aLo + i, bLo + j]);
+        i++;
+        j++;
+      } else if (dp[(i + 1) * w2 + j] >= dp[i * w2 + j + 1]) i++;
+      else j++;
+    }
+    return pairs;
+  }
+  function diffHunks(o, x) {
+    let pre = 0;
+    while (pre < o.length && pre < x.length && o[pre] === x[pre]) pre++;
+    let suf = 0;
+    while (suf < o.length - pre && suf < x.length - pre && o[o.length - 1 - suf] === x[x.length - 1 - suf]) suf++;
+    const pairs = [];
+    for (let i = 0; i < pre; i++) pairs.push([i, i]);
+    pairs.push(...lcsPairs(o, x, pre, o.length - suf, pre, x.length - suf));
+    for (let k = suf; k > 0; k--) pairs.push([o.length - k, x.length - k]);
+    pairs.push([o.length, x.length]);
+    const hunks = [];
+    let oi = 0;
+    let xi = 0;
+    for (const [po, px] of pairs) {
+      if (po > oi || px > xi) hunks.push({ oStart: oi, oLen: po - oi, xStart: xi, xLen: px - xi });
+      oi = po + 1;
+      xi = px + 1;
+    }
+    return hunks;
+  }
+  function sideRange(hunks, regionStart, regionEnd) {
+    const first = hunks[0];
+    const last = hunks[hunks.length - 1];
+    const start = first.xStart - (first.oStart - regionStart);
+    const end = last.xStart + last.xLen + (regionEnd - (last.oStart + last.oLen));
+    return [start, end];
+  }
+  function same(a, b) {
+    return a.length === b.length && a.every((v, i) => v === b[i]);
+  }
+  function merge3(base, ours, theirs) {
+    const O = splitLines(base);
+    const A = splitLines(ours);
+    const B = splitLines(theirs);
+    if (ours === theirs) return { clean: true, chunks: [{ kind: "ok", lines: A }], text: ours, conflicts: 0 };
+    if (ours === base) return { clean: true, chunks: [{ kind: "ok", lines: B }], text: theirs, conflicts: 0 };
+    if (theirs === base) return { clean: true, chunks: [{ kind: "ok", lines: A }], text: ours, conflicts: 0 };
+    const hunks = [
+      ...diffHunks(O, A).map((h) => ({ ...h, side: "a" })),
+      ...diffHunks(O, B).map((h) => ({ ...h, side: "b" }))
+    ].sort((p, q) => p.oStart - q.oStart || (p.side === q.side ? 0 : p.side === "a" ? -1 : 1));
+    const chunks = [];
+    const pushOk = (lines) => {
+      if (!lines.length) return;
+      const prev = chunks[chunks.length - 1];
+      if (prev && prev.kind === "ok") prev.lines.push(...lines);
+      else chunks.push({ kind: "ok", lines: [...lines] });
+    };
+    let oIdx = 0;
+    let i = 0;
+    let conflicts = 0;
+    while (i < hunks.length) {
+      const regionStart = hunks[i].oStart;
+      let regionEnd = hunks[i].oStart + hunks[i].oLen;
+      let j = i + 1;
+      while (j < hunks.length && hunks[j].oStart <= regionEnd) {
+        regionEnd = Math.max(regionEnd, hunks[j].oStart + hunks[j].oLen);
+        j++;
+      }
+      pushOk(O.slice(oIdx, regionStart));
+      const group = hunks.slice(i, j);
+      const aH = group.filter((h) => h.side === "a");
+      const bH = group.filter((h) => h.side === "b");
+      if (!bH.length) {
+        const [s, e] = sideRange(aH, regionStart, regionEnd);
+        pushOk(A.slice(s, e));
+      } else if (!aH.length) {
+        const [s, e] = sideRange(bH, regionStart, regionEnd);
+        pushOk(B.slice(s, e));
+      } else {
+        const [as, ae] = sideRange(aH, regionStart, regionEnd);
+        const [bs, be] = sideRange(bH, regionStart, regionEnd);
+        const aText = A.slice(as, ae);
+        const bText = B.slice(bs, be);
+        if (same(aText, bText)) pushOk(aText);
+        else {
+          chunks.push({ kind: "conflict", ours: aText, base: O.slice(regionStart, regionEnd), theirs: bText });
+          conflicts++;
+        }
+      }
+      oIdx = regionEnd;
+      i = j;
+    }
+    pushOk(O.slice(oIdx));
+    const clean = conflicts === 0;
+    return { clean, chunks, conflicts, text: clean ? joinLines(chunks.flatMap((c) => c.kind === "ok" ? c.lines : [])) : void 0 };
+  }
+  function applyResolutions(chunks, choices) {
+    const out = [];
+    let k = 0;
+    for (const c of chunks) {
+      if (c.kind === "ok") {
+        out.push(...c.lines);
+        continue;
+      }
+      const choice = choices[k++];
+      if (Array.isArray(choice)) out.push(...choice);
+      else if (choice === "theirs") out.push(...c.theirs);
+      else if (choice === "both") out.push(...c.ours, ...c.theirs);
+      else out.push(...c.ours);
+    }
+    return joinLines(out);
+  }
+
+  // src/core/ui/modal.ts
+  var seq = 0;
+  function openModal(opts) {
+    return new Promise((resolve) => {
+      const id = "dm-" + ++seq;
+      const back = document.createElement("div");
+      back.className = "dm-back";
+      back.innerHTML = `<div class="dm${opts.wide ? " wide" : ""}" role="dialog" aria-modal="true" aria-labelledby="${id}-t"${opts.description ? ` aria-describedby="${id}-d"` : ""}><div class="dm-head"><h2 id="${id}-t"></h2>${opts.description ? `<p id="${id}-d"></p>` : ""}</div><div class="dm-body"></div><div class="dm-foot"></div></div>`;
+      back.querySelector("h2").textContent = opts.title;
+      if (opts.description) back.querySelector(".dm-head p").textContent = opts.description;
+      const body = back.querySelector(".dm-body");
+      if (typeof opts.body === "string") body.innerHTML = opts.body;
+      else body.appendChild(opts.body);
+      const foot = back.querySelector(".dm-foot");
+      const buttons = /* @__PURE__ */ new Map();
+      for (const a of opts.actions) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "btn" + (a.primary ? " primary" : "") + (a.danger ? " danger" : "");
+        b.textContent = a.label;
+        b.disabled = !!a.disabled;
+        b.addEventListener("click", () => close(a.value));
+        foot.appendChild(b);
+        buttons.set(a.value, b);
+      }
+      const prev = document.activeElement;
+      const cancel = opts.cancelValue ?? "cancel";
+      function focusables() {
+        return Array.from(back.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')).filter((el) => !el.disabled && el.offsetParent !== null);
+      }
+      function onKey(e) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          close(cancel);
+          return;
+        }
+        if (e.key === "Tab") {
+          const f = focusables();
+          if (!f.length) return;
+          if (e.shiftKey && document.activeElement === f[0]) {
+            e.preventDefault();
+            f[f.length - 1].focus();
+          } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+            e.preventDefault();
+            f[0].focus();
+          }
+        }
+      }
+      function close(value) {
+        document.removeEventListener("keydown", onKey, true);
+        back.remove();
+        try {
+          prev?.focus();
+        } catch {
+        }
+        resolve(value);
+      }
+      back.addEventListener("mousedown", (e) => {
+        if (e.target === back) close(cancel);
+      });
+      document.addEventListener("keydown", onKey, true);
+      document.body.appendChild(back);
+      opts.onRender?.(back, (value, disabled) => {
+        const b = buttons.get(value);
+        if (b) b.disabled = disabled;
+      });
+      setTimeout(() => {
+        const primary = Array.from(buttons.values()).reverse().find((b) => b.classList.contains("primary") && !b.disabled);
+        (body.querySelector("[autofocus]") || primary || focusables()[0])?.focus();
+      }, 20);
+    });
+  }
+
+  // src/core/util.ts
+  function hash(text, seed = 0) {
+    let h1 = 3735928559 ^ seed;
+    let h2 = 1103547991 ^ seed;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ h1 >>> 16, 2246822507) ^ Math.imul(h2 ^ h2 >>> 13, 3266489909);
+    h2 = Math.imul(h2 ^ h2 >>> 16, 2246822507) ^ Math.imul(h1 ^ h1 >>> 13, 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  function normalizeText(text) {
+    return String(text ?? "").replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").trim();
+  }
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+  function toast(message) {
+    const w2 = window;
+    try {
+      w2.toast?.(escapeHtml(message));
+    } catch {
+    }
+  }
+
+  // src/core/sync/resolver.ts
+  function linesHtml(lines) {
+    return lines.length ? escapeHtml(lines.join("\n")) : '<span class="dm-empty">(nothing)</span>';
+  }
+  function contextHtml(lines) {
+    if (!lines.length) return "";
+    if (lines.length <= 4) return `<pre class="rs-ctx">${escapeHtml(lines.join("\n"))}</pre>`;
+    const head = lines.slice(0, 2).join("\n");
+    const tail = lines.slice(-2).join("\n");
+    return `<pre class="rs-ctx">${escapeHtml(head)}
+<span class="rs-gap">· · · ${lines.length - 4} unchanged lines · · ·</span>
+${escapeHtml(tail)}</pre>`;
+  }
+  async function resolveConflicts(req2) {
+    const conflicts = req2.chunks.filter((c) => c.kind === "conflict");
+    const choices = conflicts.map(() => void 0);
+    const root = document.createElement("div");
+    root.className = "rs";
+    let k = 0;
+    const parts = [
+      `<div class="rs-bulk" role="group" aria-label="Choose for every difference"><button type="button" class="btn" data-all="ours">Keep all mine</button><button type="button" class="btn" data-all="theirs">Keep all from ${escapeHtml(req2.otherLabel)}</button><span class="rs-count" aria-live="polite"></span></div>`
+    ];
+    for (const c of req2.chunks) {
+      if (c.kind === "ok") {
+        parts.push(contextHtml(c.lines));
+        continue;
+      }
+      const i = k++;
+      parts.push(
+        `<section class="rs-c" data-i="${i}" aria-label="Difference ${i + 1} of ${conflicts.length}"><div class="rs-cols"><div class="rs-side"><h3>Yours</h3><pre>${linesHtml(c.ours)}</pre></div><div class="rs-side"><h3>${escapeHtml(req2.otherLabel)}</h3><pre>${linesHtml(c.theirs)}</pre></div></div><div class="rs-pick" role="radiogroup" aria-label="What to keep for difference ${i + 1}"><button type="button" role="radio" aria-checked="false" data-v="ours">Keep mine</button><button type="button" role="radio" aria-checked="false" data-v="theirs">Keep theirs</button><button type="button" role="radio" aria-checked="false" data-v="both">Keep both</button></div></section>`
+      );
+    }
+    parts.push(`<details class="rs-edit"><summary>Edit the result by hand</summary><textarea class="f" rows="10" aria-label="Merged text"></textarea><p class="dm-note">Undecided differences appear between &lt;&lt;&lt;&lt;&lt;&lt;&lt; and &gt;&gt;&gt;&gt;&gt;&gt;&gt; markers. Editing here replaces the choices above.</p></details>`);
+    root.innerHTML = parts.join("");
+    const ta = root.querySelector("textarea");
+    const edit = root.querySelector(".rs-edit");
+    let manual = false;
+    function preview() {
+      let j = 0;
+      const out = [];
+      for (const c of req2.chunks) {
+        if (c.kind === "ok") {
+          out.push(...c.lines);
+          continue;
+        }
+        const ch = choices[j++];
+        if (ch === "ours") out.push(...c.ours);
+        else if (ch === "theirs") out.push(...c.theirs);
+        else if (ch === "both") out.push(...c.ours, ...c.theirs);
+        else out.push("<<<<<<< mine", ...c.ours, "=======", ...c.theirs, ">>>>>>> " + req2.otherLabel);
+      }
+      return out.join("\n");
+    }
+    let setDisabled = () => {
+    };
+    function sync() {
+      root.querySelectorAll(".rs-c").forEach((sec) => {
+        const i = Number(sec.dataset.i);
+        sec.classList.toggle("done", !!choices[i]);
+        sec.querySelectorAll("[data-v]").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.v === choices[i])));
+      });
+      const left = choices.filter((c) => !c).length;
+      root.querySelector(".rs-count").textContent = manual ? "Using your edited text" : left ? `${left} of ${choices.length} left to decide` : "All decided";
+      if (!manual) ta.value = preview();
+      setDisabled("apply", !manual && left > 0);
+    }
+    root.addEventListener("click", (e) => {
+      const t = e.target;
+      const all = t.closest("[data-all]");
+      if (all) {
+        choices.fill(all.dataset.all);
+        manual = false;
+        sync();
+        return;
+      }
+      const v = t.closest("[data-v]");
+      if (v) {
+        const sec = v.closest(".rs-c");
+        if (sec) {
+          choices[Number(sec.dataset.i)] = v.dataset.v;
+          manual = false;
+          sync();
+        }
+      }
+    });
+    ta.addEventListener("input", () => {
+      manual = true;
+      sync();
+    });
+    edit.addEventListener("toggle", () => {
+      if (edit.open) ta.focus();
+    });
+    const n = conflicts.length;
+    const result = await openModal({
+      title: `Combine the two versions of “${req2.title}”`,
+      description: `This note changed both here and in ${req2.otherLabel} since they were last in step. Everything else merged automatically; ` + (n === 1 ? "one difference needs a decision." : `${n} differences need a decision.`),
+      body: root,
+      wide: true,
+      actions: [{ label: "Cancel", value: "cancel" }, { label: "Use this version", value: "apply", primary: true, disabled: true }],
+      onRender: (_r, sd) => {
+        setDisabled = sd;
+        sync();
+      }
+    });
+    if (result !== "apply") return null;
+    return manual ? ta.value : applyResolutions(req2.chunks, choices.map((c) => c || "ours"));
+  }
+
+  // src/core/sync/index.ts
+  var baseKey = (id) => "daily:base:" + id;
+  var g = () => window;
+  function createSync(store) {
+    const queue = [];
+    let resolving = false;
+    function getBase(id) {
+      return store.get(baseKey(id));
+    }
+    function setBase(id, text) {
+      store.set(baseKey(id), String(text ?? ""));
+    }
+    function merge(base, local, remote) {
+      const r = merge3(normalizeText(base), normalizeText(local), normalizeText(remote));
+      return { clean: r.clean, text: r.text, chunks: r.chunks, conflicts: r.conflicts };
+    }
+    function applyText(e, text) {
+      const b = entries();
+      if (!b || normalizeText(text) === normalizeText(e.text)) return e;
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const next = b.save({ ...e, text, updated: now, savedAt: now });
+      const cur = b.current();
+      if (cur.id === e.id && typeof g().setEntryText === "function") {
+        g().setEntryText(text);
+        try {
+          g().flush?.();
+        } catch {
+        }
+      }
+      return next;
+    }
+    function afterPush(e, markdown) {
+      const b = entries();
+      if (!b || !e?.id) return;
+      try {
+        setBase(e.id, b.parse(markdown, e.date).text);
+      } catch {
+        setBase(e.id, e.text);
+      }
+    }
+    async function resolveRemoteChange(opts) {
+      const b = entries();
+      const e = opts.entry;
+      let remoteText = "";
+      try {
+        remoteText = b ? b.parse(await opts.fetchRemote(), e.date).text : "";
+      } catch (err) {
+        const ok = await openModal({
+          title: "The repository copy changed",
+          description: `“${e.title}” changed in ${opts.provider} since your last sync, and it couldn’t be read to merge (${err.message}).`,
+          body: '<p class="dm-note">Overwrite the repository copy with yours, or cancel and Pull first.</p>',
+          actions: [{ label: "Cancel", value: "cancel" }, { label: "Overwrite", value: "ok", danger: true }]
+        });
+        return ok === "ok" ? { text: e.text } : null;
+      }
+      if (normalizeText(remoteText) === normalizeText(e.text)) return { text: e.text };
+      const base = getBase(e.id);
+      const m = merge(base ?? "", e.text, remoteText);
+      if (m.clean && base !== null) {
+        toast(`Merged the ${opts.provider} changes into “${e.title}”.`);
+        return { text: m.text };
+      }
+      const text = await resolveConflicts({ title: e.title, otherLabel: opts.provider, chunks: m.chunks });
+      return text === null ? null : { text };
+    }
+    function queueConflict(c) {
+      const i = queue.findIndex((x) => x.id === c.id);
+      if (i >= 0) queue[i] = c;
+      else queue.push(c);
+    }
+    async function openConflicts() {
+      if (resolving) return;
+      resolving = true;
+      try {
+        while (queue.length) {
+          const c = queue[0];
+          const b = entries();
+          const e = b?.findById(c.id);
+          if (!b || !e) {
+            queue.shift();
+            continue;
+          }
+          const m = merge(c.base, e.text, c.remote);
+          const text = m.clean ? m.text : await resolveConflicts({ title: e.title, otherLabel: c.provider, chunks: m.chunks });
+          queue.shift();
+          if (text === null) {
+            toast(`Kept your version of “${e.title}”. Pull again to revisit.`);
+            continue;
+          }
+          applyText(e, text);
+          setBase(c.id, c.remote);
+          const shaKey = g().__dailyShaKey;
+          if (shaKey && c.remoteSha) store.set(shaKey(/azure/i.test(c.provider) ? "azure" : "github", c.id), c.remoteSha);
+          toast(`“${e.title}” combined. Push to publish the result.`);
+        }
+      } finally {
+        resolving = false;
+      }
+    }
+    function remoteTargets(e) {
+      const P = g().DailyProvider;
+      const out = [];
+      const ready = (p) => p === "github" ? g().ghReady?.() : g().azReady?.();
+      const active = P?.active?.() || (g().ghReady?.() ? "github" : "ado");
+      const known = (p) => !!(e.repositoryKey?.startsWith(p === "github" ? "github:" : "azure-devops:") || store.get(g().__dailyShaKey?.(p === "github" ? "github" : "azure", e.id) || ""));
+      if (ready(active) && known(active)) out.push(active);
+      const mirror = P?.mirrorTarget?.();
+      if (mirror && ready(mirror) && known(mirror)) out.push(mirror);
+      return out;
+    }
+    async function confirmDelete(e) {
+      const targets = remoteTargets(e);
+      const names = targets.map((t) => t === "github" ? "GitHub" : "Azure DevOps");
+      const body = document.createElement("div");
+      body.innerHTML = `<p class="dm-note">It will be removed from this browser${g().DailyVault?.enabled?.() ? " and moved to the trash in your journal folder" : ""}.</p>` + (names.length ? `<label class="dm-check"><input type="checkbox" id="dmDelRemote"> Also delete it from ${escapeHtml(names.join(" and "))}</label><p class="dm-note">The repository keeps its history, so a deleted file can always be restored from there.</p>` : "");
+      const r = await openModal({
+        title: `Delete “${e.title || "Untitled note"}”?`,
+        body,
+        actions: [{ label: "Cancel", value: "cancel" }, { label: "Delete", value: "delete", danger: true }]
+      });
+      if (r !== "delete") return null;
+      return { remote: !!body.querySelector("#dmDelRemote")?.checked, targets };
+    }
+    async function relayJSON(url, body) {
+      const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j?.error?.message || "Relay " + r.status);
+      return j;
+    }
+    async function deleteRemote(e, chosen) {
+      const b = entries();
+      if (!b) return;
+      const rel = b.relPath(e);
+      const targets = chosen ?? remoteTargets(e);
+      for (const p of targets) {
+        const name = p === "github" ? "GitHub" : "Azure DevOps";
+        const cfg = p === "github" ? g().getGH?.() : g().getAZ?.();
+        if (cfg?.relay) {
+          await relayJSON("/api/repositories/delete", { provider: p, path: rel, message: `Delete journal ${e.date} - ${e.title}`, mode: g().DailyProvider?.publishMode?.() || "commit" });
+        } else if (p === "github") {
+          const path = [String(cfg.path || "").replace(/^\/+|\/+$/g, ""), rel].filter(Boolean).join("/");
+          const api2 = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path.split("/").map(encodeURIComponent).join("/")}`;
+          const h = g().ghH(cfg.token);
+          const cur = await fetch(api2 + "?ref=" + encodeURIComponent(cfg.branch) + "&t=" + Date.now(), { headers: h, cache: "no-store" });
+          if (cur.status === 404) continue;
+          if (!cur.ok) throw new Error(`GitHub ${cur.status}`);
+          const sha = (await cur.json()).sha;
+          const r = await fetch(api2, { method: "DELETE", headers: { ...h, "Content-Type": "application/json" }, body: JSON.stringify({ message: `Delete journal ${e.date} - ${e.title}`, sha, branch: cfg.branch }) });
+          if (!r.ok) throw new Error(`GitHub ${r.status}`);
+        } else {
+          const base = `https://dev.azure.com/${cfg.org}/${cfg.project}/_apis/git/repositories/${cfg.repo}`;
+          const H = { Authorization: "Basic " + btoa(":" + cfg.token), "Content-Type": "application/json" };
+          const refs = await (await fetch(`${base}/refs?filter=heads/${cfg.branch}&api-version=7.1`, { headers: H })).json();
+          const oldId = refs.value?.[0]?.objectId;
+          if (!oldId) throw new Error(`Azure DevOps branch ${cfg.branch} not found`);
+          const path = "/" + [String(cfg.path || "").replace(/^\/+|\/+$/g, ""), rel].filter(Boolean).join("/");
+          const r = await fetch(`${base}/pushes?api-version=7.1`, { method: "POST", headers: H, body: JSON.stringify({ refUpdates: [{ name: "refs/heads/" + cfg.branch, oldObjectId: oldId }], commits: [{ comment: `Delete journal ${e.date} - ${e.title}`, changes: [{ changeType: "delete", item: { path } }] }] }) });
+          if (!r.ok && r.status !== 404) throw new Error(`Azure DevOps ${r.status}`);
+        }
+        toast(`Deleted from ${name}.`);
+      }
+    }
+    async function reviewRemoteDeletions(provider, gone) {
+      const b = entries();
+      if (!b || !gone.length) return;
+      const list = gone.slice(0, 12).map((e) => `<li><b>${escapeHtml(e.date)}</b> · ${escapeHtml(e.title || "Untitled note")}</li>`).join("") + (gone.length > 12 ? `<li>…and ${gone.length - 12} more</li>` : "");
+      const r = await openModal({
+        title: gone.length === 1 ? `A note was deleted in ${provider}` : `${gone.length} notes were deleted in ${provider}`,
+        description: `They’re still in this browser. Remove them here too, or keep them as local notes (pushing again would re-create them).`,
+        body: `<ul class="dm-list">${list}</ul>`,
+        actions: [{ label: "Keep them", value: "keep" }, { label: "Remove from this browser", value: "remove", danger: true }],
+        cancelValue: "later"
+      });
+      if (r === "remove") {
+        gone.forEach((e) => {
+          b.remove(e);
+          forget(e.id);
+        });
+        try {
+          g().renderDayNotes?.();
+          g().renderRibbon?.();
+        } catch {
+        }
+        toast(`Removed ${gone.length} note${gone.length === 1 ? "" : "s"}.`);
+      } else if (r === "keep") {
+        gone.forEach((e) => b.save({ ...e, repositoryKey: void 0, repositoryPath: void 0, repositorySha: void 0, contentFingerprint: void 0, source: "local" }));
+      }
+    }
+    function forget(id) {
+      store.rm(baseKey(id));
+    }
+    let banner = null;
+    function notifyExternalChange(e, where = "elsewhere") {
+      banner?.remove();
+      const host = document.getElementById("entry")?.closest(".writer") || document.getElementById("entry");
+      if (!host || !host.parentElement) return;
+      banner = document.createElement("div");
+      banner.className = "dm-banner";
+      banner.setAttribute("role", "status");
+      banner.innerHTML = `<span>This note was changed ${escapeHtml(where)} while you were editing.</span><button type="button" class="btn" data-a="load">Load that version</button><button type="button" class="btn" data-a="keep">Keep mine</button>`;
+      banner.addEventListener("click", (ev) => {
+        const a = ev.target.closest("[data-a]")?.dataset.a;
+        if (!a) return;
+        if (a === "load") {
+          const b = entries();
+          const fresh = b?.findById(e.id);
+          if (fresh) g().setEntryText?.(fresh.text || "");
+        } else {
+          try {
+            g().flush?.();
+          } catch {
+          }
+        }
+        banner?.remove();
+        banner = null;
+      });
+      host.parentElement.insertBefore(banner, host);
+    }
+    store.on((key, _v, source) => {
+      if (source !== "remote") return;
+      const m = /^daily:entry:v2:\d{4}-\d{2}-\d{2}:([A-Za-z0-9_-]+)$/.exec(key);
+      if (!m) return;
+      const b = entries();
+      if (!b) return;
+      if (b.current().id === m[1]) {
+        const busy = ["entry", "source", "entryTitle"].some((id) => document.getElementById(id) === document.activeElement);
+        const e = b.findById(m[1]);
+        if (e && busy) notifyExternalChange(e, "in another tab");
+        else b.refresh(m[1]);
+      }
+      try {
+        g().renderDayNotes?.();
+        g().renderRibbon?.();
+      } catch {
+      }
+    });
+    return {
+      getBase,
+      setBase,
+      merge,
+      applyText,
+      afterPush,
+      resolveRemoteChange,
+      queueConflict,
+      openConflicts,
+      confirmDelete,
+      deleteRemote,
+      reviewRemoteDeletions,
+      forget,
+      notifyExternalChange,
+      pendingConflicts: () => queue.length
+    };
+  }
+
+  // src/core/vault/plan.ts
+  function looksLikeEntry(path) {
+    return /(^|\/)\d{4}\/\d{2}\/\d{2}\/[^/]+\.md$/i.test(path) || /(^|\/)\d{4}-\d{2}-\d{2}[^/]*\.md$/i.test(path) || /--[A-Za-z0-9_-]+\.md$/.test(path);
+  }
+  function plan(local, files, states, opts) {
+    const actions = [];
+    const byPath = new Map(files.map((f) => [f.path, f]));
+    const st = opts.fresh ? {} : states;
+    const claimed = /* @__PURE__ */ new Set();
+    const localIds = new Set(local.map((l) => l.id));
+    for (const l of local) {
+      const s = st[l.id];
+      if (!s) {
+        if (l.empty) continue;
+        claimed.add(l.rel);
+        actions.push(byPath.has(l.rel) ? { type: "adopt", id: l.id, path: l.rel } : { type: "write", id: l.id, path: l.rel, ifMatch: null });
+        continue;
+      }
+      claimed.add(s.path);
+      const f = byPath.get(s.path);
+      const localChanged = l.hash !== s.hash;
+      const renamed = l.rel !== s.rel;
+      if (!f) {
+        if (localChanged && !l.empty) {
+          claimed.add(l.rel);
+          actions.push({ type: "write", id: l.id, path: renamed ? l.rel : s.path, ifMatch: null });
+        } else actions.push({ type: "deleteLocal", id: l.id, path: s.path });
+        continue;
+      }
+      const fileChanged = f.etag !== s.etag && f.etag !== s.deferredEtag;
+      if (fileChanged && localChanged) {
+        actions.push({ type: "merge", id: l.id, path: s.path });
+        continue;
+      }
+      if (fileChanged) {
+        actions.push({ type: "pull", id: l.id, path: s.path });
+        continue;
+      }
+      if (renamed) {
+        claimed.add(l.rel);
+        actions.push({ type: "write", id: l.id, path: l.rel, ifMatch: byPath.has(l.rel) ? byPath.get(l.rel).etag : null, from: s.path, fromEtag: f.etag });
+        continue;
+      }
+      if (localChanged && !l.empty) actions.push({ type: "write", id: l.id, path: s.path, ifMatch: f.etag });
+    }
+    for (const id of Object.keys(st)) {
+      if (localIds.has(id)) continue;
+      const s = st[id];
+      const f = byPath.get(s.path);
+      claimed.add(s.path);
+      if (f && f.etag === s.etag) actions.push({ type: "deleteFile", id, path: s.path, etag: f.etag });
+      else actions.push({ type: "forget", id });
+    }
+    for (const f of files) {
+      if (!claimed.has(f.path) && looksLikeEntry(f.path)) actions.push({ type: "import", path: f.path });
+    }
+    const dels = actions.filter((a) => a.type === "deleteLocal");
+    const limit = Math.max(3, Math.ceil(Object.keys(st).length * 0.25));
+    if (dels.length > limit) {
+      return { actions: actions.filter((a) => a.type !== "deleteLocal"), held: dels };
+    }
+    return { actions, held: [] };
+  }
+
+  // src/core/vault/client.ts
+  var STATE = "daily:vault:state:";
+  var VAULT_ID = "daily:vault:id";
+  var TRASH = "daily:trash:";
+  var HttpFail = class extends Error {
+    constructor(status, message, body) {
+      super(message);
+      this.status = status;
+      this.body = body;
+    }
+  };
+  async function api(method, url, body) {
+    const r = await fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : void 0, body: body ? JSON.stringify(body) : void 0, cache: "no-store" });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new HttpFail(r.status, j?.error?.message || `Journal folder ${r.status}`, j);
+    return j;
+  }
+  function dateFromPath(p) {
+    const m = /(?:^|\/)(\d{4})\/(\d{2})\/(\d{2})\//.exec(p) || /(\d{4})-(\d{2})-(\d{2})/.exec(p);
+    return m ? `${m[1]}-${m[2]}-${m[3]}` : (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  }
+  function createVault(store) {
+    const status = { enabled: false, path: "", files: 0, lastSync: null, syncing: false, lastError: null, held: 0, imported: 0, written: 0 };
+    const listeners = /* @__PURE__ */ new Set();
+    const notify = () => listeners.forEach((f) => {
+      try {
+        f();
+      } catch {
+      }
+    });
+    const dirty = /* @__PURE__ */ new Set();
+    let timer;
+    let poll;
+    let running = null;
+    let suppress = 0;
+    let markStarted = () => {
+    };
+    const started = new Promise((resolve) => {
+      markStarted = resolve;
+    });
+    const startedOrTimeout = () => Promise.race([started, new Promise((r) => setTimeout(r, 5e3))]);
+    const getState = (id) => {
+      try {
+        return JSON.parse(store.get(STATE + id) || "null");
+      } catch {
+        return null;
+      }
+    };
+    const setState = (id, s) => {
+      suppress++;
+      try {
+        if (s) store.set(STATE + id, JSON.stringify(s));
+        else store.rm(STATE + id);
+      } finally {
+        suppress--;
+      }
+    };
+    const allStates = () => {
+      const out = {};
+      for (const k of store.keys()) if (k.startsWith(STATE)) {
+        const s = getState(k.slice(STATE.length));
+        if (s) out[k.slice(STATE.length)] = s;
+      }
+      return out;
+    };
+    function localInfo(e) {
+      const b = entries();
+      return { id: e.id, rel: b.relPath(e), hash: hash(b.serialize(e)), empty: !normalizeText(e.text) };
+    }
+    function saveLocal(e) {
+      const b = entries();
+      suppress++;
+      try {
+        return b.save(e);
+      } finally {
+        suppress--;
+      }
+    }
+    async function readFile(path) {
+      return api("GET", "/api/vault/file?path=" + encodeURIComponent(path));
+    }
+    async function writeEntry(e, path, ifMatch, prior) {
+      const b = entries();
+      const content = b.serialize(e);
+      try {
+        const r = await api("PUT", "/api/vault/file", { path, content, ifMatch });
+        setState(e.id, { path, rel: b.relPath(e), etag: r.etag, hash: hash(content), base: e.text });
+        status.written++;
+      } catch (err) {
+        if (err instanceof HttpFail && err.status === 409 && typeof err.body?.content === "string") {
+          await mergeWith(e, path, err.body.content, err.body.etag, prior?.base ?? null);
+          return;
+        }
+        throw err;
+      }
+    }
+    async function mergeWith(e, path, content, etag, base) {
+      const b = entries();
+      const parsed = b.parse(content, dateFromPath(path));
+      if (normalizeText(parsed.text) === normalizeText(e.text)) {
+        setState(e.id, { path, rel: b.relPath(e), etag, hash: hash(b.serialize(e)), base: e.text });
+        return;
+      }
+      const m = merge3(normalizeText(base ?? ""), normalizeText(e.text), normalizeText(parsed.text));
+      let text = m.clean && base !== null ? m.text : null;
+      if (text === null) {
+        text = await resolveConflicts({ title: e.title || "Untitled note", otherLabel: "your journal folder", chunks: m.chunks });
+        if (text === null) {
+          const s = getState(e.id);
+          if (s) setState(e.id, { ...s, deferredEtag: etag });
+          toast(`Kept both versions of “${e.title}” for now. It will ask again when either changes.`);
+          return;
+        }
+      } else {
+        toast(`Merged changes from your journal folder into “${e.title}”.`);
+      }
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const next = saveLocal({ ...e, text, updated: now, savedAt: now });
+      entries().refresh(e.id);
+      await writeEntry(next, path, etag, { path, rel: b.relPath(next), etag, hash: "", base: parsed.text });
+    }
+    async function pullFile(e, path) {
+      const b = entries();
+      const f = await readFile(path);
+      const parsed = b.parse(f.content, dateFromPath(path));
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      let next = { ...e, text: parsed.text, title: parsed.title || e.title, updated: now, savedAt: now };
+      if (parsed.date && parsed.date !== e.date) {
+        suppress++;
+        try {
+          b.remove(e);
+        } finally {
+          suppress--;
+        }
+        next = { ...next, date: parsed.date };
+      }
+      next = saveLocal(next);
+      setState(e.id, { path, rel: b.relPath(next), etag: f.etag, hash: hash(b.serialize(next)), base: next.text });
+      b.refresh(e.id);
+    }
+    async function importFile(path) {
+      const b = entries();
+      const f = await readFile(path);
+      const parsed = b.parse(f.content, dateFromPath(path));
+      const existing = parsed.id ? b.findById(String(parsed.id)) : null;
+      if (existing) {
+        await adopt(existing, path, f);
+        return;
+      }
+      if (!normalizeText(parsed.text)) return;
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const e = saveLocal({
+        id: parsed.id || "file-" + hash(path),
+        date: parsed.date || dateFromPath(path),
+        title: parsed.title || "",
+        slug: parsed.slug || "",
+        text: parsed.text,
+        created: parsed.created || now,
+        updated: now,
+        savedAt: now,
+        source: "local"
+      });
+      setState(e.id, { path, rel: b.relPath(e), etag: f.etag, hash: hash(b.serialize(e)), base: e.text });
+      status.imported++;
+    }
+    async function adopt(e, path, file) {
+      const b = entries();
+      const f = file || await readFile(path);
+      const parsed = b.parse(f.content, dateFromPath(path));
+      if (normalizeText(parsed.text) === normalizeText(e.text)) {
+        setState(e.id, { path, rel: b.relPath(e), etag: f.etag, hash: hash(b.serialize(e)), base: e.text });
+        return;
+      }
+      await mergeWith(e, path, f.content, f.etag, null);
+    }
+    async function deleteLocal(e, path) {
+      const b = entries();
+      store.set(TRASH + e.id, JSON.stringify({ ...e, deletedAt: (/* @__PURE__ */ new Date()).toISOString(), deletedFrom: path }));
+      suppress++;
+      try {
+        b.remove(e);
+      } finally {
+        suppress--;
+      }
+      setState(e.id, null);
+      try {
+        window.DailySync?.forget?.(e.id);
+      } catch {
+      }
+      toast(`“${e.title || "Untitled note"}” was deleted from your journal folder, so it was removed here too.`);
+      const t = document.getElementById("toast");
+      if (t) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toast-act";
+        btn.textContent = "Undo";
+        btn.onclick = () => {
+          void undoDelete(e.id);
+        };
+        t.appendChild(btn);
+      }
+    }
+    async function undoDelete(id) {
+      const raw = store.get(TRASH + id);
+      if (!raw) return;
+      const e = JSON.parse(raw);
+      delete e.deletedAt;
+      delete e.deletedFrom;
+      const saved = saveLocal(e);
+      store.rm(TRASH + id);
+      await writeEntry(saved, entries().relPath(saved), null).catch(() => {
+      });
+      entries().select(saved.date, saved.id);
+      toast(`Restored “${saved.title || "Untitled note"}”.`);
+    }
+    async function execute(a) {
+      const b = entries();
+      const e = "id" in a ? b.findById(a.id) : null;
+      switch (a.type) {
+        case "write": {
+          if (!e) return;
+          await writeEntry(e, a.path, a.ifMatch, getState(a.id));
+          if (a.from && a.from !== a.path) await api("POST", "/api/vault/delete", { path: a.from, ifMatch: a.fromEtag ?? "*" }).catch(() => {
+          });
+          return;
+        }
+        case "pull":
+          if (e) await pullFile(e, a.path);
+          return;
+        case "merge": {
+          if (!e) return;
+          const f = await readFile(a.path);
+          await mergeWith(e, a.path, f.content, f.etag, getState(a.id)?.base ?? null);
+          return;
+        }
+        case "adopt":
+          if (e) await adopt(e, a.path);
+          return;
+        case "import":
+          await importFile(a.path);
+          return;
+        case "deleteLocal":
+          if (e) await deleteLocal(e, a.path);
+          return;
+        case "deleteFile":
+          await api("POST", "/api/vault/delete", { path: a.path, ifMatch: a.etag }).catch(() => {
+          });
+          setState(a.id, null);
+          return;
+        case "forget":
+          setState(a.id, null);
+          return;
+      }
+    }
+    async function withLock(fn) {
+      const locks = navigator.locks;
+      if (locks?.request) await locks.request("the-daily-vault", fn);
+      else await fn();
+    }
+    async function syncNow() {
+      if (!status.enabled) await startedOrTimeout();
+      if (!status.enabled || !entries()) return;
+      if (running) return running.then(() => syncNow());
+      running = withLock(async () => {
+        status.syncing = true;
+        notify();
+        try {
+          await store.flush();
+          const list = await api("GET", "/api/vault/list");
+          const knownId = store.get(VAULT_ID);
+          const fresh = knownId !== list.id;
+          if (fresh) {
+            for (const k of store.keys()) if (k.startsWith(STATE)) {
+              suppress++;
+              try {
+                store.rm(k);
+              } finally {
+                suppress--;
+              }
+            }
+            store.set(VAULT_ID, list.id);
+          }
+          const b = entries();
+          const p = plan(b.all().map(localInfo), list.files, allStates(), { fresh });
+          for (const a of p.actions) {
+            try {
+              await execute(a);
+            } catch (err) {
+              status.lastError = err.message;
+            }
+          }
+          status.held = p.held.length;
+          if (p.held.length) {
+            toast(`${p.held.length} notes are missing from your journal folder. They were kept here; check the folder (Studio → Backup & export).`);
+          }
+          status.files = list.files.length;
+          status.lastSync = (/* @__PURE__ */ new Date()).toISOString();
+          if (!p.actions.some((a) => a.type === "write" || a.type === "deleteFile")) status.lastError = status.lastError && p.actions.length ? status.lastError : null;
+          try {
+            window.renderRibbon?.();
+          } catch {
+          }
+        } catch (err) {
+          status.lastError = err.message;
+        } finally {
+          status.syncing = false;
+          notify();
+        }
+      }).finally(() => {
+        running = null;
+      });
+      return running;
+    }
+    async function flushDirty() {
+      if (!status.enabled || !dirty.size) return;
+      const ids = [...dirty];
+      dirty.clear();
+      await withLock(async () => {
+        const b = entries();
+        if (!b) return;
+        for (const id of ids) {
+          const e = b.findById(id);
+          const s = getState(id);
+          try {
+            if (!e) {
+              if (s) {
+                await api("POST", "/api/vault/delete", { path: s.path, ifMatch: s.etag }).catch(() => {
+                });
+                setState(id, null);
+              }
+              continue;
+            }
+            const info = localInfo(e);
+            if (info.empty && !s) continue;
+            if (s && s.hash === info.hash && s.rel === info.rel) continue;
+            if (s && s.rel !== info.rel) {
+              await writeEntry(e, info.rel, null, s);
+              await api("POST", "/api/vault/delete", { path: s.path, ifMatch: s.etag }).catch(() => {
+              });
+            } else {
+              await writeEntry(e, s ? s.path : info.rel, s ? s.etag : null, s);
+            }
+            status.lastError = null;
+          } catch (err) {
+            status.lastError = err.message;
+            dirty.add(id);
+          }
+        }
+      });
+      notify();
+    }
+    store.on((key, _v, source) => {
+      if (suppress || source !== "local" || !status.enabled) return;
+      const m = /^daily:entry:v2:\d{4}-\d{2}-\d{2}:([A-Za-z0-9_-]+)$/.exec(key);
+      if (!m) return;
+      dirty.add(m[1]);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        void flushDirty();
+      }, 900);
+    });
+    async function start() {
+      const cfg = relayConfig();
+      if (!cfg?.vault?.enabled) {
+        status.enabled = false;
+        notify();
+        markStarted();
+        return;
+      }
+      try {
+        const v = await api("GET", "/api/vault");
+        status.enabled = !!v.enabled;
+        status.path = v.path || "";
+      } catch (err) {
+        status.enabled = false;
+        status.lastError = err.message;
+      }
+      notify();
+      markStarted();
+      if (!status.enabled) return;
+      await syncNow();
+      poll = setInterval(() => {
+        if (document.visibilityState === "visible") void syncNow();
+      }, 2e4);
+      window.addEventListener("focus", () => {
+        void syncNow();
+      });
+      window.addEventListener("pagehide", () => {
+        if (timer) {
+          clearTimeout(timer);
+          void flushDirty();
+        }
+      });
+    }
+    return {
+      start,
+      syncNow,
+      flushDirty,
+      undoDelete,
+      status: () => ({ ...status }),
+      enabled: () => status.enabled,
+      onChange: (f) => {
+        listeners.add(f);
+        return () => listeners.delete(f);
+      },
+      stop: () => {
+        if (poll) clearInterval(poll);
+      },
+      describe: () => status.enabled ? escapeHtml(status.path) : ""
+    };
+  }
+
+  // src/core/demo.ts
+  var LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\]|::1|0\.0\.0\.0)$/i;
+  var DISMISSED = "daily:demoNoteDismissed";
+  var REPO_URL = "https://github.com/TehauD/daily";
+  function isHostedDemo(loc = location) {
+    if (!/^https?:$/.test(loc.protocol)) return false;
+    const h = loc.hostname;
+    return !(LOCAL_HOST.test(h) || h.endsWith(".localhost") || h.endsWith(".local"));
+  }
+  function ls() {
+    try {
+      return localStorage;
+    } catch {
+      return null;
+    }
+  }
+  function prepareDemo() {
+    document.documentElement.dataset.demo = "1";
+    const s = ls();
+    try {
+      if (s && !s.getItem("daily:introSeen")) s.setItem("daily:introSeen", "demo");
+    } catch {
+    }
+  }
+  function installDemo() {
+    const s = ls();
+    const host = document.querySelector(".wrap .prompt")?.parentElement || document.querySelector(".wrap");
+    const anchor = document.getElementById("multiFileBar") || document.querySelector(".wrap .prompt");
+    if (host && anchor && !(s && s.getItem(DISMISSED))) {
+      const note = document.createElement("div");
+      note.className = "demo-note";
+      note.setAttribute("role", "note");
+      note.innerHTML = `<span class="demo-dot" aria-hidden="true"></span><span class="demo-txt"><b>Try it right here.</b> Notes are saved in this browser only; nothing is uploaded.</span><span class="demo-acts"><button type="button" data-a="tour">Take the tour</button><a href="${REPO_URL}" target="_blank" rel="noopener">Run it yourself ↗</a><button type="button" class="demo-x" data-a="close" aria-label="Dismiss">✕</button></span>`;
+      note.addEventListener("click", (e) => {
+        const a = e.target.closest("[data-a]")?.dataset.a;
+        if (a === "tour") {
+          try {
+            window.openAbout?.();
+          } catch {
+          }
+        }
+        if (a === "close") {
+          note.remove();
+          try {
+            s?.setItem(DISMISSED, "1");
+          } catch {
+          }
+        }
+      });
+      anchor.parentElement?.insertBefore(note, anchor);
+    }
+    const coarse = window.matchMedia?.("(pointer: coarse)").matches;
+    if (!coarse) setTimeout(() => {
+      const ed = document.getElementById("entry");
+      if (ed && !document.querySelector(".mback.open")) ed.focus();
+    }, 80);
+  }
+
+  // src/core/studio.ts
+  function fmtBytes(n) {
+    if (n === null || n === void 0) return "—";
+    if (n < 1024) return n + " B";
+    if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
+    if (n < 1073741824) return (n / 1048576).toFixed(1) + " MB";
+    return (n / 1073741824).toFixed(1) + " GB";
+  }
+  function ago(iso) {
+    if (!iso) return "not yet";
+    const s = Math.round((Date.now() - Date.parse(iso)) / 1e3);
+    if (s < 10) return "just now";
+    if (s < 90) return s + " seconds ago";
+    const m = Math.round(s / 60);
+    return m < 90 ? m + " minutes ago" : new Date(iso).toLocaleString();
+  }
+  function row(label, desc, control) {
+    return `<div class="st-row"><div class="lb"><b>${escapeHtml(label)}</b>${desc ? `<small>${escapeHtml(desc)}</small>` : ""}</div><div class="ct">${control}</div></div>`;
+  }
+  function installStorageStudio(store, sync, vault) {
+    let card = null;
+    async function render() {
+      const sec2 = document.querySelector('#studioModal .studio-section[data-s="data"]');
+      if (!sec2) return;
+      if (!card || !sec2.contains(card)) {
+        card = document.createElement("div");
+        card.className = "studio-card core-storage";
+        const after = sec2.querySelector(":scope > p.intro") || sec2.querySelector("h4");
+        after?.insertAdjacentElement("afterend", card);
+        card.addEventListener("click", onClick);
+      }
+      const info = await store.refreshInfo();
+      const v = vault.status();
+      const backup = await store.legacyBackup();
+      const backupCount = backup ? Object.keys(backup).filter((k) => k.startsWith("daily:entry:")).length : 0;
+      const idb = info.mode === "indexeddb";
+      const conflicts = sync.pendingConflicts();
+      card.innerHTML = "<h5>Where your journal lives</h5>" + row(
+        "This browser",
+        idb ? "A database in this browser profile (IndexedDB)." : "IndexedDB isn’t available here, so the 5 MB browser storage is used.",
+        `<span class="cap ${idb ? "on" : "off"}"><i>${idb ? "✓" : "!"}</i>${idb ? "Database" : "Limited storage"}</span><span class="core-dim">${fmtBytes(info.usage)}${info.quota ? " of " + fmtBytes(info.quota) : ""} used</span>`
+      ) + row(
+        "Protection",
+        "Browsers can clear site data when the disk is low unless the site is marked persistent.",
+        info.persisted ? '<span class="cap on"><i>✓</i>Protected</span>' : '<span class="cap off"><i>○</i>Not protected</span><button class="btn" type="button" data-core="persist">Protect my journal</button>'
+      ) + row(
+        "Journal folder",
+        v.enabled ? "Every note is also a Markdown file on this computer, kept in step both ways." : "Run the relay (python relay.py) to keep every note as a Markdown file on this computer.",
+        v.enabled ? `<code class="core-path" title="${escapeHtml(v.path)}">${escapeHtml(v.path)}</code><span class="core-dim">${v.files} files · synced ${escapeHtml(ago(v.lastSync))}${v.syncing ? " · syncing…" : ""}</span><button class="btn" type="button" data-core="vault">Sync now</button>` + (v.lastError ? `<span class="core-err">${escapeHtml(v.lastError)}</span>` : "") + (v.held ? `<span class="core-err">${v.held} notes are missing from the folder and were kept here.</span>` : "") : '<span class="cap off"><i>○</i>Off</span>'
+      ) + (conflicts ? row("Needs review", "Notes that changed both here and in the repository.", `<button class="btn primary" type="button" data-core="conflicts">Review ${conflicts}</button>`) : "") + (backupCount || backup ? row(
+        "Pre-2.0 copy",
+        "The journal as it was in browser storage before this version moved it to the database.",
+        `<span class="core-dim">${backupCount} entries</span><button class="btn" type="button" data-core="dl-backup">Download</button><button class="btn" type="button" data-core="rm-backup">Delete</button>`
+      ) : "");
+    }
+    async function onClick(e) {
+      const a = e.target.closest("[data-core]")?.dataset.core;
+      if (!a) return;
+      if (a === "persist") {
+        const ok = await store.requestPersistence();
+        toast(ok ? "Your journal is now protected from automatic clean-up." : "The browser declined for now. Installing the site as an app, or using it often, usually changes that.");
+      } else if (a === "vault") {
+        await vault.syncNow();
+      } else if (a === "conflicts") {
+        await sync.openConflicts();
+      } else if (a === "dl-backup") {
+        const b = await store.legacyBackup();
+        if (b) {
+          const blob = new Blob([JSON.stringify({ type: "the-daily-pre-2.0-storage", exportedAt: (/* @__PURE__ */ new Date()).toISOString(), keys: b }, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = Object.assign(document.createElement("a"), { href: url, download: "the-daily-pre-2.0-copy.json" });
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 2e3);
+        }
+      } else if (a === "rm-backup") {
+        if (confirm("Delete the pre-2.0 copy? Your journal itself is not affected.")) {
+          await store.clearLegacyBackup();
+          toast("Deleted the pre-2.0 copy.");
+        }
+      }
+      void render();
+    }
+    document.addEventListener("click", (e) => {
+      if (e.target.closest('[data-s="data"]')) setTimeout(() => void render(), 0);
+    });
+    vault.onChange(() => {
+      const sec2 = document.querySelector('#studioModal .studio-section[data-s="data"].on');
+      if (sec2) void render();
+    });
+    const sec = document.querySelector('#studioModal .studio-section[data-s="data"]');
+    if (sec) void render();
+  }
+
+  // src/core/main.ts
+  var w = window;
+  function isChromium() {
+    const brands = navigator.userAgentData?.brands;
+    return !!brands?.some((b) => /Chromium/i.test(b.brand));
+  }
+  async function boot() {
+    let store;
+    try {
+      store = await DailyStore.create({ onError: (m) => toast(m) });
+    } catch (err) {
+      console.error("[The Daily] storage failed to open; using browser storage instead", err);
+      store = await DailyStore.create({ idbFactory: null, onError: (m) => toast(m) });
+    }
+    w.DailyStore = store;
+    const sync = createSync(store);
+    w.DailySync = sync;
+    const vault = createVault(store);
+    w.DailyVault = vault;
+    w.__DAILY_VERSION__ = true ? "1.3.0" : "dev";
+    const demo = isHostedDemo();
+    if (demo) prepareDemo();
+    const report = startModules();
+    if (report.failed.length) console.warn("[The Daily] some modules reported errors while starting:", report.failed.join(", "));
+    if (demo) installDemo();
+    installStorageStudio(store, sync, vault);
+    const startVault = () => {
+      void vault.start();
+    };
+    if (w.__relayConfig) startVault();
+    else document.addEventListener("daily:relay", startVault, { once: true });
+    window.addEventListener("pagehide", () => {
+      void store.flush();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") void store.flush();
+    });
+    if (store.info.mode === "indexeddb" && isChromium()) {
+      setTimeout(() => {
+        try {
+          const n = typeof w.allEntries === "function" ? w.allEntries().length : 0;
+          if (n >= 3) void store.requestPersistence();
+        } catch {
+        }
+      }, 4e3);
+    }
+    store.refreshInfo().then(() => {
+      try {
+        w.renderQuota?.();
+      } catch {
+      }
+    });
+  }
+  boot().catch((err) => {
+    console.error("[The Daily] start-up failed", err);
+    if (!w.DailyStore) {
+      void DailyStore.create({ idbFactory: null }).then((s) => {
+        w.DailyStore = s;
+        startModules();
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>

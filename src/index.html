@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Daily — Developer Intelligence Journal</title>
 <meta name="color-scheme" content="light dark">
+<meta name="description" content="A local-first journal for engineering and research work: write plainly, link everything, publish Markdown to GitHub or Azure DevOps on your terms.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230969da'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23fff'/%3E%3C/svg%3E">
+<meta property="og:title" content="The Daily — Developer Intelligence Journal">
+<meta property="og:description" content="Write plainly. The Daily structures, links and keeps every entry — in your browser, as Markdown, published only when you say so.">
+<meta property="og:type" content="website">
 <!--@include {"file": "styles/01-base.css", "tag": "style"}-->
 
 
@@ -17,7 +24,7 @@
 <header class="top"><div class="top-in">
   <div class="brand">
     <span class="sig"></span><span class="n">THE DAILY</span>
-    <div class="today"><button class="step" id="dPrev" title="Previous day">‹</button><button class="cur" id="dCur">Today</button><button class="step" id="dNext" title="Next day">›</button><input type="date" id="dateInput"></div>
+    <div class="today"><button class="step" id="dPrev" title="Previous day">‹</button><button class="cur" id="dCur">Today</button><button class="step" id="dNext" title="Next day">›</button><input type="date" id="dateInput" aria-label="Choose a date"></div>
   </div>
   <nav class="nav">
     <!--<button class="save" id="navSave" onclick="quickSave()" title="Save & Push (⌘S)">⚡ Save</button>-->
@@ -83,7 +90,7 @@
     </div>
   </div>
   <div class="writer rich mode-write" id="writer">
-    <div id="entry" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-ph="Start writing. Press / for scaffolds (auto-tagged), #project/… for projects — decisions, learnings & blockers tag themselves for the Obsidian graph."></div>
+    <div id="entry" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Journal entry" spellcheck="true" data-ph="Start writing. Press / for scaffolds (auto-tagged), #project/… for projects — decisions, learnings & blockers tag themselves for the Obsidian graph."></div>
     <textarea id="source" spellcheck="false" aria-label="Markdown source"></textarea>
     <div id="preview"></div>
     <div class="aibar" id="aibar"></div>
@@ -361,6 +368,7 @@
 <!--@include {"file": "styles/27-ai-studio-css.css", "tag": "style", "id": "ai-studio-css"}-->
 <!--@include {"file": "legacy/28-ai-studio.js", "tag": "script", "id": "ai-studio"}-->
 
+<!--@include {"file": "styles/29-core.css", "tag": "style", "id": "core-css"}-->
 <!--@core-->
 </body>
 </html>

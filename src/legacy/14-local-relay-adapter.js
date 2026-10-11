@@ -27,9 +27,14 @@ async function relayPush(provider){const e=collect(),parts=String(e.date).split(
   const body={provider,path:rel,markdown:buildMD(),message:title,title,mode,knownSha:(sk&&store.get(sk))||'',date:e.date,summary:String(e.text||'').replace(/[#>*_`]/g,'').replace(/\s+/g,' ').trim().slice(0,300)};
   let r;try{r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
   catch(err){if(!/REMOTE_CHANGED/.test(err.message))throw err;
-    if(!confirm('“'+(e.title||e.date)+'” changed in '+name+' since your last sync.\n\nOverwrite the copy in '+name+' with this version?\n\nChoose Cancel, then Pull, to keep the remote changes.'))throw new Error('Push canceled: the note changed in '+name);
+    /* The repository copy changed since the last sync: merge both versions (asking only
+       where they truly conflict), then push the result. */
+    const cfg=window.__relayConfig||{},root=String((provider==='github'?cfg.github?.root:cfg.ado?.root)||'').replace(/^\/+|\/+$/g,'');const full=(root?root+'/':'')+rel;
+    const out=window.DailySync?await DailySync.resolveRemoteChange({provider:name,entry:e,fetchRemote:async()=>{const x=await fetch('/api/repositories/content?provider='+provider+'&path='+encodeURIComponent(full));if(!x.ok)throw new Error('Couldn’t read the '+name+' copy ('+x.status+')');return x.text()}}):(confirm('“'+(e.title||e.date)+'” changed in '+name+' since your last sync.\n\nOverwrite the copy in '+name+'?')?{text:e.text}:null);
+    if(!out)throw new Error('Push canceled: the note changed in '+name);
+    const e2=window.DailySync?DailySync.applyText(e,out.text):e;body.markdown=buildMD(e2);body.summary=String(e2.text||'').replace(/[#>*_`]/g,'').replace(/\s+/g,' ').trim().slice(0,300);
     body.force=true;r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
-  if(r&&r.sha&&mode!=='pr'&&sk)store.set(sk,r.sha);return r}
+  if(r&&r.sha&&mode!=='pr'&&sk)store.set(sk,r.sha);if(window.DailySync&&mode!=='pr')DailySync.afterPush(collect(),body.markdown);return r}
 window.ghCommit=async function(){const c=getGH();if(!c.relay)return directGhCommit();return relayPush('github')};
 window.azCommit=async function(){const c=getAZ();if(!c.relay)return directAzCommit();return relayPush('ado')};
 window.ghList=async function(){if(!getGH().relay)return directGhList();return (await relayJSON('/api/repositories/files?provider=github')).value||[]};
