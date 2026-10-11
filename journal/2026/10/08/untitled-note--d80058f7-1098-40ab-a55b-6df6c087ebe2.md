@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-10-08
 created: 2026-10-08T00:47:05.675Z
-modified: 2026-10-11T12:05:27.517Z
+modified: 2026-10-11T12:06:16.164Z
 type: journal
 prompt: "What's the next smallest step?"
 tags:
@@ -16,7 +16,7 @@ artifact_types:
 aliases:
   - The Daily 2026-10-08
 artifacts: 1
-words: 519
+words: 495
 cssclasses:
   - the-daily
 ---
@@ -25,8 +25,6 @@ cssclasses:
 
 > [!abstract] Artifacts
 > ⚗ experiment
-
----
 
 # Runtime Is a Contract
 
@@ -44,55 +42,31 @@ The interface should remain stable while the runtime adapts underneath it.
 
 The desired provider set became clearer:
 
--
+-GitHub as the default hosted workflow.
 
-GitHub as the default hosted workflow.
+-Azure DevOps as an enterprise repository and pipeline workflow.
 
--
-
-Azure DevOps as an enterprise repository and pipeline workflow.
-
--
-
-Local/offline as a first-class mode rather than an error condition.
+-Local/offline as a first-class mode rather than an error condition.
 
 The provider contract needs to cover more than source control. It should define:
 
--
+-Capability discovery
 
-Capability discovery
+-Authentication state
 
--
+-Repository operations
 
-Authentication state
+-Artifact persistence
 
--
+-Remote availability
 
-Repository operations
+-Retry and timeout behavior
 
--
+-Unsupported-operation handling
 
-Artifact persistence
+-Telemetry boundaries
 
--
-
-Remote availability
-
--
-
-Retry and timeout behavior
-
--
-
-Unsupported-operation handling
-
--
-
-Telemetry boundaries
-
--
-
-Migration between providers
+-Migration between providers
 
 Misconfiguration should not leave the application waiting indefinitely. The runtime should detect missing prerequisites, explain the degraded state, and continue with the capabilities that remain available.
 
@@ -102,29 +76,17 @@ The patient-experience work also continued toward a comprehensive handoff packag
 
 ## What Moved
 
--
+-Defined GitHub as the default hosted provider.
 
-Defined GitHub as the default hosted provider.
+-Added local/offline as a required provider rather than a fallback after failure.
 
--
+-Framed Azure DevOps support through a common runtime abstraction.
 
-Added local/offline as a required provider rather than a fallback after failure.
+-Required graceful handling of missing provider configuration and wait states.
 
--
+-Distinguished user-facing Copilot licensing from API and agent consumption.
 
-Framed Azure DevOps support through a common runtime abstraction.
-
--
-
-Required graceful handling of missing provider configuration and wait states.
-
--
-
-Distinguished user-facing Copilot licensing from API and agent consumption.
-
--
-
-Continued strengthening the patient-experience package around configurable user experience and deployment flexibility.
+-Continued strengthening the patient-experience package around configurable user experience and deployment flexibility.
 
 ## Where Reality Disagreed
 
@@ -140,7 +102,7 @@ Operational questions about licensing, deployment, and user customization kept t
 
 ## Reusable Pattern
 
->
+> 
 
 Runtime portability requires behavioral parity, not matching labels.
 
@@ -154,29 +116,19 @@ An event-driven runtime layer where applications emit stable domain events and p
 
 ## Standing Takeaways
 
--
+-Offline should be designed, not improvised.
 
-Offline should be designed, not improvised.
+-Default providers reduce setup friction but should not become hidden lock-in.
 
--
+-A license is not an API contract.
 
-Default providers reduce setup friction but should not become hidden lock-in.
+-Graceful degradation is part of the user experience.
 
--
-
-A license is not an API contract.
-
--
-
-Graceful degradation is part of the user experience.
-
--
-
-Provider parity should be testable.
+-Provider parity should be testable.
 
 ## Open Thread
 
 What is the minimum provider contract that preserves the same Daily experience across local, GitHub, and Azure DevOps runtimes?
 
 ---
-_The Daily · 10/11/2026, 7:05:27 AM_
+_The Daily · 10/11/2026, 7:06:16 AM_
