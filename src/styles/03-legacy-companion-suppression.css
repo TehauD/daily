@@ -1,0 +1,10 @@
+/* The Intelligence 3.0 drawer is the supported AI surface.
+   Suppress dormant legacy companion markup that had no release CSS and
+   therefore rendered as raw controls at the bottom-left of the page. */
+#ambientAI,
+#companionOS,
+#coPanel {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

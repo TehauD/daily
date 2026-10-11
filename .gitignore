@@ -140,3 +140,11 @@ dist
 .daily-data/
 __pycache__/
 *.pyc
+
+# Journal folder written by the relay (see DAILY_VAULT_DIR)
+/vault/
+
+# Test output
+/test-results/
+/playwright-report/
+/blob-report/

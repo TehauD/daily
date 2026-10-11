@@ -1,0 +1,137 @@
+/* ==========================================================================
+   Calm instrument layer — a quieter main view, a first-run introduction,
+   and one consistent settings surface. Loaded last; only refines.
+   ========================================================================== */
+
+/* ---- Main view: nothing competes with the page ---- */
+/* closed side drawers no longer cast a shadow onto the page edge */
+.wit-drawer:not(.open),.ai-hub:not(.open),.intel-drawer:not(.open){box-shadow:none;visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s}
+.wit-drawer.open,.ai-hub.open,.intel-drawer.open{visibility:visible;transition:transform .2s ease}
+
+/* Collapsed panels become small edge tabs; the name appears on hover/focus */
+.ws-rail{opacity:.5;gap:0;box-shadow:none;transition:opacity .15s,border-color .15s,color .15s}
+.ws-rail:hover,.ws-rail:focus-visible{opacity:1}
+.ws-rail .ri{font-size:11px;line-height:1;font-weight:400}
+.ws-rail .rl{display:none;white-space:nowrap}
+.ws-rail:hover .rl,.ws-rail:focus-visible .rl{display:inline}
+.ws-rail.left,.ws-rail.right{padding:8px 3px;min-height:30px;justify-content:center}
+.ws-rail.left:hover .rl,.ws-rail.right:hover .rl,.ws-rail.left:focus-visible .rl,.ws-rail.right:focus-visible .rl{margin-top:7px}
+.ws-rail.bottom{padding:3px 9px;min-width:30px;justify-content:center}
+.ws-rail.bottom:hover .rl,.ws-rail.bottom:focus-visible .rl{margin-left:7px}
+
+/* Editor chrome: one quiet toolbar row; it steps back while you type */
+.toolbar .sep{margin:0 3px}
+.toolbar .tb{min-width:26px;padding:0 5px;white-space:nowrap}
+.toolbar .grp{flex:none}
+/* When the column is narrow, undo/redo (still on Ctrl/⌘+Z and Ctrl/⌘+Shift+Z) and
+   clear-formatting leave the bar so the toolbar stays on one row. */
+.toolbar{container-type:inline-size}
+@container (max-width:940px){.toolbar .tb-hist,.toolbar .tb-hist+.sep,.toolbar .tb-clear{display:none}}
+@media (max-width:560px){.toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.toolbar::-webkit-scrollbar{display:none}}
+.toolbar .tb.save{background:transparent;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:none}
+.toolbar .tb.save:hover{background:var(--accent);color:#fff}
+.toolbar,.ribbon,.mfbar,.prompt-actions{transition:opacity .25s ease}
+.wrap:has(#entry:focus) .toolbar:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .ribbon:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .mfbar:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .prompt-actions:not(:hover){opacity:.32}
+@media (prefers-reduced-motion:reduce){.toolbar,.ribbon,.mfbar,.prompt-actions{transition:none}}
+
+/* ---- First-run introduction ---- */
+.intro-back{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 62%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:introFade .22s ease both}
+.intro-card{position:relative;width:min(640px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--canvas);border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 80px -30px #0006,0 2px 8px -4px #0002;padding:34px 38px 28px;animation:introRise .28s cubic-bezier(.2,.8,.2,1) both}
+.intro-card .ix{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--faint);font-size:15px;cursor:pointer}
+.intro-card .ix:hover{border-color:var(--line);color:var(--ink)}
+.intro-kicker{display:flex;align-items:center;gap:8px;font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.intro-kicker .mk{width:18px;height:18px;border-radius:5px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+.intro-kicker .mk i{width:6px;height:6px;border-radius:50%;background:#fff}
+.intro-card h2{font:700 30px/1.12 var(--font);letter-spacing:-.025em;margin:18px 0 10px;color:var(--ink)}
+.intro-lede{font-size:15px;line-height:1.6;color:var(--soft);margin:0 0 22px;max-width:52ch}
+.intro-steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--line2)}
+.intro-steps li{display:grid;grid-template-columns:38px 1fr;gap:4px 10px;padding:13px 0;border-bottom:1px solid var(--line2)}
+.intro-steps .n{font:600 11px var(--mono);color:var(--accent);padding-top:2px;font-variant-numeric:tabular-nums}
+.intro-steps b{display:block;font:650 14px var(--font);color:var(--ink)}
+.intro-steps span{display:block;font-size:13px;line-height:1.55;color:var(--soft);margin-top:2px}
+.intro-keys{display:flex;flex-wrap:wrap;gap:6px 16px;margin:18px 0 6px;font:11px var(--mono);color:var(--faint)}
+.intro-keys kbd{display:inline-block;min-width:20px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;margin-right:6px;font:600 10.5px var(--mono);color:var(--ink);background:var(--canvas)}
+.intro-status{display:flex;align-items:center;gap:8px;margin:14px 0 0;padding:10px 12px;border-radius:9px;background:color-mix(in srgb,var(--line2) 55%,transparent);font:11.5px var(--mono);color:var(--soft)}
+.intro-status i{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.intro-status i.ok{background:var(--ok)}
+.intro-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:22px}
+.intro-actions .sp{flex:1}
+.intro-actions .lnk{border:0;background:transparent;color:var(--soft);font:600 12.5px var(--font);cursor:pointer;padding:9px 6px}
+.intro-actions .lnk:hover{color:var(--accent)}
+@keyframes introFade{from{opacity:0}}
+@keyframes introRise{from{opacity:0;transform:translateY(10px) scale(.985)}}
+@media (prefers-reduced-motion:reduce){.intro-back,.intro-card{animation:none}}
+@media (max-width:560px){.intro-card{padding:26px 20px 20px;border-radius:12px}.intro-card h2{font-size:24px}.intro-lede{font-size:14px}.intro-actions .sp{display:none}.intro-actions .btn{flex:1 1 auto}}
+
+/* ---- Studio: one consistent settings surface ---- */
+#studioModal .modal.studio-v2{width:min(1080px,96vw);max-width:1080px}
+#studioModal .studio-layout{grid-template-columns:228px minmax(0,1fr);min-height:min(640px,74vh)}
+#studioModal .studio-rail{padding:14px 12px 18px;background:color-mix(in srgb,var(--line2) 32%,var(--bg));overflow:auto;max-height:76vh}
+.st-search{position:relative;margin:0 0 6px}
+.st-search input{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--canvas);color:var(--ink);padding:8px 10px 8px 28px;font:12.5px var(--font);outline:none}
+.st-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.st-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--faint)}
+.st-group{font:600 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:16px 10px 5px}
+#studioModal .studio-nav{padding:7px 10px;margin:1px 0;border-radius:7px;font:600 12.5px var(--font);color:var(--ink)}
+#studioModal .studio-nav small{font:11px var(--font);color:var(--faint);margin-top:1px}
+#studioModal .studio-nav:hover{background:color-mix(in srgb,var(--line2) 70%,transparent)}
+#studioModal .studio-nav.on{background:var(--canvas);color:var(--accent);box-shadow:inset 2px 0 0 var(--accent),0 0 0 1px var(--line2)}
+#studioModal .studio-nav[hidden]{display:none}
+.st-empty{font-size:12px;color:var(--faint);padding:10px}
+#studioModal .studio-content{padding:26px 32px 36px;max-height:76vh}
+#studioModal .studio-section>h4{font:650 20px/1.2 var(--font);letter-spacing:-.012em;margin:0}
+#studioModal .studio-section>.intro{font-size:13px;color:var(--soft);margin:5px 0 20px}
+#studioModal .studio-card{border:1px solid var(--line2);border-radius:10px;padding:18px 20px;margin:0 0 14px;background:var(--canvas)}
+#studioModal .studio-card h5{font:650 13px var(--font);margin:0 0 4px;color:var(--ink)}
+#studioModal .studio-card h5 .muted{font-weight:500}
+#studioModal .studio-card>h5:not(:first-child){margin-top:20px}
+#studioModal .studio-card p.muted,#studioModal .studio-card .intro{font-size:12.5px;line-height:1.55;color:var(--soft);margin:2px 0 12px}
+#studioModal .studio-card .bar{margin-top:12px}
+#studioModal .studio-card .warn{margin-top:14px}
+#studioModal label.f{margin:14px 0 5px}
+#studioModal .studio-danger{border-color:color-mix(in srgb,var(--err) 30%,var(--line2))}
+#studioModal .studio-danger .btn{color:var(--err)}
+#studioModal .studio-danger .btn:hover{border-color:var(--err)}
+/* one segmented-control style everywhere in Studio */
+#studioModal .seg,#studioModal .aw-seg,#studioModal .provgrid{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;margin:0;border:1px solid var(--line2);border-radius:8px;background:color-mix(in srgb,var(--line2) 60%,var(--bg));overflow:visible;max-width:100%}
+#studioModal .seg button,#studioModal .aw-seg button,#studioModal .provgrid button{flex:0 0 auto;min-width:0;border:0;border-radius:6px;background:transparent;color:var(--soft);padding:6px 12px;font:600 12px var(--font);cursor:pointer;box-shadow:none}
+#studioModal .seg button:hover,#studioModal .aw-seg button:hover,#studioModal .provgrid button:hover{color:var(--ink)}
+#studioModal .seg button.on,#studioModal .aw-seg button.on,#studioModal .provgrid button.on{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 1px 2px -1px #0003}
+#studioModal .provgrid{margin:4px 0 2px}
+/* label / control rows */
+.st-row{display:grid;grid-template-columns:minmax(150px,210px) minmax(0,1fr);gap:8px 20px;align-items:center;padding:14px 0;border-top:1px solid var(--line2)}
+.st-row:first-of-type{border-top:0;padding-top:4px}
+.st-row:last-child{padding-bottom:2px}
+.st-row .lb b{display:block;font:600 12.5px var(--font);color:var(--ink)}
+.st-row .lb small{display:block;font-size:11.5px;line-height:1.45;color:var(--faint);margin-top:2px}
+.st-row .ct{min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-row .ct input.f{max-width:360px;margin:0}
+#studioModal .aw-row{padding:14px 0 2px;border-top:1px solid var(--line2);margin-top:14px}
+#studioModal .aw-field label{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.st-kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;font:12px var(--mono);margin:6px 0 0}
+.st-kv dt{color:var(--faint)}
+.st-kv dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.st-caps{display:flex;flex-wrap:wrap;gap:6px}
+#studioModal .studio-card .btn{padding:7px 12px;font-size:12.5px}
+#studioModal .studio-card .btn.primary{font-weight:600}
+#studioModal select.f{max-width:360px}
+#studioModal .intel-config{border:0;padding:0;margin-top:14px;background:none}
+#studioModal .intel-profile{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;border:1px solid var(--line2);border-radius:8px;background:color-mix(in srgb,var(--line2) 60%,var(--bg))}
+#studioModal .intel-profile button{border:0;border-radius:6px;background:transparent;color:var(--soft);padding:6px 14px;font:600 12px var(--font)}
+#studioModal .intel-profile button.on{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 1px 2px -1px #0003}
+#studioModal .intel-slider{max-width:560px}
+#studioModal .ws-preset-btn.on{background:var(--canvas);color:var(--ink);border-color:var(--ink)}
+#studioModal .ws-preset-btn.on small{color:var(--soft)}
+.st-note{font-size:12px;color:var(--faint);margin:10px 0 0}
+@media (max-width:760px){
+  #studioModal .studio-layout{grid-template-columns:1fr}
+  #studioModal .studio-rail{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;max-height:none;padding:8px}
+  .st-search{flex:0 0 150px;margin:0}
+  .st-group{display:none}
+  #studioModal .studio-nav{flex:none}
+  #studioModal .studio-content{padding:18px 16px 28px;max-height:none}
+  .st-row{grid-template-columns:1fr;gap:8px}
+}

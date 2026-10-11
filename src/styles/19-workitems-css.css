@@ -1,0 +1,115 @@
+/* ============================================================
+   WORK ITEMS 1.2 — Azure DevOps Boards, ingrained & AI-augmented
+   An augmentation of ADO, not a replacement: your journal entry and
+   the work it tracks, side by side, with AI drafting throughout.
+   ============================================================ */
+/* Ribbon trigger */
+.r-wit{position:relative}
+.r-wit .wit-count{position:absolute;right:-5px;top:-6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent);color:#fff;border:2px solid var(--canvas);font:800 8px/13px var(--mono);display:none}
+.r-wit .wit-count.show{display:block}
+/* Ambient strip (above ribbon) */
+.wit-ambient{display:none;align-items:center;gap:10px;margin:0 0 8px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--accent) 6%,var(--canvas));font-size:12px;animation:fade .2s}
+.wit-ambient.show{display:flex}
+.wit-ambient .glyph{color:var(--accent);font-weight:800}
+.wit-ambient .txt{color:var(--soft);flex:1;min-width:0}
+.wit-ambient .txt b{color:var(--ink)}
+.wit-ambient button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:6px 11px;font:700 11px var(--font);cursor:pointer;white-space:nowrap}
+.wit-ambient button.ghost{background:transparent;color:var(--accent)}
+.wit-ambient .x{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:15px;padding:0 2px}
+/* Linked chips row */
+.wit-chips{display:none;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.wit-chips.show{display:flex}
+.wit-chips .lbl{font:700 9px var(--mono);letter-spacing:.06em;color:var(--faint);text-transform:uppercase}
+.wit-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font:600 11px var(--font);color:var(--ink);cursor:pointer;background:var(--canvas)}
+.wit-chip:hover{border-color:var(--accent);color:var(--accent)}
+.wit-chip .id{font:700 10px var(--mono);color:var(--faint)}
+.wit-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.wit-chip .dot.active{background:var(--accent)}.wit-chip .dot.resolved{background:var(--warn)}.wit-chip .dot.closed{background:var(--ok)}.wit-chip .dot.err{background:var(--err)}
+/* Drawer */
+.wit-drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,97vw);z-index:475;background:var(--bg);border-left:1px solid var(--line);box-shadow:-26px 0 64px -38px #000;transform:translateX(103%);transition:transform .2s ease;display:flex;flex-direction:column}
+.wit-drawer.open{transform:none}
+.wit-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line2)}
+.wit-head h2{font-size:17px;margin:0}.wit-head small{display:block;color:var(--faint);font:10px var(--mono)}
+.wit-head .sp{flex:1}
+.wit-head button{border:1px solid var(--line);background:var(--canvas);color:var(--ink);border-radius:7px;padding:6px 10px;font:650 11px var(--font);cursor:pointer}
+.wit-head button:hover{border-color:var(--accent);color:var(--accent)}
+.wit-tabs{display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line2)}
+.wit-tabs button{border:0;background:transparent;color:var(--soft);padding:7px 12px;border-radius:7px;font:650 11px var(--font);cursor:pointer;white-space:nowrap}
+.wit-tabs button.on{background:var(--accent-soft);color:var(--accent)}
+.wit-diag{font:10px var(--mono);padding:7px 16px;border-bottom:1px solid var(--line2);color:var(--faint);display:flex;gap:12px;flex-wrap:wrap}
+.wit-diag b{color:var(--ok)}.wit-diag b.off{color:var(--faint)}.wit-diag b.err{color:var(--err)}
+.wit-body{padding:14px 16px;overflow:auto;flex:1}
+/* cards */
+.wit-card{border:1px solid var(--line2);border-radius:10px;background:var(--canvas);padding:12px;margin-bottom:9px}
+.wit-card .top{display:flex;align-items:flex-start;gap:8px}
+.wit-card .top b{font-size:13px;line-height:1.35;flex:1}
+.wit-card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px}
+.wit-badge{font:9px var(--mono);border:1px solid var(--line);border-radius:20px;padding:1px 8px;color:var(--soft)}
+.wit-badge.type{border-color:var(--accent);color:var(--accent)}
+.wit-dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.wit-dot.active{background:var(--accent)}.wit-dot.resolved{background:var(--warn)}.wit-dot.closed{background:var(--ok)}.wit-dot.new{background:var(--soft)}
+.wit-card .row{display:grid;grid-template-columns:100px 1fr;gap:9px;align-items:center;margin:7px 0;font-size:12px}
+.wit-card .row label{font:700 9px var(--mono);color:var(--faint);text-transform:uppercase}
+.wit-card .row input,.wit-card .row textarea,.wit-card .row select{width:100%;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);padding:7px 9px;font:12px var(--font);outline:none}
+.wit-card .row textarea{min-height:80px;resize:vertical;font-family:var(--font)}
+.wit-card .row input:focus,.wit-card .row textarea:focus,.wit-card .row select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.wit-card .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.wit-card .acts button{border:1px solid var(--line);background:var(--canvas);color:var(--ink);border-radius:7px;padding:6px 10px;font:700 10px var(--font);cursor:pointer}
+.wit-card .acts button:hover{border-color:var(--accent);color:var(--accent)}
+.wit-card .acts button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.wit-card .acts button.ai{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.wit-open{font:10px var(--mono);color:var(--accent);text-decoration:none;white-space:nowrap}
+.wit-sec{font:700 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.wit-sec:after{content:'';flex:1;height:1px;background:var(--line2)}
+.wit-empty{padding:26px;text-align:center;color:var(--faint);font-size:12px;line-height:1.6}
+.wit-detected{border:1px solid color-mix(in srgb,var(--warn) 30%,var(--line));border-radius:9px;background:color-mix(in srgb,var(--warn) 7%,var(--canvas));padding:10px 12px;margin-bottom:9px}
+.wit-detected .dtxt{font-size:12px;color:var(--soft)}
+.wit-detected .dtxt b{color:var(--ink)}
+.wit-detected .acts{display:flex;gap:6px;margin-top:8px}
+.wit-detected button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:5px 10px;font:700 10px var(--font);cursor:pointer}
+.wit-detected button.ghost{background:transparent;color:var(--accent)}
+.wit-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:11px}
+.wit-toolbar select,.wit-toolbar input{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:7px 9px;font:11px var(--font)}
+.wit-toolbar input.search{flex:1;min-width:120px}
+.wit-toolbar label{display:inline-flex;align-items:center;gap:6px;font:600 11px var(--font);color:var(--soft);white-space:nowrap}
+.wit-toolbar button{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:7px 10px;font:700 11px var(--font);cursor:pointer}
+.wit-aiout{width:100%;min-height:120px;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);font:11px/1.6 var(--mono);padding:9px;margin-top:8px}
+.wit-note{font-size:11px;color:var(--faint);line-height:1.55;margin-top:8px}
+.wit-busy{color:var(--accent);animation:blink 1s infinite}
+/* rich detail sections */
+.wit-detail-sec{margin-top:12px;border-top:1px solid var(--line2);padding-top:10px}
+.wit-detail-sec>.h{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;font:700 9px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--soft)}
+.wit-detail-sec>.h .caret{transition:transform .15s;color:var(--faint)}
+.wit-detail-sec.collapsed>.h .caret{transform:rotate(-90deg)}
+.wit-detail-sec>.h .cnt{margin-left:auto;font:700 9px var(--mono);color:var(--faint)}
+.wit-detail-sec>.body{margin-top:8px}
+.wit-detail-sec.collapsed>.body{display:none}
+.wit-rich{font-size:12.5px;line-height:1.6;color:var(--ink);word-wrap:break-word;overflow-wrap:anywhere}
+.wit-rich p{margin:0 0 8px}.wit-rich ul,.wit-rich ol{margin:0 0 8px;padding-left:20px}.wit-rich li{margin:2px 0}
+.wit-rich b,.wit-rich strong{font-weight:700}.wit-rich a{color:var(--accent)}
+.wit-rich img{max-width:100%;height:auto;border-radius:6px}
+.wit-rich table{border-collapse:collapse;width:100%;margin:6px 0}.wit-rich td,.wit-rich th{border:1px solid var(--line2);padding:5px 7px;font-size:11.5px;text-align:left;vertical-align:top}
+.wit-muted{color:var(--faint);font-size:12px;font-style:italic}
+/* test steps */
+.wit-steps{border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.wit-step{display:grid;grid-template-columns:26px 1fr 1fr;gap:0;border-bottom:1px solid var(--line2);font-size:11.5px}
+.wit-step:last-child{border-bottom:0}
+.wit-step>div{padding:7px 9px}
+.wit-step .n{background:var(--bg);color:var(--faint);font:700 10px var(--mono);text-align:center}
+.wit-step .act{border-left:1px solid var(--line2)}
+.wit-step .exp{border-left:1px solid var(--line2);color:var(--soft)}
+.wit-step.head{background:var(--bg);font:700 9px var(--mono);text-transform:uppercase;color:var(--faint);letter-spacing:.05em}
+/* discussion inline */
+.wit-disc{display:flex;flex-direction:column;gap:6px}
+.wit-cmt{border:1px solid var(--line2);border-radius:8px;padding:8px 10px;background:var(--bg)}
+.wit-cmt .who{display:flex;align-items:center;gap:6px;font:700 10px var(--mono);color:var(--soft)}
+.wit-cmt .who .av{width:16px;height:16px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:800 8px/16px var(--font);text-align:center;flex:none}
+.wit-cmt .when{margin-left:auto;color:var(--faint);font-weight:400}
+.wit-cmt .tx{font-size:12px;margin-top:5px;line-height:1.5}
+.wit-facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:11.5px;margin-top:2px}
+.wit-facts .k{font:700 9px var(--mono);text-transform:uppercase;color:var(--faint);white-space:nowrap;padding-top:1px}
+.wit-facts .v{color:var(--ink)}
+.wit-cmtbox{display:flex;gap:6px;margin-top:8px}
+.wit-cmtbox textarea{flex:1;min-height:38px;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:7px 9px;font:12px var(--font);resize:vertical}
+.wit-cmtbox button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:0 12px;font:700 11px var(--font);cursor:pointer}
+@media(max-width:600px){.wit-drawer{width:100vw}.wit-step{grid-template-columns:22px 1fr}.wit-step .exp{grid-column:2;border-left:0;border-top:1px dashed var(--line2)}}
