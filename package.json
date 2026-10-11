@@ -19,7 +19,7 @@
     "build:check": "node scripts/build.mjs --check",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "npm run test:unit && npm run test:node && npm run test:relay",
-    "test:unit": "vitest run --passWithNoTests",
+    "test:unit": "vitest run",
     "test:node": "node --test test/security.test.js",
     "test:relay": "python3 -m unittest discover -s test -p \"test_*.py\"",
     "test:e2e": "playwright test",
