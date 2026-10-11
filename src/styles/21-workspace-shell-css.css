@@ -1,0 +1,80 @@
+/* ============================================================
+   WORKSPACE SHELL 1.0 — IDE-style docking for The Daily
+   Header stays full width on top. Three docks mount below it and
+   push the center canvas (never overlap). One behavior contract for
+   all panels: resize, collapse-to-rail, remembered sizes, presets.
+   Edge-by-shape: Repo tree = left, Work Items = right, Board/AI = bottom.
+   ============================================================ */
+:root{--ws-top:52px;--ws-dl:0px;--ws-dr:0px;--ws-db:0px}
+body.ws-on main.stage{margin-left:var(--ws-dl);margin-right:var(--ws-dr);margin-bottom:var(--ws-db);transition:margin .18s ease}
+.ws-dock{position:fixed;z-index:30;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.ws-dock.left{left:0;top:var(--ws-top);bottom:var(--ws-db);width:var(--ws-dl);border-right:1px solid var(--line)}
+.ws-dock.right{right:0;top:var(--ws-top);bottom:var(--ws-db);width:var(--ws-dr);border-left:1px solid var(--line)}
+.ws-dock.bottom{left:0;right:0;bottom:0;height:var(--ws-db);border-top:1px solid var(--line);z-index:35}
+.ws-dock[data-open="0"]{display:none}
+.ws-head{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line2);flex:none}
+.ws-head .ttl{font:800 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.ws-head .sp{flex:1}
+.ws-head button,.ws-head select{border:1px solid var(--line);background:var(--canvas);color:var(--ink);border-radius:6px;padding:5px 8px;font:650 10px var(--font);cursor:pointer}
+.ws-head button:hover{border-color:var(--accent);color:var(--accent)}
+.ws-head .tabs{display:flex;gap:2px}
+.ws-head .tabs button{border:0;background:transparent;color:var(--soft);padding:5px 9px;border-radius:6px;font:700 10px var(--font)}
+.ws-head .tabs button.on{background:var(--accent-soft);color:var(--accent)}
+.ws-body{flex:1;overflow:auto;padding:10px 11px}
+.ws-body.pad0{padding:0}
+/* resize handles */
+.ws-rz{position:absolute;z-index:2;background:transparent}
+.ws-rz:hover,.ws-rz.drag{background:var(--accent-soft)}
+.ws-dock.left .ws-rz{right:-1px;top:0;bottom:0;width:6px;cursor:col-resize}
+.ws-dock.right .ws-rz{left:-1px;top:0;bottom:0;width:6px;cursor:col-resize}
+.ws-dock.bottom .ws-rz{left:0;right:0;top:-1px;height:6px;cursor:row-resize}
+/* collapsed rails */
+.ws-rail{position:fixed;z-index:29;display:none;align-items:center;gap:6px;background:var(--canvas);border:1px solid var(--line);color:var(--soft);cursor:pointer;font:700 10px var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.ws-rail:hover{border-color:var(--accent);color:var(--accent)}
+.ws-rail.show{display:inline-flex}
+.ws-rail.left{left:0;top:calc(var(--ws-top) + 14px);flex-direction:column;padding:10px 5px;border-left:0;border-radius:0 9px 9px 0;writing-mode:vertical-rl}
+.ws-rail.right{right:0;top:calc(var(--ws-top) + 14px);flex-direction:column;padding:10px 5px;border-right:0;border-radius:9px 0 0 9px;writing-mode:vertical-rl}
+.ws-rail.bottom{left:14px;bottom:0;padding:6px 12px;border-bottom:0;border-radius:9px 9px 0 0}
+/* repo tree */
+.ws-tree-tools{display:flex;gap:6px;margin-bottom:9px}
+.ws-tree-tools input{flex:1;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:7px 9px;font:11px var(--font)}
+.ws-grp{margin-bottom:4px}
+.ws-grp>.gh{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;font:700 10px var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--soft)}
+.ws-grp>.gh:hover{background:var(--accent-soft)}
+.ws-grp>.gh .caret{transition:transform .15s;color:var(--faint);font-size:9px}
+.ws-grp.collapsed>.gh .caret{transform:rotate(-90deg)}
+.ws-grp>.gh .cnt{margin-left:auto;font-weight:700;color:var(--faint)}
+.ws-grp>.items{margin:2px 0 6px 6px;border-left:1px solid var(--line2);padding-left:6px}
+.ws-grp.collapsed>.items{display:none}
+.ws-leaf{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);border-radius:6px;padding:6px 7px;cursor:pointer;font:12px var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws-leaf:hover{background:var(--accent-soft)}
+.ws-leaf .dt{font:9px var(--mono);color:var(--faint);margin-right:6px}
+.ws-leaf .src{float:right;font:9px var(--mono);color:var(--faint)}
+.ws-empty{color:var(--faint);font-size:11px;padding:16px;text-align:center;line-height:1.6}
+.ws-status{display:flex;align-items:center;gap:7px;font:10px var(--mono);color:var(--faint);margin-bottom:9px}
+.ws-status .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+/* bottom tabs region */
+.ws-bottom-tabs{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid var(--line2);flex:none;align-items:center}
+.ws-bottom-tabs button{border:0;background:transparent;color:var(--soft);padding:6px 11px;border-radius:7px;font:700 10px var(--font);cursor:pointer}
+.ws-bottom-tabs button.on{background:var(--accent-soft);color:var(--accent)}
+.ws-bottom-tabs .sp{flex:1}
+.ws-pane{flex:1;overflow:auto}
+.ws-pane[hidden]{display:none}
+/* AI console */
+.ws-ai{display:flex;flex-direction:column;height:100%}
+.ws-ai-log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
+.ws-msg{max-width:80%;border-radius:11px;padding:8px 11px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.ws-msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.ws-msg.assistant{align-self:flex-start;background:var(--canvas);border:1px solid var(--line2);border-bottom-left-radius:3px}
+.ws-msg.system{align-self:center;background:transparent;color:var(--faint);font-size:11px;font-style:italic;max-width:100%;text-align:center}
+.ws-ai-in{display:flex;gap:7px;padding:9px;border-top:1px solid var(--line2);flex:none}
+.ws-ai-in textarea{flex:1;min-height:34px;max-height:120px;border:1px solid var(--line);border-radius:9px;background:var(--canvas);color:var(--ink);padding:8px 10px;font:12px var(--font);resize:none}
+.ws-ai-in button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:9px;padding:0 14px;font:700 11px var(--font);cursor:pointer}
+.ws-ai-quick{display:flex;gap:6px;flex-wrap:wrap;padding:0 9px 9px}
+.ws-ai-quick button{border:1px solid var(--line);background:var(--canvas);color:var(--soft);border-radius:14px;padding:5px 10px;font:600 10px var(--font);cursor:pointer}
+.ws-ai-quick button:hover{border-color:var(--accent);color:var(--accent)}
+/* workspace settings, hosted inside Studio (see #workspace-studio-css) */
+@media(max-width:900px){
+  body.ws-on main.stage{margin-left:0;margin-right:0}
+  .ws-dock.left,.ws-dock.right{top:var(--ws-top);bottom:0;z-index:60;box-shadow:0 20px 60px -20px #0009}
+}

@@ -1,0 +1,23 @@
+/* Workspace configuration lives inside Studio, next to every other
+   settings surface. The rail buttons/shortcuts below stay for
+   quick access while writing; this is where it's *configured*. */
+.ws-master-row{display:flex;align-items:center;gap:12px}
+.ws-master-row h5{margin:0;font-size:13px}
+.ws-panel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.ws-panel-card{margin:0}
+.ws-panel-head{display:flex;align-items:flex-start;gap:9px}
+.ws-panel-icon{font-size:14px;width:26px;height:26px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:7px;background:var(--accent-soft);color:var(--accent)}
+.ws-panel-head h5{margin:0;font-size:12px}
+.ws-panel-meta{margin-top:10px;padding-top:9px;border-top:1px solid var(--line2);font:9px var(--mono);color:var(--faint);display:flex;justify-content:space-between;align-items:center}
+.ws-panel-meta kbd{border:1px solid var(--line);border-radius:4px;padding:1px 5px;font:9px var(--mono);color:var(--soft);background:var(--canvas)}
+.ws-switch{margin-left:auto;flex:none;width:34px;height:19px;border-radius:10px;background:var(--line2);border:0;position:relative;cursor:pointer;padding:0;transition:background .15s}
+.ws-switch i{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:left .15s;display:block}
+.ws-switch.on{background:var(--accent)}
+.ws-switch.on i{left:17px}
+.ws-preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.ws-preset-btn{border:1px solid var(--line);border-radius:8px;background:var(--canvas);color:var(--ink);padding:9px 10px;text-align:left;cursor:pointer}
+.ws-preset-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ws-preset-btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ws-preset-btn b{display:block;font-size:11px}
+.ws-preset-btn small{display:block;font:9px var(--mono);color:var(--faint);margin-top:2px}
+@media(max-width:760px){.ws-panel-grid,.ws-preset-grid{grid-template-columns:1fr}}

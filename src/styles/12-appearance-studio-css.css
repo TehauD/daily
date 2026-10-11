@@ -1,0 +1,26 @@
+/* Appearance: one real, working control panel — color, type, layout,
+   motion. Everything here maps to an actual CSS var/attribute that's
+   used elsewhere in the app (unlike the old Experience panel, half of
+   which quietly targeted a class that didn't exist). */
+html[data-density=compact]{--ui-density:.84}
+html[data-density=comfortable]{--ui-density:1.16}
+html[data-motion=reduced] *,html[data-motion=none] *{transition-duration:.001ms!important;animation-duration:.001ms!important}
+html[data-contrast=high]{--line:#69717c;--line2:#505965}
+#entry,#source{font-size:var(--editor-font-size,14px)!important;line-height:var(--editor-line-height,1.7)!important;font-family:var(--editor-font-family,var(--font))!important}
+#entry p,#entry div{margin-block:var(--para-space,.6em)}
+.btn,.ib,.studio-nav,.repo-tab{min-height:calc(30px * var(--ui-density,1))}
+.aw-field{display:grid;gap:6px;margin:0 0 14px}
+.aw-field:last-child{margin-bottom:0}
+.aw-field>label{font:700 10px var(--mono);color:var(--soft);letter-spacing:.04em;text-transform:uppercase}
+.aw-seg{display:flex;gap:5px;flex-wrap:wrap}
+.aw-seg button{border:1px solid var(--line);background:var(--canvas);color:var(--soft);border-radius:7px;padding:8px 12px;font:650 11px var(--font);cursor:pointer}
+.aw-seg button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.aw-swatches{display:flex;gap:9px;flex-wrap:wrap}
+.aw-swatch{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;box-shadow:0 0 0 1px var(--line2) inset}
+.aw-swatch.on{border-color:var(--ink)}
+.aw-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line2)}
+.aw-row:first-child{border-top:0}
+.aw-row div{flex:1}
+.aw-row h5{margin:0;font-size:12px}
+.aw-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:760px){.aw-grid{grid-template-columns:1fr}}

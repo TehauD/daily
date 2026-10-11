@@ -1,9 +1,13 @@
 {
-  "name": "veritas",
+  "name": "the-daily",
   "version": "1.3.0",
   "private": true,
-  "description": "The Daily \u2014 a local-first developer journal. Single-page app served by a small Express host.",
+  "description": "The Daily: a local-first developer journal. One HTML page, an optional local relay for credentials, and a small Express host for the public demo.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TehauD/daily.git"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -11,9 +15,15 @@
     "start": "node ./bin/www",
     "relay": "python3 relay.py",
     "dev": "NODE_ENV=development node ./bin/www",
-    "test": "node --test && python3 -m unittest discover -s test -p \"test_*.py\"",
-    "test:node": "node --test",
+    "build": "node scripts/build.mjs",
+    "build:check": "node scripts/build.mjs --check",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "npm run test:unit && npm run test:node && npm run test:relay",
+    "test:unit": "vitest run --passWithNoTests",
+    "test:node": "node --test test/security.test.js",
     "test:relay": "python3 -m unittest discover -s test -p \"test_*.py\"",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm run build:check && npm test",
     "audit": "npm audit --omit=dev"
   },
   "dependencies": {
@@ -25,5 +35,14 @@
     "express": "^4.21.2",
     "http-errors": "~1.6.3",
     "morgan": "^1.12.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.64.0",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^29.1.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

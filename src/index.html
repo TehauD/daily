@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Daily — Developer Intelligence Journal</title>
+<meta name="color-scheme" content="light dark">
+<!--@include {"file": "styles/01-base.css", "tag": "style"}-->
+
+
+<!--@include {"file": "styles/02-intelligence-layer-style.css", "tag": "style", "id": "intelligence-layer-style"}-->
+<!--@include {"file": "styles/03-legacy-companion-suppression.css", "tag": "style", "id": "legacy-companion-suppression"}-->
+</head>
+<script>(function(){try{var s=JSON.parse(localStorage.getItem('daily:settings')||'{}');var t=(s&&(s.theme==='light'||s.theme==='dark'))?s.theme:'auto';document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t==='auto'?'light dark':t;}catch(e){document.documentElement.setAttribute('data-theme','auto');}})();</script>
+<body>
+<noscript><h1>The Daily</h1><p>This journal runs entirely in your browser and needs JavaScript enabled.</p></noscript>
+<header class="top"><div class="top-in">
+  <div class="brand">
+    <span class="sig"></span><span class="n">THE DAILY</span>
+    <div class="today"><button class="step" id="dPrev" title="Previous day">‹</button><button class="cur" id="dCur">Today</button><button class="step" id="dNext" title="Next day">›</button><input type="date" id="dateInput"></div>
+  </div>
+  <nav class="nav">
+    <!--<button class="save" id="navSave" onclick="quickSave()" title="Save & Push (⌘S)">⚡ Save</button>-->
+    <button onclick="openAbout()">About</button>
+    <button onclick="openBrowse()">Browse</button>
+    <button onclick="openStudioHome()">Studio</button>
+  </nav>
+</div></header>
+<main class="stage"><div class="wrap">
+  <div class="prompt">
+    <button class="prompt-q" id="promptText" onclick="expandPrompt()" title="Reflect on this — inserts a guided template and remembers the prompt">What are you working on?<span class="cue">＋ reflect</span></button>
+    <span class="prompt-actions">
+      <button class="re grow" title="Expand into a guided reflection" onclick="expandPrompt()">＋</button>
+      <button class="re" title="Another prompt" onclick="nextPrompt()">↻</button>
+    </span>
+  </div>
+  <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting">
+    <div class="grp"><button class="tb slash" title="Open command menu (/)" onclick="openCmdk('')">/ Menu</button></div>
+    <span class="sep"></span>
+    <div class="grp">
+      <select class="tb-sel" id="blockSel" title="Paragraph style" onchange="fmtBlock(this.value)">
+        <option value="P">Paragraph</option><option value="H1">Heading 1</option><option value="H2">Heading 2</option><option value="H3">Heading 3</option><option value="PRE">Code block</option><option value="BLOCKQUOTE">Quote</option>
+      </select>
+    </div>
+    <span class="sep"></span>
+    <div class="grp">
+      <button class="tb" title="Bold (⌘B)" onmousedown="g(event)" onclick="fmt('bold')" style="font-weight:800">B</button>
+      <button class="tb" title="Italic (⌘I)" onmousedown="g(event)" onclick="fmt('italic')" style="font-style:italic">I</button>
+      <button class="tb" title="Underline (⌘U)" onmousedown="g(event)" onclick="fmt('underline')" style="text-decoration:underline">U</button>
+      <button class="tb" title="Strikethrough" onmousedown="g(event)" onclick="fmt('strike')" style="text-decoration:line-through">S</button>
+      <button class="tb" title="Highlight" onmousedown="g(event)" onclick="fmt('highlight')"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M6 16l8-8 4 4-8 8H6z"/></svg></button>
+      <button class="tb" title="Inline code" onmousedown="g(event)" onclick="fmt('code')" style="font-family:var(--mono)">&lt;&gt;</button>
+    </div>
+    <span class="sep"></span>
+    <div class="grp">
+      <button class="tb" title="Bulleted list" onmousedown="g(event)" onclick="fmt('ul')"><svg viewBox="0 0 24 24"><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/><path d="M9 6h11M9 12h11M9 18h11"/></svg></button>
+      <button class="tb" title="Numbered list" onmousedown="g(event)" onclick="fmt('ol')"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 5v3M4 12h1.5M3.5 18h1a.5.5 0 000-1H4a.5.5 0 010-1h1"/></svg></button>
+      <button class="tb" title="Checklist" onmousedown="g(event)" onclick="fmt('task')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="6" rx="1"/><path d="M4.5 7l1.2 1.2L8 6M12 6h9M12 12h9M12 18h9"/><rect x="3" y="15" width="6" height="6" rx="1"/></svg></button>
+      <button class="tb" title="Quote" onmousedown="g(event)" onclick="fmt('quote')">&rdquo;</button>
+    </div>
+    <span class="sep"></span>
+    <div class="grp">
+      <button class="tb" title="Link" onmousedown="g(event)" onclick="fmt('link')"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1"/></svg></button>
+      <button class="tb" title="Insert image" onmousedown="g(event)" onclick="pickImage()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-7 7"/></svg></button>
+      <button class="tb" title="Table" onmousedown="g(event)" onclick="fmt('table')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/></svg></button>
+      <button class="tb" title="Divider" onmousedown="g(event)" onclick="fmt('hr')"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
+      <button class="tb" title="Clear formatting" onmousedown="g(event)" onclick="fmt('clear')"><svg viewBox="0 0 24 24"><path d="M6 5h12M9 5l-2 14M13 5l-1 7"/><path d="M15 15l6 6M21 15l-6 6"/></svg></button>
+    </div>
+    <span class="sep"></span>
+    <div class="grp">
+      <button class="tb" title="Undo (⌘Z)" onmousedown="g(event)" onclick="doUndo()"><svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 010 10h-1"/></svg></button>
+      <button class="tb" title="Redo (⌘⇧Z)" onmousedown="g(event)" onclick="doRedo()"><svg viewBox="0 0 24 24"><path d="M15 7l5 5-5 5"/><path d="M20 12H9a5 5 0 000 10h1"/></svg></button>
+    </div>
+    <span class="spacer"></span>
+    <div class="grp"><button class="tb save" id="tbSave" title="Save & Push (⌘S)" onclick="quickSave()">⚡ Save</button></div>
+    <span class="sep"></span>
+    <div class="grp"><button class="tb ai" title="Ask AI" onclick="aiMenu(event)">✦ AI</button></div>
+    <span class="sep"></span>
+    <div class="grp" id="viewSeg">
+      <button class="tb on" data-mode="write" onclick="setMode('write')">Canvas</button>
+      <button class="tb" data-mode="source" onclick="setMode('source')">MD</button>
+      <button class="tb" data-mode="preview" onclick="setMode('preview')">View</button>
+    </div>
+  </div>
+  <div class="writer rich mode-write" id="writer">
+    <div id="entry" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-ph="Start writing. Press / for scaffolds (auto-tagged), #project/… for projects — decisions, learnings & blockers tag themselves for the Obsidian graph."></div>
+    <textarea id="source" spellcheck="false" aria-label="Markdown source"></textarea>
+    <div id="preview"></div>
+    <div class="aibar" id="aibar"></div>
+  </div>
+  <div class="ribbon" id="ribbon">
+    <span class="r-status" id="rStatus" title="Journal telemetry"><i class="r-dot" id="rDot"></i><span id="rState">saved</span></span>
+    <span class="r-metrics" id="rMetrics"></span>
+    <span class="r-quota" id="rQuota" title="Local storage used"></span>
+    <span class="r-ctx empty" id="rCtx" title="Project context" onclick="ctxPopover(event)">no project</span>
+    <span class="r-spacer"></span>
+    <button class="r-btn r-cmd" id="rCmd" onclick="openCmdk('')" title="Command menu (/ or ⌘K)"><span class="lbl-k"></span></button>
+    <button class="r-btn r-repo" id="rRepo" aria-expanded="false" onclick="repoPopover(event)" title="Repositories">◎</button>
+    <button class="r-btn r-copy" id="rCopy" aria-expanded="false" onclick="copyPopover(event)" title="Copy">⧉</button>
+    <button type="button" class="r-btn r-spark" id="rSpark" aria-expanded="false" onclick="openAIHubSafe()" title="AI · activity, context, diagnostics · Ctrl+Shift+A" aria-controls="aiHub">✦</button>
+    <button class="r-btn r-console" id="rConsole" onclick="openConsole()" title="Developer Console · Ctrl+Shift+C" aria-label="Open developer console">&lt;/&gt;<span id="consoleBadge" class="console-badge"></span></button>
+    <div class="pop" id="pop" hidden></div>
+  </div>
+  <div class="foot"><span class="hint-fine">Write a little. Understand a lot. · <span class="kbd">/</span> command menu · <span class="kbd">⌘K</span> same menu · <span class="kbd">⌘S</span> save/push · Obsidian-tagged frontmatter on export</span><span class="hint-coarse">Write a little. Understand a lot. · <span class="kbd">/</span> commands · long-press for menu</span></div>
+</div></main>
+<input type="file" id="imgInput" accept="image/*" style="display:none">
+<input type="file" id="importInput" accept="application/json" style="display:none">
+<!-- UNIFIED COMMAND MENU -->
+<div class="cmdk-back" id="cmdkBack" onclick="if(event.target===this)closeCmdk()">
+  <div class="cmdk" role="dialog" aria-modal="true" aria-label="Command menu">
+    <div class="cmdk-in"><span class="pfx" id="cmdkPfx">/</span><input id="cmdkInput" placeholder="Search everything — scaffolds, media, AI, publish, navigate…" autocomplete="off"></div>
+    <div class="cmdk-cats" id="cmdkCats"></div>
+    <div class="cmdk-list" id="cmdkList"></div>
+    <div class="cmdk-foot"><span><span class="kbd">↑↓</span> move</span><span><span class="kbd">↵</span> select</span><span><span class="kbd">tab</span> category</span><span><span class="kbd">esc</span> close</span><span id="cmdkCount" style="margin-left:auto"></span></div>
+  </div>
+</div>
+<!-- REPOSITORIES MODAL -->
+<div class="mback" id="repoModal" onclick="if(event.target===this)closeModal('repoModal')"><div class="modal">
+  <div class="mhead"><button class="mx" onclick="closeModal('repoModal')">✕</button><h3 class="mt">Repositories</h3><div class="ms">Choose where the journal lives. Integrations follow the active provider.</div></div>
+  <div class="mbody">
+    <div class="provhead">
+      <div class="provseg" id="provSeg" role="tablist" aria-label="Active provider"><button type="button" data-p="github" role="tab"><span class="pdot"></span>GitHub</button><button type="button" data-p="ado" role="tab"><span class="pdot"></span>Azure DevOps</button></div>
+      <span class="provmode" id="provMode"></span>
+    </div>
+    <div class="capgrid" id="provCaps" aria-label="What this provider can do here"></div>
+    <section class="provsec" id="provGH" aria-label="GitHub settings">
+    <h5>GitHub <span class="muted" id="ghBadge">— not configured</span></h5>
+    <div class="grid2"><div><label class="f">Owner</label><input class="f" id="ghOwner" placeholder="your-username"></div><div><label class="f">Repository</label><input class="f" id="ghRepo" placeholder="dev-journal"></div></div>
+    <div class="grid2"><div><label class="f">Branch</label><input class="f" id="ghBranch" placeholder="main"></div><div><label class="f">Folder</label><input class="f" id="ghPath" placeholder="journal"></div></div>
+    <label class="f">Personal access token (Contents: read &amp; write)</label><input class="f" id="ghToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="github_pat_… or ghp_…">
+    <div class="bar"><button class="btn" onclick="saveGH()">Save GitHub</button><button class="btn" onclick="testGH()">Test</button></div>
+    <div class="status" id="ghStatus"></div>
+    </section>
+    <section class="provsec" id="provAZ" aria-label="Azure DevOps settings" hidden>
+    <h5>Azure DevOps <span class="muted" id="azBadge">— not configured</span></h5>
+    <div class="grid2"><div><label class="f">Organization</label><input class="f" id="azOrg" placeholder="org"></div><div><label class="f">Project</label><input class="f" id="azProject" placeholder="project"></div></div>
+    <div class="grid2"><div><label class="f">Repository</label><input class="f" id="azRepo" placeholder="dev-journal"></div><div><label class="f">Branch</label><input class="f" id="azBranch" placeholder="main"></div></div>
+    <div class="grid2"><div><label class="f">Folder</label><input class="f" id="azPath" placeholder="journal"></div><div><label class="f">PAT (Code: read &amp; write)</label><input class="f" id="azToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="Azure DevOps PAT"></div></div>
+    <div class="bar"><button class="btn" onclick="saveAZ()">Save Azure</button><button class="btn" onclick="testAZ()">Test</button></div>
+    <div class="status" id="azStatus"></div>
+    </section>
+    <div class="pubopts">
+      <div class="pubrow"><span class="lbl">Publish as</span><div class="pubseg" id="pubSeg"><button type="button" data-m="commit">Commit to <span id="pubBranch">main</span></button><button type="button" data-m="pr">Pull request</button></div><span class="pubhint" id="pubHint"></span></div>
+      <label class="switch"><input type="checkbox" id="mirrorToggle"> Also push a copy to&nbsp;<span id="mirrorName">Azure DevOps</span></label>
+      <label class="switch"><input type="checkbox" id="assetsToggle" checked onchange="saveAssetsPref(this.checked)"> <span class="alabel">Store pasted images as files in assets/</span></label>
+    </div>
+    <div class="warn" id="provWarn">Tokens are stored only in this browser. Push detects remote changes and asks before overwriting.</div>
+    <div class="bar"><button class="btn primary" onclick="closeModal('repoModal');pushRepos()">↑ Publish current entry</button><button class="btn" onclick="closeModal('repoModal');pullRepos({overwrite:false})">↓ Pull entries</button><button class="btn" onclick="pullOverwriteConfirm()">↓ Pull &amp; overwrite</button><button class="btn" onclick="diagRepos()">⌕ Diagnose</button><a class="btn" id="provOpen" href="#" target="_blank" rel="noopener" hidden>Open ↗</a></div>
+    <div class="lastpub" id="lastPublish"></div>
+    <pre id="repoDiag" style="display:none;white-space:pre-wrap;word-break:break-word;background:var(--line2);border:1px solid var(--line);border-radius:var(--radius);padding:11px;font:11px/1.5 var(--mono);margin-top:12px;max-height:260px;overflow:auto"></pre>
+  </div>
+</div></div>
+<!-- STUDIO MODAL -->
+<div class="mback" id="studioModal" onclick="if(event.target===this)closeModal('studioModal')"><div class="modal">
+  <div class="mhead"><button class="mx" onclick="closeModal('studioModal')">✕</button><h3 class="mt">Studio</h3><div class="ms">Appearance, providers, intelligence, backup</div></div>
+  <div class="mbody">
+    <div class="studio-launch"><button class="btn" onclick="closeModal('studioModal');openModal('repoModal')">◎ Repository settings</button><button class="btn" onclick="document.getElementById('aiBase')?.focus()">✦ AI settings</button><span class="muted">Configuration center</span></div>
+    <h5>Your name</h5><input class="f" id="nameField" placeholder="What should the journal call you?" maxlength="40">
+    <h5 style="margin-top:20px">Appearance</h5>
+    <div class="seg" id="themeSeg"><button data-th="auto" class="on" onclick="setTheme('auto')">Auto</button><button data-th="light" onclick="setTheme('light')">Light</button><button data-th="dark" onclick="setTheme('dark')">Dark</button></div>
+    <label class="f">Editor width</label>
+    <div class="seg" id="widthSeg"><button data-w="820" onclick="setWidth(820)">Focused</button><button data-w="900" class="on" onclick="setWidth(900)">Comfortable</button><button data-w="1100" onclick="setWidth(1100)">Wide</button></div>
+    <h5 style="margin-top:22px">AI provider <span class="muted" id="aiBadge">— optional, not connected</span></h5>
+    <select class="f" id="aiProvSel" onchange="pickProv(this.value)" aria-label="AI provider"><optgroup label="Recommended"><option value="relay">This computer’s relay (.env)</option></optgroup><optgroup label="Cloud"><option value="openai">OpenAI</option><option value="anthropic">Anthropic Claude</option><option value="gemini">Google Gemini</option><option value="openrouter">OpenRouter</option><option value="groq">Groq</option><option value="mistral">Mistral</option><option value="deepseek">DeepSeek</option><option value="xai">xAI Grok</option></optgroup><optgroup label="Microsoft Azure"><option value="azure">Azure OpenAI / Microsoft Foundry</option><option value="foundryclaude">Claude in Microsoft Foundry</option></optgroup><optgroup label="On this computer"><option value="ollama">Ollama</option><option value="lmstudio">LM Studio</option><option value="custom">Other OpenAI-compatible server</option></optgroup></select>
+    <p class="muted" id="provHelp" style="margin:8px 0 0"></p>
+    <label class="switch" style="margin-top:8px"><input type="checkbox" id="streamToggle" checked onchange="saveStreamPref(this.checked)"> Stream AI responses (tokens appear as they arrive)</label>
+    <label class="f">Base URL</label><input class="f" id="aiBase" placeholder="https://api.openai.com/v1">
+    <label class="f" id="aiModelLabel">Model / deployment</label><input class="f" id="aiModel" placeholder="gpt-4o-mini">
+    <div id="azVer" style="display:none"><label class="f">API version <span class="muted">(only for the classic deployments route; leave empty for …/openai/v1)</span></label><input class="f" id="aiVer" placeholder="empty = v1 API"></div>
+    <label class="f">API key <span class="muted">(blank for local / relay)</span></label><input class="f" id="aiKey" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="sk-… or Azure key">
+    <div class="bar"><button class="btn" onclick="saveAI()">Save AI</button><button class="btn" onclick="testAILink()">Test link</button></div>
+    <pre id="aiDiag" style="display:none;white-space:pre-wrap;word-break:break-word;background:var(--line2);border:1px solid var(--line);border-radius:var(--radius);padding:11px;font:11px/1.5 var(--mono);margin-top:10px;max-height:220px;overflow:auto"></pre>
+    <div class="status" id="aiStatus"></div>
+    <div class="warn">AI is optional and review-first. Discover/Memory may send several past entries to your endpoint — it never rewrites your journal automatically. Your key stays in this browser.</div>
+
+    <h5 style="margin-top:22px">Intelligence layer <span class="muted" id="intelStudioState">— ambient · builder</span></h5>
+    <p class="muted">Calibrate how local intelligence observes and surfaces decisions, actions, evidence, patterns, projects, opportunities, relationships, and creative signals.</p>
+    <div class="intel-config" id="intelConfig"></div>
+    <h5 style="margin-top:22px">Knowledge schema <span class="muted">— Obsidian-compatible</span></h5>
+    <p class="muted">Exports &amp; pushes carry YAML frontmatter (<code>tags</code>, <code>date</code>, <code>aliases</code>, <code>projects</code>, <code>cssclasses</code>) with nested tags — <code>type/*</code>, <code>status/*</code>, <code>project/*</code> — so entries drop straight into an Obsidian vault and light up the graph.</p>
+    <label class="switch"><input type="checkbox" id="obsidianToggle" checked onchange="saveObsidianPref(this.checked)"> Obsidian auto-tagging — stamp <code>#type/*</code> on scaffolds &amp; detected elements, and aggregate them into frontmatter</label>
+    <h5 style="margin-top:20px">Backup &amp; restore <span class="muted" id="backupStat"></span></h5>
+    <p class="muted">Local-first. Back up the whole journal to one file, or restore it on another device.</p>
+    <div class="bar"><button class="btn primary" onclick="exportAll()">⭳ Export entire journal</button><button class="btn" onclick="importAll()">⭱ Import backup</button></div>
+    <h5 style="margin-top:20px">This entry</h5>
+    <div class="bar"><button class="btn" onclick="exportMD()">Markdown</button><button class="btn" onclick="exportJSON()">JSON</button><button class="btn" onclick="exportHTML()">HTML</button></div>
+    <h5 style="margin-top:20px">Data</h5>
+    <p class="muted" id="quotaLine"></p>
+    <div class="bar"><button class="btn" onclick="clearAll()">Clear all local data</button></div>
+  </div>
+</div></div>
+<!-- BROWSE MODAL -->
+<div class="mback" id="browseModal" onclick="if(event.target===this)closeModal('browseModal')"><div class="modal wide">
+  <div class="mhead"><button class="mx" onclick="closeModal('browseModal')">✕</button><h3 class="mt">Browse</h3><div class="ms">Entries, projects, analysis, graph, and search</div></div>
+  <div class="mbody">
+    <div class="seg" id="browseSeg">
+      <button data-b="constellation" class="on" onclick="browseTab('constellation')">Graph</button>
+      <button data-b="timeline" onclick="browseTab('timeline')">Timeline</button>
+      <button data-b="projects" onclick="browseTab('projects')">Projects</button>
+      <button data-b="artifacts" onclick="browseTab('artifacts')">Artifacts</button>
+      <button data-b="analysis" onclick="browseTab('analysis')">Analysis</button>
+      <button data-b="search" onclick="browseTab('search')">Search</button>
+    </div>
+    <div class="bar" style="margin:0 0 12px"><button class="btn" id="browseSync" onclick="syncFromBrowse()">↓ Sync from repo</button><span class="muted" id="browseSyncNote" style="align-self:center"></span></div>
+    <pre id="browseDiag" style="display:none;white-space:pre-wrap;word-break:break-word;background:var(--line2);border:1px solid var(--line);border-radius:var(--radius);padding:11px;font:11px/1.5 var(--mono);margin:0 0 12px;max-height:220px;overflow:auto"></pre>
+    <div id="browseBody" class="bwrap"></div>
+  </div>
+</div></div>
+<!-- INTELLIGENCE MODAL -->
+<div class="mback" id="intelModal" onclick="if(event.target===this)closeModal('intelModal')"><div class="modal">
+  <div class="mhead"><button class="mx" onclick="closeModal('intelModal')">✕</button><h3 class="mt">Intelligence workspace</h3><div class="ms">Review-first. Your writing remains the source of truth.</div></div>
+  <div class="mbody">
+    <div class="seg"><button class="btn" style="border:0;flex:1" onclick="jiRun('curate')">Curate</button><button class="btn" style="border:0;flex:1" onclick="jiRun('extract')">Find artifacts</button><button class="btn" style="border:0;flex:1" onclick="jiRun('discover')">Discover</button><button class="btn" style="border:0;flex:1" onclick="jiRun('memory')">Builder memory</button></div>
+    <div class="status" id="jiStatus"></div>
+    <textarea class="ji-out" id="jiOut" placeholder="AI output streams here for review. Nothing is inserted automatically."></textarea>
+    <div class="bar"><button class="btn primary" onclick="jiInsert()">Insert below entry</button><button class="btn" onclick="jiReplace()">Replace entry</button><button class="btn" onclick="jiCopy()">Copy</button></div>
+  </div>
+</div></div>
+<!-- ABOUT (isolated document in an iframe; hub nodes driven by your real projects) -->
+<div class="about-back" id="aboutBack" onclick="if(event.target===this)closeAbout()">
+  <div class="about-shell" role="dialog" aria-modal="true" aria-label="About The Daily">
+    <div class="about-bar">
+      <span class="t">THE DAILY · About</span>
+      <span class="src" id="aboutSrc"></span>
+      <span class="sp"></span>
+      <button onclick="openAboutTab()" title="Open in a new browser tab">↗ Open in tab</button>
+      <button class="x" onclick="closeAbout()" title="Close (Esc)">✕</button>
+    </div>
+    <iframe id="aboutFrame" title="About The Daily" referrerpolicy="no-referrer"></iframe>
+  </div>
+</div>
+<!-- AI HUB: single-click operational surface -->
+<aside class="ai-hub" id="aiHub" aria-hidden="true">
+  <div class="hub-head"><div><b>Intelligence runtime</b><small id="aiHubState">Idle</small></div><button onclick="closeAIHub()">Close</button></div>
+  <div class="hub-actions"><button onclick="closeAIHub();openIntel()">Run AI</button><button onclick="openStudio();closeAIHub()">Configure</button></div>
+  <div class="hub-tabs"><button class="on" data-a="live" onclick="aiHubTab('live')">Live</button><button data-a="history" onclick="aiHubTab('history')">History</button><button data-a="context" onclick="aiHubTab('context')">Context</button><button data-a="diagnostics" onclick="aiHubTab('diagnostics')">Diagnostics</button></div>
+  <div class="hub-body" id="aiHubBody"></div>
+</aside>
+<!-- APPLICATION CONSOLE -->
+<div class="mback" id="consoleModal" onclick="if(event.target===this)closeModal('consoleModal')"><div class="modal wide console-modal"><div class="mhead"><button class="mx" onclick="closeModal('consoleModal')">✕</button><h3 class="mt">Console</h3><div class="ms">Application runtime events. Filter, inspect, correlate, and export.</div></div><div class="mbody"><div class="console-tools"><select id="consoleCat" onchange="renderConsole()"><option value="all">All events</option><option value="error">Errors</option><option value="ai">AI</option><option value="repository">Repository</option><option value="storage">Storage</option><option value="editor">Editor</option><option value="graph">Graph</option></select><input id="consoleSearch" placeholder="Search events or trace ID" oninput="renderConsole()"><button onclick="clearConsole()">Clear</button><button onclick="exportConsole()">Export</button></div><div id="consoleBody"></div></div></div></div>
+<div class="mback" id="pulseModal" onclick="if(event.target===this)closeModal('pulseModal')"><div class="modal wide pmodal"><div class="mhead"><button class="mx" onclick="closeModal('pulseModal')">✕</button><h3 class="mt">Workspace Pulse</h3><div class="ms">Thought to retained, connected, versioned value.</div></div><div class="ptabs"><button class="ptab on" data-t="overview" onclick="pulseTab('overview')">Overview</button><button class="ptab" data-t="flow" onclick="pulseTab('flow')">Flow</button><button class="ptab" data-t="graph" onclick="pulseTab('graph')">Graph</button><button class="ptab" data-t="evidence" onclick="pulseTab('evidence')">Evidence</button></div><div class="mbody"><div class="pfilters"><select id="pPeriod" onchange="renderPulse()"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="180">6 months</option><option value="all">All time</option></select><select id="pProject" onchange="renderPulse()"><option value="all">All projects</option></select><button onclick="exportPulse()">Export evidence</button><span class="phealth" id="pHealth">● measured locally</span></div><div id="pBody"></div></div></div></div><div id="toast"></div>
+<!--@include {"file": "legacy/04-app.js", "tag": "script", "id": "app"}-->
+<!--@include {"file": "legacy/05-pulse-release.js", "tag": "script", "id": "pulse-release"}--><!--@include {"file": "legacy/06-ia-release.js", "tag": "script", "id": "ia-release"}--><!--@include {"file": "legacy/07-condensed-surface.js", "tag": "script", "id": "condensed-surface"}-->
+<!-- AMBIENT AI COMPANION 1.7.0 -->
+<div class="ambient-ai" id="ambientAI" aria-live="polite">
+  <section class="ambient-ai-card" id="ambientCard" aria-label="Daily AI briefing" hidden>
+    <div class="ambient-ai-head">
+      <span aria-hidden="true">✦</span>
+      <div class="ambient-title">Daily AI<small id="ambientSub">Quietly observing this entry</small></div>
+      <button type="button" id="ambientClose" aria-label="Close Daily AI briefing">Close</button>
+    </div>
+    <div class="ambient-ai-body" id="ambientBody"></div>
+    <div class="ambient-ai-foot">
+      <button type="button" class="primary" id="ambientWorkspace">Open AI workspace</button>
+      <button type="button" id="ambientDismiss">Clear signals</button>
+    </div>
+  </section>
+  <button type="button" class="ambient-orb" id="ambientOrb" data-state="idle" aria-label="Open Daily AI. No signals." aria-expanded="false" aria-controls="ambientCard" title="Daily AI · ambient, review-first">
+    <span aria-hidden="true">✦</span><span class="ambient-badge" id="ambientBadge"></span>
+  </button>
+  <span class="ambient-status" id="ambientStatus">Daily AI · quiet</span>
+</div>
+
+
+<!-- COMPANION OS 2.0 -->
+<div class="companion-os" id="companionOS" aria-live="polite">
+  <article class="co-card" id="coCard" hidden aria-label="Daily AI suggestion">
+    <header class="co-head"><div class="co-face"><span class="co-mouth"></span></div><div class="co-title"><b>Daily Companion</b><small id="coState">Observing quietly</small></div><button class="co-x" id="coClose" aria-label="Dismiss suggestion">✕</button></header>
+    <div class="co-body"><div class="co-kicker" id="coKicker">I noticed something</div><div class="co-message" id="coMessage"></div><div class="co-evidence" id="coEvidence"></div><div class="co-actions" id="coActions"></div></div>
+  </article>
+  <button class="co-orb" id="coOrb" aria-label="Open Daily Companion" aria-expanded="false"><span class="eyes"><i></i><i></i></span><span class="smile"></span><span class="co-badge" id="coBadge"></span></button>
+  <span class="co-toast" id="coToast">I noticed something</span>
+</div>
+<aside class="co-panel" id="coPanel" aria-hidden="true">
+  <header class="co-panel-head"><div class="co-face"><span class="co-mouth"></span></div><div><h2>Daily Companion</h2><small>Observe · connect · suggest · create</small></div><span class="sp"></span><button id="coPanelClose">Close</button></header>
+  <nav class="co-tabs" id="coTabs"><button data-tab="today" class="on">Today</button><button data-tab="decisions">Decisions</button><button data-tab="actions">Actions</button><button data-tab="memory">Memory</button><button data-tab="creative">Creative</button><button data-tab="coach">Coach</button></nav>
+  <div class="co-panel-body" id="coPanelBody"></div>
+</aside>
+
+
+<!-- INTELLIGENCE LAYER 3.0 -->
+<button type="button" class="intel-indicator" id="intelIndicator" aria-label="Open Intelligence" aria-expanded="false" aria-controls="intelDrawer"><span>●</span><span class="intel-count" id="intelCount"></span></button>
+<aside class="intel-drawer" id="intelDrawer" aria-hidden="true">
+  <header class="intel-head"><div><h2>Intelligence</h2><small id="intelSubtitle">Signal, not noise</small></div><span class="sp"></span><button id="intelSettings">Settings</button><button id="intelClose">Close</button></header>
+  <nav class="intel-tabs" id="intelTabs"><button data-itab="today" class="on">Today</button><button data-itab="decisions">Decisions</button><button data-itab="actions">Actions</button><button data-itab="evidence">Evidence</button><button data-itab="patterns">Patterns</button><button data-itab="opportunities">Opportunities</button><button data-itab="coach">Coach</button></nav>
+  <div class="intel-body" id="intelBody"></div>
+</aside>
+
+<!--@include {"file": "legacy/08-intelligence-layer-release.js", "tag": "script", "id": "intelligence-layer-release"}-->
+<!--@include {"file": "legacy/09-multi-file-storage-release.js", "tag": "script", "id": "multi-file-storage-release"}-->
+<!--@include {"file": "styles/10-repo-studio-2-css.css", "tag": "style", "id": "repo-studio-2-css"}-->
+<!--@include {"file": "legacy/11-repo-studio-2-js.js", "tag": "script", "id": "repo-studio-2-js"}-->
+
+<!--@include {"file": "styles/12-appearance-studio-css.css", "tag": "style", "id": "appearance-studio-css"}-->
+<!--@include {"file": "legacy/13-appearance-studio-js.js", "tag": "script", "id": "appearance-studio-js"}-->
+
+<!--@include {"file": "legacy/14-local-relay-adapter.js", "tag": "script", "id": "local-relay-adapter"}-->
+<!--@include {"file": "styles/15-provider-switch-css.css", "tag": "style", "id": "provider-switch-css"}-->
+<!--@include {"file": "legacy/16-provider-switch.js", "tag": "script", "id": "provider-switch"}-->
+
+
+<!--@include {"file": "styles/17-enterprise-platform-css.css", "tag": "style", "id": "enterprise-platform-css"}-->
+<div class="mback" id="enterpriseModal" onclick="if(event.target===this)closeModal('enterpriseModal')"><div class="modal wide ent-shell"><div class="mhead"><button class="mx" onclick="closeModal('enterpriseModal')">x</button><h3 class="mt">Enterprise Intelligence</h3><div class="ms">Federated organizational memory across journals, projects, decisions, and repositories.</div></div><nav class="ent-tabs" id="entTabs"></nav><div class="mbody"><div class="ent-command"><select id="entScope"><option value="personal">Personal</option><option value="team">Team</option><option value="department">Department</option><option value="enterprise" selected>Enterprise</option></select><input id="entQuery" placeholder="Search people, projects, decisions, evidence, and knowledge"><button onclick="enterpriseSearch()">Search</button><button class="primary" onclick="enterpriseRefresh()">Refresh graph</button></div><div id="entBody"></div></div></div></div>
+<!--@include {"file": "legacy/18-enterprise-platform-js.js", "tag": "script", "id": "enterprise-platform-js"}-->
+
+<!--@include {"file": "styles/19-workitems-css.css", "tag": "style", "id": "workitems-css"}-->
+<aside class="wit-drawer" id="witDrawer" aria-hidden="true" aria-label="Work Items">
+  <div class="wit-head">
+    <div><h2 id="witTitle">Work Items</h2><small id="witSub">Azure DevOps &middot; augmented</small></div>
+    <span class="sp"></span>
+    <select id="witProject" title="Project" style="max-width:190px;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:6px 8px;font:650 11px var(--font)"><option>Loading projects…</option></select>
+    <button id="witRefresh" title="Refresh">&#8635;</button>
+    <button id="witCloseBtn">Close</button>
+  </div>
+  <div class="wit-tabs" id="witTabs">
+    <button data-wt="focus" class="on">Focus</button>
+    <button data-wt="board">Board</button>
+    <button data-wt="create">Create</button>
+  </div>
+  <div class="wit-diag" id="witDiag"></div>
+  <div class="wit-body" id="witBody"></div>
+</aside>
+<!--@include {"file": "legacy/20-workitems-module.js", "tag": "script", "id": "workitems-module"}-->
+
+<!--@include {"file": "styles/21-workspace-shell-css.css", "tag": "style", "id": "workspace-shell-css"}-->
+<!--@include {"file": "styles/22-workspace-studio-css.css", "tag": "style", "id": "workspace-studio-css"}-->
+<button class="ws-rail left" id="wsRailLeft" title="Open Repository">▤ Repo</button>
+<button class="ws-rail right" id="wsRailRight" title="Open Work Items">▥ Work Items</button>
+<button class="ws-rail bottom" id="wsRailBottom" title="Open Board / AI">▦ Board · AI</button>
+
+<aside class="ws-dock left" id="wsLeft" data-open="0">
+  <div class="ws-head"><span class="ttl">Repository</span><span class="sp"></span><button id="wsLeftRefresh" title="Refresh">↻</button><button id="wsLeftOpen" title="Open full Repository">⤢</button><button data-ws-close="left" title="Collapse">×</button></div>
+  <div class="ws-body" id="wsLeftBody"></div>
+  <div class="ws-rz" data-ws-rz="left"></div>
+</aside>
+
+<aside class="ws-dock right" id="wsRight" data-open="0">
+  <div class="ws-head"><span class="ttl">Work Items</span><select id="wsWitProject" title="Project" style="max-width:130px"></select><div class="tabs" id="wsWitTabs"><button data-t="focus" class="on">Focus</button><button data-t="board">Board</button></div><span class="sp"></span><button id="wsRightRefresh" title="Refresh">↻</button><button data-ws-close="right" title="Collapse">×</button></div>
+  <div class="ws-body pad0" id="wsRightBody"></div>
+  <div class="ws-rz" data-ws-rz="right"></div>
+</aside>
+
+<aside class="ws-dock bottom" id="wsBottom" data-open="0">
+  <div class="ws-bottom-tabs" id="wsBottomTabs"><button data-t="board" class="on">Board</button><button data-t="ai">AI Console</button><span class="sp"></span><button data-ws-close="bottom" title="Collapse" style="border:1px solid var(--line);background:var(--canvas);color:var(--ink);border-radius:6px;padding:4px 9px;font:650 10px var(--font);cursor:pointer">×</button></div>
+  <div class="ws-pane" id="wsPaneBoard"></div>
+  <div class="ws-pane ws-ai" id="wsPaneAi" hidden>
+    <div class="ws-ai-log" id="wsAiLog"></div>
+    <div class="ws-ai-quick" id="wsAiQuick"></div>
+    <div class="ws-ai-in"><textarea id="wsAiInput" placeholder="Ask about your journal or this entry…" rows="1"></textarea><button id="wsAiSend">Send</button></div>
+  </div>
+  <div class="ws-rz" data-ws-rz="bottom"></div>
+</aside>
+
+<!--@include {"file": "legacy/23-workspace-shell-module.js", "tag": "script", "id": "workspace-shell-module"}-->
+
+<!--@include {"file": "legacy/24-vault-export-module.js", "tag": "script", "id": "vault-export-module"}-->
+
+<!--@include {"file": "styles/25-refine-css.css", "tag": "style", "id": "refine-css"}-->
+<!--@include {"file": "legacy/26-refine-shell.js", "tag": "script", "id": "refine-shell"}-->
+
+<!--@include {"file": "styles/27-ai-studio-css.css", "tag": "style", "id": "ai-studio-css"}-->
+<!--@include {"file": "legacy/28-ai-studio.js", "tag": "script", "id": "ai-studio"}-->
+
+<!--@core-->
+</body>
+</html>
