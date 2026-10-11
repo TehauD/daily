@@ -5,7 +5,7 @@ slug: "untitled-note"
 schema_version: 2
 date: 2026-10-06
 created: 2026-10-11T11:57:00.890Z
-modified: 2026-10-11T11:59:02.332Z
+modified: 2026-10-11T12:02:16.052Z
 type: journal
 prompt: "What's worth remembering about today?"
 tags:
@@ -18,7 +18,7 @@ artifact_types:
 aliases:
   - The Daily 2026-10-06
 artifacts: 2
-words: 680
+words: 583
 cssclasses:
   - the-daily
 ---
@@ -27,150 +27,6 @@ cssclasses:
 
 > [!abstract] Artifacts
 > ⚗ experiment · ★ win
-
----
-
-id
-
-:
-
-2026-10-06-governance-is-part-of-the-build
-
-title
-
-:
-
-Governance Is Part of the Build
-
-date
-
-:
-
-2026-10-06
-
-type
-
-:
-
-journal
-
-tags
-
-: [
-
-journal
-
-,
-
-project/legal-contract-ai
-
-,
-
-project/ata
-
-,
-
-project/ed-assignment-board
-
-,
-
-project/copilot-adoption
-
-,
-
-domain/enterprise-ai
-
-,
-
-domain/governance
-
-,
-
-concept/trust
-
-,
-
-concept/human-in-the-loop
-
-,
-
-type/documentation
-
-,
-
-type/decision
-
-]
-
-projects
-
-: [
-
-"[[legal-contract-ai]]"
-
-,
-
-"[[ata]]"
-
-,
-
-"[[ed-assignment-board]]"
-
-,
-
-"[[copilot-adoption]]"
-
-]
-
-concepts
-
-: [
-
-"[[trust]]"
-
-,
-
-"[[human-in-the-loop]]"
-
-,
-
-"[[traceability]]"
-
-,
-
-"[[governance-as-product-design]]"
-
-]
-
-open_threads
-
-: [
-
-"[[measuring-trust-in-ai-systems]]"
-
-,
-
-"[[requirements-to-implementation-traceability]]"
-
-,
-
-"[[governance-as-product-design]]"
-
-]
-
-related
-
-: [
-
-"[[local-first]]"
-
-,
-
-"[[organizational-memory]]"
-
-]
-
----
 
 # Governance Is Part of the Build
 
@@ -196,25 +52,15 @@ The browser-risk discussion reached the same pattern at a larger scale. Centrali
 
 ## What Moved
 
--
+-Aligned the contract-analysis requirements with the established executive documentation theme.
 
-Aligned the contract-analysis requirements with the established executive documentation theme.
+-Produced a corresponding governance review structure.
 
--
+-Clarified the separation between a hosted model, a hosted agent, and a workspace-capable coding agent.
 
-Produced a corresponding governance review structure.
+-Identified availability and break-glass behavior as part of browser-governance design.
 
--
-
-Clarified the separation between a hosted model, a hosted agent, and a workspace-capable coding agent.
-
--
-
-Identified availability and break-glass behavior as part of browser-governance design.
-
--
-
-Refined how recent deliverables could be described without turning the explanation into self-defense.
+-Refined how recent deliverables could be described without turning the explanation into self-defense.
 
 ## Where Reality Disagreed
 
@@ -222,25 +68,15 @@ The initial assumption was that better tooling could collapse several layers int
 
 In practice, the layers remain distinct:
 
--
+-A model reasons.
 
-A model reasons.
+-An agent carries instructions and tools.
 
--
+-An editor exposes workspace state.
 
-An agent carries instructions and tools.
+-A relay protects credentials and controls requests.
 
--
-
-An editor exposes workspace state.
-
--
-
-A relay protects credentials and controls requests.
-
--
-
-Governance determines which combinations are acceptable.
+-Governance determines which combinations are acceptable.
 
 The architecture becomes clearer when those distinctions remain visible.
 
@@ -252,7 +88,7 @@ A security-oriented question about browser dependence also shifted the analysis 
 
 ## Reusable Pattern
 
->
+> 
 
 Every new control plane needs an explicit failure plane.
 
@@ -266,29 +102,19 @@ Reusable governance contracts generated alongside every project: data boundary, 
 
 ## Standing Takeaways
 
--
+-Governance artifacts can reveal missing architecture.
 
-Governance artifacts can reveal missing architecture.
+-Agent access and workspace access are not the same capability.
 
--
+-Centralization improves control and increases dependency risk.
 
-Agent access and workspace access are not the same capability.
+-Human review needs to be represented in workflow and evidence, not only stated in policy.
 
--
-
-Centralization improves control and increases dependency risk.
-
--
-
-Human review needs to be represented in workflow and evidence, not only stated in policy.
-
--
-
-Describing shipped work is strongest when grounded in inspectable artifacts. #type/win
+-Describing shipped work is strongest when grounded in inspectable artifacts. #type/win
 
 ## Open Thread
 
 How can governance evidence be generated continuously from the system without reducing review to a checklist?
 
 ---
-_The Daily · 10/11/2026, 6:59:02 AM_
+_The Daily · 10/11/2026, 7:02:16 AM_
