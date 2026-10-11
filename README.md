@@ -9,6 +9,8 @@ cp .env.example .env     # add your GitHub / Azure DevOps / AI settings
 python relay.py          # → open http://127.0.0.1:8000
 ```
 
+**Try it first:** a public demo runs at [thedaily.azurewebsites.net](https://thedaily.azurewebsites.net/). It's the same single page; whatever you write there stays in your browser.
+
 ---
 
 ## Contents
@@ -26,6 +28,7 @@ python relay.py          # → open http://127.0.0.1:8000
 - [Where your data lives](#where-your-data-lives)
 - [Security & privacy](#security--privacy)
 - [Deploying a hosted copy](#deploying-a-hosted-copy)
+- [Development](#development)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Known limitations](#known-limitations)
@@ -41,7 +44,9 @@ python relay.py          # → open http://127.0.0.1:8000
 - **Scaffolds and auto-tagging:** press `/` for templates (tables, callouts, checklists, code blocks). Decisions, learnings and blockers get `#type/*` tags, and `#project/...` tags group your work.
 - **Browse:** Constellation graph, Timeline, Projects (by tag), Artifacts gallery and full-text Search.
 - **One active provider:** choose **GitHub** or **Azure DevOps** and the whole app follows: publishing, the work drawer, run status, links and wording. You can mirror a copy to the other provider if you use both. See [GitHub or Azure DevOps](#github-or-azure-devops).
-- **Repository sync:** publish and pull entries as Markdown (`journal/YYYY/MM/DD/<title>--<id>.md`). Commit straight to the branch or open a **pull request** per entry. Pasted images become files under `assets/`, and the app asks before overwriting a note that changed remotely. The output works as an Obsidian vault.
+- **Repository sync without surprises:** publish and pull entries as Markdown (`journal/YYYY/MM/DD/<title>--<id>.md`). Commit straight to the branch or open a **pull request** per entry. Pasted images become files under `assets/`. When a note changed both here and in the repository, the edits are **merged line by line**, and a side-by-side resolver opens only for lines that truly conflict. Deletions can be carried to the repository, and notes deleted there are offered for review. The output works as an Obsidian vault.
+- **Durable storage:** entries live in the browser's database (IndexedDB) rather than the 5 MB `localStorage`. Open tabs stay in step, and you can ask the browser to protect the journal from automatic clean-up.
+- **Journal folder:** with the relay running, every note is also a Markdown file on your computer, kept in step **both ways**. Edit a note in VS Code or Obsidian and the change appears in the app. See [Where your data lives](#where-your-data-lives).
 - **AI assist:** "Curate today", "Find artifacts", "Discover patterns", executive summaries and status updates. Works with OpenAI, Azure OpenAI / AI Foundry, or a local model (Ollama, LM Studio).
 - **Work drawer:** GitHub Issues or Azure Boards in one drawer. Link entries to items (`#gh/12` or `#ado/123`), draft items from an entry, and update state, fields and comments. On GitHub you also get a **Projects** board; on both you get an **Actions / Pipelines** tab with re-run.
 - **Export and backup:** export one entry as `.md`, `.json` or `.html`, or back up the whole journal to one JSON file and restore it on another device.
@@ -56,7 +61,8 @@ python relay.py          # → open http://127.0.0.1:8000
 ```
                  ┌──────────────────────── your browser ────────────────────────┐
                  │  The Daily (public/index.html, one self-contained page)       │
-                 │  localStorage: entries + settings   (no tokens, no API keys)  │
+                 │  IndexedDB: entries     localStorage: preferences             │
+                 │  (no tokens, no API keys when the relay is used)              │
                  └───────────────┬──────────────────────────────────────────────┘
                                  │ same-origin requests only
                  ┌───────────────▼───────────────┐      ┌──────────────────────┐
@@ -64,7 +70,8 @@ python relay.py          # → open http://127.0.0.1:8000
   (your secrets) │  • serves the app             │      │ Azure DevOps / Boards│
                  │  • adds credentials           │      │ AI provider          │
                  │  • guards who may call it     │      └──────────────────────┘
-                 └───────────────────────────────┘
+                 │  • keeps ./vault in step ◄────┼──► vault/2026/10/11/*.md
+                 └───────────────────────────────┘     (your journal folder)
 ```
 
 **`relay.py` is the recommended way to run The Daily.** It is a small Python server, using only the standard library, that runs on your computer. It serves the app and reads your tokens and keys from `.env`. It makes the GitHub, Azure DevOps and AI calls on the page's behalf. The page only ever sees non-secret settings such as your repository name and model name. Your credentials never reach the browser.
@@ -90,8 +97,12 @@ python relay.py          # Windows: py relay.py      (or: npm run relay)
 ```
 
 ```
-The Daily relay 1.0.0  →  http://127.0.0.1:8000
-  GitHub on · Azure DevOps off · Work items off · AI on (openai) · Client key off
+The Daily relay 2.0.0  ->  http://127.0.0.1:8000
+  Provider: github | publish: commit
+  GitHub on (issues on, projects off, actions on) | Azure DevOps off (boards off, pipelines off)
+  Work items off | Client key off
+  Journal folder on: /home/you/daily/vault
+  AI on: OpenAI | model gpt-5-mini | auth key | api.openai.com
 ```
 
 Open **http://127.0.0.1:8000**. Press `Ctrl+C` to stop the relay. Restart it after you change `.env`.
@@ -255,6 +266,8 @@ The relay decides which model is used and caps each request at `DAILY_AI_MAX_TOK
 | `DAILY_AI_REASONING_EFFORT` | *(unset)* | Sent as `reasoning_effort` (e.g. `low`) when set. |
 | `DAILY_AI_REASONING_MIN_TOKENS` | `1024` | Minimum token budget for reasoning models. |
 | `DAILY_AI_MAX_TOKENS` | `4000` | Upper limit per request. |
+| `DAILY_VAULT` | `true` | Keep every note as a Markdown file in the journal folder. |
+| `DAILY_VAULT_DIR` | `vault` | The journal folder: relative to the project, or an absolute path (an Obsidian vault, a synced folder, a git working copy). |
 | `DAILY_MAX_BODY_MB` | `8` | Maximum request size; entries with inline images can be large. |
 | `DAILY_UPSTREAM_TIMEOUT` | `60` | Seconds to wait for GitHub, Azure DevOps or the AI provider. |
 | `DAILY_ENTERPRISE_ENABLED` / `_UI` | `false` | Experimental enterprise graph. Stored in `.daily-data/`. |
@@ -263,7 +276,7 @@ The relay decides which model is used and caps each request at `DAILY_AI_MAX_TOK
 
 ## Running without the relay
 
-The Daily also runs as a plain static page: `npm start` (Express on port 3000) or opening `public/index.html` directly. The public hosted copy works this way. Writing, browsing, backups and push/pull on either provider work. Azure OpenAI, the work drawer (Issues and Boards), Projects, Actions/Pipelines, pull requests and image files need the relay, and only GitHub gets the remote-change check. The chips in **Repository → Settings** show this per provider.
+The Daily also runs as a plain static page: `npm start` (Express on port 3000) or opening `public/index.html` directly. The public demo works this way. Writing, browsing, backups and push/pull on either provider work. Azure OpenAI, the work drawer (Issues and Boards), Projects, Actions/Pipelines, pull requests and image files need the relay, and only GitHub gets the remote-change check. The chips in **Repository → Settings** show this per provider.
 
 In this mode there's no `.env` for credentials. You enter tokens in **Repository** and **Studio → Models**, and the browser stores them for that site and calls GitHub, Azure DevOps or OpenAI directly. That is how most bring-your-own-key web tools work, and it's fine on your own computer with narrowly scoped tokens. See [Keys stored in the browser](#keys-stored-in-the-browser) for what to keep in mind.
 
@@ -275,24 +288,36 @@ npm ci && npm start      # http://localhost:3000  (Node.js 20+)
 
 | Data | With the relay | Without the relay | In "Export entire journal"? |
 | --- | --- | --- | --- |
-| Journal entries | Browser `localStorage` (`daily:entry:*`) | same | ✅ Yes |
+| Journal entries | Browser database (IndexedDB) **and** Markdown files in your journal folder | Browser database (IndexedDB) | ✅ Yes |
+| Sync state (last-synced text, file versions) | Browser database | same | No |
 | App and appearance settings | Browser `localStorage` (`daily:settings`) | same | ✅ Yes (restore is optional) |
 | GitHub / Azure DevOps tokens | **`.env` on your computer** | Browser `localStorage` (`daily:gh`, `daily:az`) | ❌ Never |
 | AI key | **`.env` on your computer** | Browser `localStorage` (`daily:ai`) | ❌ Never |
-| Interface state (intro seen, last Studio section, panel layout) | Browser `localStorage` (`daily:introSeen`, `daily:studioSection`, `daily.workspace.v1`) | same | No |
+| Interface state (intro seen, last Studio section, panel layout) | Browser `localStorage` | same | No |
 | Diagnostics log | Browser `sessionStorage`, cleared when the tab closes | same | Separate export, with secrets redacted |
 
-- Browsers allow roughly **5 MB** of storage per site, and images use it up fastest. The app warns you near the limit.
-- Clearing browsing data or site data for the address **deletes your local journal**. Push to a repository or export backups regularly.
-- **Studio → Advanced → Danger zone** has *Remove repository credentials* and *Delete local journal*.
+**The journal folder.** When the relay runs, every note is also a file in `DAILY_VAULT_DIR` (default `./vault`, git-ignored), laid out like the repository: `2026/10/11/cache-plan--<id>.md`.
 
----
+- **Edits flow both ways:** change a file in another editor and the app picks it up within about 20 seconds, or when you switch back to it. Change a note in the app and the file updates about a second later.
+- **Both changed:** edits merge line by line, and only real conflicts ask you to choose.
+- **New files:** files you add to dated folders (or name `YYYY-MM-DD….md`) are imported.
+- **Deleting a file:** the note is removed from the app, with an **Undo**. Deleting a note in the app moves its file to `vault/.trash/` instead of erasing it. If many files go missing at once (say the folder was moved), nothing is deleted; the notes are kept and you're told.
+- **Your own tools:** point `DAILY_VAULT_DIR` at an Obsidian vault, a cloud-synced folder or a git working copy. Set `DAILY_VAULT=false` to turn the folder off.
+
+**Upgrading from 1.x.**
+- On first start, entries move from `localStorage` into the browser database automatically.
+- The copy is verified before anything is removed, and a pre-upgrade copy is kept: **Studio → Backup & export** has *Download* and *Delete*.
+
+**Good to know.**
+- **Per-address storage:** browser storage belongs to one address, so `127.0.0.1:8000` and `localhost:8000` are separate journals. Pick one.
+- **Protection from clean-up:** clearing site data deletes the browser copy. With the relay, the journal folder still has everything, and pushing to a repository or exporting a backup protects you either way. **Studio → Backup & export → Protect my journal** asks the browser not to clear it automatically.
+- **Removing credentials or data:** **Studio → Diagnostics → Danger zone** has *Remove repository credentials* and *Delete local journal*.
 
 ## Security & privacy
 
 ### Security model
 
-- **No backend database and no accounts.** Your journal lives in your browser and in the repository you choose.
+- **No backend database and no accounts.** Your journal lives in your browser, in your journal folder when the relay runs, and in the repository you choose.
 - **Credentials stay on your computer.** With the relay, tokens and keys live only in `.env`. `/api/config` returns names such as owner, repo and model, never secrets. The relay never logs request bodies or headers, and it removes credential values from any error message it passes on.
 - **No third-party code.** A Content-Security-Policy limits which services the page can contact and blocks other sites from embedding it.
 - **Safe rendering.** Markdown links are limited to safe schemes, raw HTML in entries is escaped, and work-item HTML passes through an allow-list sanitizer.
@@ -313,6 +338,7 @@ The relay holds working credentials, so it only does work for the page it serves
 | Work and run actions limited to the configured repository, project board and (for Boards) allowed projects | The page reaching other repositories with your token. |
 | Model fixed by `.env`, `max_tokens` capped, unknown request fields dropped | Runaway AI costs. |
 | Static files only from `public/` | Serving `.env`, `relay.py` or anything else from the project folder. |
+| Journal-folder API confined to `DAILY_VAULT_DIR`: `.md` files only, no `..`, no symlink escapes, writes conditional on the file's version, deletes moved to `.trash/` | Reading or writing other files on your computer, or two writers silently overwriting each other. |
 
 ### Looking after `.env`
 
@@ -343,48 +369,64 @@ See [CHANGELOG.md](CHANGELOG.md) for this release's security changes and [SECURI
 
 ## Deploying a hosted copy
 
-The included workflow (`.github/workflows/main_thedaily.yml`) builds and tests the app, then deploys the **static** app to the Azure App Service named `thedaily` on every push to `main`. That hosted copy runs [without the relay](#running-without-the-relay): each visitor's data and tokens stay in their own browser.
+The public demo at **[thedaily.azurewebsites.net](https://thedaily.azurewebsites.net/)** is this repository's `public/` folder behind the small Express host.
+
+- **Automatic deploys:** `.github/workflows/main_thedaily.yml` deploys it after every push to `main`, once the build check and tests pass.
+- **Demo behavior:** on any non-local address the page runs in demo mode. Visitors start writing immediately (no introduction dialog), and a dismissible note says that notes stay in their browser.
 
 > **Never deploy `relay.py` with your `.env` to a public server.** Anyone who could reach it could push to your repository and use your AI key. The relay is designed for your own computer.
 
 Checklist:
 
 - [ ] **Windows App Service:** `web.config` starts the app with iisnode and routes every request through Express. In *Configuration → Path mappings*, the `/` virtual path must point to `site\wwwroot` (not `dist` or any other folder), with no other virtual directories.
+- [ ] The workflow signs in with the `AZUREAPPSERVICE_CLIENTID_…`, `…TENANTID_…` and `…SUBSCRIPTIONID_…` secrets created when the App Service's deployment was connected to GitHub. If they were removed, reconnect deployment in the Azure portal (*Deployment Center → GitHub*) or add them again.
 - [ ] Set `NODE_ENV=production` in the App Service settings. This hides stack traces and turns on HSTS.
 - [ ] Turn on **HTTPS Only**, with a minimum of TLS 1.2.
-- [ ] Protect the `main` branch, since pushing to it deploys.
-- [ ] Limit who can see or edit the `AZUREAPPSERVICE_*` secrets and the App Service itself.
+- [ ] Protect the `main` branch and require the **CI** checks, since pushing to it deploys.
 - [ ] Add any self-hosted AI endpoint to `EXTRA_CONNECT_SRC`, and remove unused providers from `connect-src` in `app.js`.
-- [ ] Keep dependencies current with `npm run audit` and Dependabot.
 - [ ] Leave `JOURNAL_API_KEY` / `GITHUB_TOKEN` unset unless you need the legacy `POST /journal/save` endpoint.
+
+## Development
+
+The page is still one file, `public/index.html`, but it's built from source in `src/`. Don't edit `public/index.html` by hand.
+
+```
+src/
+├── index.html          page shell (markup) with build markers
+├── styles/NN-*.css     stylesheets, in cascade order
+├── legacy/NN-*.js      feature modules, started in order by the core
+├── core/**/*.ts        typed core: storage, sync, journal folder, start-up, demo
+└── about/about.html    the About page
+```
+
+```bash
+npm ci                   # Node.js 20+
+npm run build            # src/ → public/index.html (deterministic; commit the result)
+npm run check            # types, build up to date, unit + host + relay tests
+npm run test:e2e         # browser tests (first: npx playwright install chromium)
+```
+
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains the design:
+
+- the start-up sequence
+- the storage model
+- how sync decides what changed
+- the contract between the core and the feature modules
+
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the workflow and conventions.
 
 ## Testing
 
-```bash
-npm test                 # Node tests + relay tests
-npm run test:relay       # relay only (Python, no Node needed):
-python -m unittest discover -s test -p "test_*.py"
-```
+CI (`.github/workflows/ci.yml`) runs everything below on every pull request. The relay suite also runs on Python 3.9, Windows and macOS.
 
-The relay tests run `relay.py` against a fake GitHub, Azure DevOps and OpenAI, so no real credentials or network access are needed. They cover:
+| Suite | Command | What it covers |
+| --- | --- | --- |
+| Unit (Vitest) | `npm run test:unit` | Three-way merge (including randomized edits), the journal-folder reconciliation rules, the IndexedDB store (migration, persistence, cross-tab events, fallback) |
+| Browser (Playwright) | `npm run test:e2e` | Migration from 1.x, tabs, the journal folder both ways, merge and conflict resolution, repository and local deletion, the hosted demo, module start-up, Studio, and **axe accessibility checks** (no serious or critical WCAG 2.1 AA issues) |
+| Relay (Python) | `npm run test:relay` | Push/list/read on both providers, pull requests, remote-change detection, deletes, the journal-folder API (conditional writes, trash, path escapes), security guards, the AI proxy and all AI providers, Issues/Boards/Projects/runs, `.env` parsing, and that no secret ever appears in a response or log |
+| Express host (Node) | `npm run test:node` | Headers, error pages, the `/journal/save` gate, the markdown link check |
 
-- pushing, listing and reading files on both providers
-- path traversal attempts
-- cross-site requests, DNS rebinding, and the client key
-- the AI proxy: model override, token cap, streaming and retry
-- AI providers (`test_ai.py`):
-  - Azure v1 and classic routes, keys and Entra ID (service principal)
-  - reasoning-model handling and the out-of-tokens retry
-  - Anthropic translation, including streaming
-  - diagnostics, model listing, and endpoint shapes for every preset
-- Work Items queries, creation, updates and comments, and the same through GitHub Issues
-- publishing via pull request, remote-change detection and image files on both providers
-- GitHub Projects (GraphQL), Actions and Pipelines runs, and re-runs
-- switching providers per request
-- `.env` parsing
-- a check that no secret ever appears in a response or the relay's log
-
-The Node tests cover the Express host's headers, error pages, the `/journal/save` gate and the markdown link check.
+None of them need real credentials or network access. The relay and browser tests run against fake GitHub, Azure DevOps and AI servers.
 
 ## Troubleshooting
 
@@ -396,7 +438,8 @@ The Node tests cover the Express host's headers, error pages, the `/journal/save
 | `401 Missing or invalid X-Daily-Client-Key` | `DAILY_CLIENT_KEY` is set. Open `http://127.0.0.1:8000/#relay-key=<key>` once. |
 | Work drawer says "The relay isn't reachable" | Open the app through the relay, not from a file or `npm start`. |
 | A feature chip is grey | Hover over it for the reason: usually a missing `.env` value, a feature turned off, or the relay not running. |
-| "changed in GitHub/Azure DevOps since your last sync" | Someone edited that note in the repository. **Cancel** and **Pull** to get their version, or **OK** to overwrite it. |
+| "Combine the two versions of …" | The note changed both here and in the repository (or your journal folder). Everything that could merge did; pick what to keep for each remaining difference, or edit the result by hand. **Cancel** keeps your version for now. |
+| "N notes are missing from your journal folder" | Several files disappeared at once, so nothing was deleted. Check `DAILY_VAULT_DIR` points where you expect. |
 | Project tab: `Could not resolve to a ProjectV2` or `401` | Wrong `DAILY_GITHUB_PROJECT_NUMBER`/`_OWNER`, or (for a personal-account project) the token isn't a classic token with the `project` scope. |
 | Issues or Actions return `403` | Add *Issues* or *Actions* permission to the fine-grained token. Re-running needs *Actions: Read and write*. |
 | Pipelines returns `401`/`403` | Add *Build → Read & execute* to the PAT. |
@@ -410,17 +453,17 @@ The Node tests cover the Express host's headers, error pages, the `/journal/save
 | Empty answers from `gpt-5`/`o`-series models | Fixed automatically. If you use a custom deployment name, set `DAILY_AI_REASONING=on`. |
 | My entries "disappeared" | You're on a different address (`localhost` vs `127.0.0.1`, or another port, browser or profile), or site data was cleared. Use your usual address, or **Pull** from your repository. |
 | `Address already in use` | Something else is on port 8000. Set `DAILY_PORT=8010`. |
-| "Browser storage is full" | Export a backup, remove large images, or push to a repo and prune locally. |
+| "Browser storage is full" | Rare with the database, but possible on a nearly full disk. Free some space, then export a backup. |
 
 ## Known limitations
 
-- **Deleting an entry is local.** It doesn't delete the file in the repository; delete it there too, or it comes back on the next pull.
-- **No merge.** When a note changed remotely you choose between keeping theirs (pull) and overwriting; the app doesn't merge edits.
-- **Without the relay** you get push and pull only. Change checks on Azure DevOps, pull requests, image files, Issues, Projects and runs need the relay.
+- **Merging is line based.** Edits on adjacent lines on both sides count as a conflict, as in git.
+- **Images in the journal folder** stay inline (as data URLs) in the Markdown files; pushing to a repository stores them as files under `assets/`.
+- **Without the relay** you get push and pull only. Change checks on Azure DevOps, pull requests, image files, Issues, Projects, runs and the journal folder need the relay.
 - **One GitHub project board.** The Project tab shows the single project set in `.env`, and only its Status-style single-select field.
 - **GitHub Issues are mapped onto the Boards layout.** Types and tags are labels, priority is a `P1`–`P4` label, and acceptance criteria are a section in the issue body. Custom issue fields aren't shown.
-- **Single user.** Sync between devices goes through your repository, and the app doesn't merge simultaneous edits.
-- **Roughly 5 MB of browser storage** per address.
+- **Single user.** Several devices stay in step through your repository or a synced journal folder; there is no real-time collaboration.
+- **Feature modules in `src/legacy/`** are still plain JavaScript that share globals. They're being moved into the typed core one at a time (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 - **Enterprise graph is experimental** and off by default.
 - The `devops/dev/*.bicep` files are empty placeholders.
 
@@ -428,23 +471,27 @@ The Node tests cover the Express host's headers, error pages, the `/journal/save
 
 ```
 .
-├── relay.py                # local relay: serves the app, holds credentials from .env (stdlib only)
+├── relay.py                # local relay: serves the app, holds credentials, keeps the journal folder (stdlib only)
 ├── .env.example            # copy to .env and fill in; .env is git-ignored
+├── src/                    # source of the page (see Development)
 ├── public/
-│   ├── index.html          # The Daily (entire client app)
-│   └── stylesheets/
-├── app.js, bin/www         # Express static host for the hosted copy (npm start)
+│   ├── index.html          # the built app: one self-contained page (generated from src/)
+│   └── tehau.html, stylesheets/
+├── scripts/build.mjs       # src/ → public/index.html
+├── app.js, bin/www         # Express static host for the hosted demo (npm start)
 ├── web.config              # Windows App Service / IIS startup (iisnode → bin/www)
 ├── routes/journal.js       # legacy POST /journal/save (off by default)
 ├── views/error.ejs         # Express error page (not an app page)
 ├── test/
+│   ├── unit/               # Vitest: core logic
+│   ├── e2e/                # Playwright: real flows in Chromium, with a fake-GitHub harness
 │   ├── test_relay.py       # relay tests against fake GitHub / Azure DevOps / AI upstreams
+│   ├── test_ai.py          # AI provider tests
 │   └── security.test.js    # Express host tests
-├── .github/workflows/      # main_thedaily.yml (test + deploy to Azure)
-├── SECURITY.md, CHANGELOG.md, LICENSE (MIT)
+├── docs/ARCHITECTURE.md
+├── .github/workflows/      # ci.yml (checks), main_thedaily.yml (deploy the demo)
+├── CONTRIBUTING.md, SECURITY.md, CHANGELOG.md, LICENSE (MIT)
 ```
-
----
 
 ## Disclaimer
 

@@ -49,7 +49,7 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-VERSION = "1.3.0"
+VERSION = "2.0.0"
 HERE = Path(__file__).resolve().parent
 
 

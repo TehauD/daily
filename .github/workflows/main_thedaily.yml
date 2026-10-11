@@ -1,0 +1,71 @@
+# Deploys the public demo (the static app behind a small Express host) to the
+# Azure App Service "thedaily" after every push to main. The relay is never deployed:
+# it holds credentials and is meant for your own computer only.
+
+name: Deploy demo to Azure Web App - thedaily
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-thedaily
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install, verify and test
+        run: |
+          npm ci
+          npm run build:check
+          npm run test:unit
+          npm run test:node
+          npm audit --omit=dev --audit-level=high
+      - name: Assemble the deployment package (runtime files only)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force deploy | Out-Null
+          Copy-Item app.js, package.json, package-lock.json, web.config deploy/
+          Copy-Item -Recurse bin, routes, views, public deploy/
+          Push-Location deploy
+          npm ci --omit=dev
+          Pop-Location
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-app
+          path: deploy
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-app
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7CFB0EB75E7748628C4E763B676BF3AD }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_274E819230EA4720894AB2EC55D46502 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8EE9C57F859044D3BFCE6968024A2877 }}
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'thedaily'
+          slot-name: 'Production'
+          package: .

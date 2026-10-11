@@ -37,7 +37,7 @@ async function bundleCore() {
   const esbuild = await import('esbuild');
   const r = await esbuild.build({
     entryPoints: [entry], bundle: true, write: false, format: 'iife', target: ['es2020'],
-    platform: 'browser', legalComments: 'none', charset: 'utf8', minify: false, sourcemap: false,
+    platform: 'browser', legalComments: 'none', charset: 'utf8', minify: true, sourcemap: false,
     logLevel: 'silent',
     define: { __DAILY_VERSION__: JSON.stringify(JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version) },
   });
@@ -59,15 +59,15 @@ async function build() {
     const body = read(spec.file).replace(/\n$/, '');
     const id = spec.id ? ` id="${spec.id}"` : '';
     if (spec.tag === 'style') return `<style${id}>\n${guard(body, 'style')}\n</style>`;
-    const code = body.replace('"__ABOUT_DOC_B64__"', JSON.stringify(about));
+    const code = body.replace('"__ABOUT_DOC_B64__"', () => JSON.stringify(about));
     // With the core present, feature modules ship inert and the core starts them once storage
     // has loaded; without it they run as ordinary scripts.
     const type = hasCore ? ' type="text/x-daily-module"' : '';
     return `<script${type}${id || ` id="m-${spec.file.replace(/\W+/g, '-')}"`}>\n${guard(code, 'script')}\n</script>`;
   });
+  if (/<!--@(?!core-->)/.test(html)) throw new Error('Unresolved build marker in src/index.html');
   const core = await bundleCore();
-  html = html.replace(/<!--@core-->\n?/, core ? `<script id="daily-core">\n${core}</script>\n` : '');
-  if (/<!--@/.test(html)) throw new Error('Unresolved build marker in src/index.html');
+  html = html.replace(/<!--@core-->\n?/, () => (core ? `<script id="daily-core">\n${core}</script>\n` : ''));
   return html.replace(/^<!DOCTYPE html>\n/i, m => m + BANNER);
 }
 

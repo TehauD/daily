@@ -1,5 +1,58 @@
 # Changelog
 
+## 2.0.0 — 2026-10-11
+
+Foundations: where your journal lives, how it syncs, and how the app is built and tested.
+
+### Your journal is safer
+
+- **Durable storage.** Entries move from `localStorage` (5 MB, cleared with site data) to the browser's database (IndexedDB).
+  - The move happens automatically on first start. It's verified before anything is removed, and a pre-upgrade copy is kept (Studio → Backup & export → *Download* / *Delete*).
+  - Open tabs stay in step with each other.
+  - *Protect my journal* asks the browser not to clear it automatically.
+- **The journal folder.** With the relay running, every note is also a Markdown file in `DAILY_VAULT_DIR` (default `./vault`), kept in step both ways:
+  - Edit in VS Code or Obsidian and the app picks it up; edit in the app and the file follows.
+  - Both-changed cases merge.
+  - Deleted files go to `.trash/`, and a burst of missing files is held for review instead of being applied.
+- **Merging instead of overwriting.** Each note remembers its last-synced text. Pulls and pushes now merge edits made on both sides line by line, and a side-by-side resolver opens only for lines that truly conflict. This replaces the old "overwrite or cancel" prompts.
+- **Deletions that stick:** deleting a note can also delete it from GitHub or Azure DevOps, and notes deleted in the repository are offered for review.
+
+### Fixes
+
+- **Pull no longer overwrites local edits.** A local edit dropped the note's repository link, so the next pull matched it by ID and replaced the edit.
+- **Deleted notes no longer come back.** Deleting the open note saved the editor first, which re-created it.
+- **Markdown output is deterministic.** The footer uses the note's own timestamp, so files change only when the note does.
+- **Accessibility:**
+  - The editor and date picker have labels.
+  - Faint text and the status bar meet WCAG AA contrast in light and dark.
+  - The new dialogs trap focus and close with Escape.
+
+### Public demo
+
+- [thedaily.azurewebsites.net](https://thedaily.azurewebsites.net/) runs the same single page. On any non-local address the introduction dialog is skipped and a dismissible note says that notes stay in the browser, so visitors start writing immediately.
+- `.github/workflows/main_thedaily.yml` deploys the demo after each push to `main`, once the build check and tests pass. Only runtime files are shipped; the relay never is.
+- **Page metadata:** description, theme color, icon and Open Graph tags.
+
+### Engineering
+
+- **Source in `src/`.** The 540 KB page is now built from source:
+  - `src/index.html` (the shell)
+  - `src/styles/` and `src/legacy/` (one file per block, in order)
+  - `src/core/` (typed TypeScript: storage, sync, journal folder, start-up, demo)
+  - `src/about/`
+- **Deterministic build.** `npm run build` writes the same single `public/index.html` every time, and it stays committed, so nothing changes for people running it. CI fails if it's stale.
+- **Tests:**
+  - Vitest unit tests for the core.
+  - Playwright browser tests for real flows, including axe accessibility checks.
+  - Relay tests for deletion and the journal folder.
+  - CI on every pull request; the relay suite also runs on Python 3.9, Windows and macOS.
+- **New docs:** `docs/ARCHITECTURE.md` and `CONTRIBUTING.md`.
+- **Dependencies:** a critical advisory in `proxy-addr` (via Express) is fixed. `npm audit` reports 0 vulnerabilities.
+
+### Upgrading
+
+Nothing to do: open the app and it moves your journal into the database on first start. If you run the relay, your notes also appear in `./vault/` (or `DAILY_VAULT_DIR`). Set `DAILY_VAULT=false` to turn the folder off.
+
 ## 1.3.0 — 2026-10-11
 
 AI that connects reliably, to more providers, and answers from your whole journal.
