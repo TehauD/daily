@@ -23,8 +23,10 @@ With the local relay (`relay.py`), credentials live in `.env` on the user's comp
 Especially valuable reports:
 
 - any way for a web page, another device, or a request without the client key (when one is set) to make the relay act: push, read files, call the AI provider, or change work items
-- any way to make the relay reveal a credential (`/api/config`, error messages, logs, static files)
-- repository path escapes outside the configured `DAILY_*_ROOT`
+- any way to make the relay reveal a credential (`/api/config`, `/api/ai/doctor`, error messages, logs, static files), including an Entra ID access token or service-principal secret
+- any way for the page to make the relay send AI requests or credentials to a host other than `DAILY_AI_BASE_URL` (and, for Entra sign-in, the configured authority)
+- repository path escapes outside the configured `DAILY_*_ROOT`, including through the image endpoints (`/api/repositories/asset` serves only images inside `assets/` folders, with a sandbox CSP, and is the one `/api` route that skips the client key so `<img>` tags can load it; it still enforces the Host and cross-site checks)
+- any way to make the work, project or run endpoints act on a repository, project or pipeline other than the configured ones
 - script injection (XSS) through rendered entries, imported backups, pulled repository files, AI responses or work-item HTML
 - weaknesses in the Express host's headers, the `/journal/save` gate, or the deployment workflow
 

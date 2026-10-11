@@ -418,23 +418,37 @@ noscript{display:block;max-width:600px;margin:60px auto;text-align:center}
 </div>
 <!-- REPOSITORIES MODAL -->
 <div class="mback" id="repoModal" onclick="if(event.target===this)closeModal('repoModal')"><div class="modal">
-  <div class="mhead"><button class="mx" onclick="closeModal('repoModal')">✕</button><h3 class="mt">Repositories</h3><div class="ms">Configure destinations. Publishing happens with Push.</div></div>
+  <div class="mhead"><button class="mx" onclick="closeModal('repoModal')">✕</button><h3 class="mt">Repositories</h3><div class="ms">Choose where the journal lives. Integrations follow the active provider.</div></div>
   <div class="mbody">
+    <div class="provhead">
+      <div class="provseg" id="provSeg" role="tablist" aria-label="Active provider"><button type="button" data-p="github" role="tab"><span class="pdot"></span>GitHub</button><button type="button" data-p="ado" role="tab"><span class="pdot"></span>Azure DevOps</button></div>
+      <span class="provmode" id="provMode"></span>
+    </div>
+    <div class="capgrid" id="provCaps" aria-label="What this provider can do here"></div>
+    <section class="provsec" id="provGH" aria-label="GitHub settings">
     <h5>GitHub <span class="muted" id="ghBadge">— not configured</span></h5>
     <div class="grid2"><div><label class="f">Owner</label><input class="f" id="ghOwner" placeholder="your-username"></div><div><label class="f">Repository</label><input class="f" id="ghRepo" placeholder="dev-journal"></div></div>
     <div class="grid2"><div><label class="f">Branch</label><input class="f" id="ghBranch" placeholder="main"></div><div><label class="f">Folder</label><input class="f" id="ghPath" placeholder="journal"></div></div>
-    <label class="f">Personal access token (Contents: read & write)</label><input class="f" id="ghToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="github_pat_… or ghp_…">
+    <label class="f">Personal access token (Contents: read &amp; write)</label><input class="f" id="ghToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="github_pat_… or ghp_…">
     <div class="bar"><button class="btn" onclick="saveGH()">Save GitHub</button><button class="btn" onclick="testGH()">Test</button></div>
     <div class="status" id="ghStatus"></div>
-    <h5 style="margin-top:22px">Azure DevOps <span class="muted" id="azBadge">— not configured</span></h5>
+    </section>
+    <section class="provsec" id="provAZ" aria-label="Azure DevOps settings" hidden>
+    <h5>Azure DevOps <span class="muted" id="azBadge">— not configured</span></h5>
     <div class="grid2"><div><label class="f">Organization</label><input class="f" id="azOrg" placeholder="org"></div><div><label class="f">Project</label><input class="f" id="azProject" placeholder="project"></div></div>
     <div class="grid2"><div><label class="f">Repository</label><input class="f" id="azRepo" placeholder="dev-journal"></div><div><label class="f">Branch</label><input class="f" id="azBranch" placeholder="main"></div></div>
-    <div class="grid2"><div><label class="f">Folder</label><input class="f" id="azPath" placeholder="journal"></div><div><label class="f">PAT (Code: read & write)</label><input class="f" id="azToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="Azure DevOps PAT"></div></div>
+    <div class="grid2"><div><label class="f">Folder</label><input class="f" id="azPath" placeholder="journal"></div><div><label class="f">PAT (Code: read &amp; write)</label><input class="f" id="azToken" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="Azure DevOps PAT"></div></div>
     <div class="bar"><button class="btn" onclick="saveAZ()">Save Azure</button><button class="btn" onclick="testAZ()">Test</button></div>
     <div class="status" id="azStatus"></div>
-    <label class="switch"><input type="checkbox" id="assetsToggle" checked onchange="saveAssetsPref(this.checked)"> Store images as separate files in <code>assets/</code> on GitHub push (keeps <code>.md</code> small &amp; diff-able)</label>
-    <div class="warn">Tokens are stored only in this browser. Push detects remote changes (sha) and asks before overwriting.</div>
-    <div class="bar"><button class="btn primary" onclick="closeModal('repoModal');pushRepos()">↑ Push current entry</button><button class="btn" onclick="closeModal('repoModal');pullRepos({overwrite:false})">↓ Pull entries</button><button class="btn" onclick="pullOverwriteConfirm()">↓ Pull &amp; overwrite</button><button class="btn" onclick="diagRepos()">⌕ Diagnose</button></div>
+    </section>
+    <div class="pubopts">
+      <div class="pubrow"><span class="lbl">Publish as</span><div class="pubseg" id="pubSeg"><button type="button" data-m="commit">Commit to <span id="pubBranch">main</span></button><button type="button" data-m="pr">Pull request</button></div><span class="pubhint" id="pubHint"></span></div>
+      <label class="switch"><input type="checkbox" id="mirrorToggle"> Also push a copy to&nbsp;<span id="mirrorName">Azure DevOps</span></label>
+      <label class="switch"><input type="checkbox" id="assetsToggle" checked onchange="saveAssetsPref(this.checked)"> <span class="alabel">Store pasted images as files in assets/</span></label>
+    </div>
+    <div class="warn" id="provWarn">Tokens are stored only in this browser. Push detects remote changes and asks before overwriting.</div>
+    <div class="bar"><button class="btn primary" onclick="closeModal('repoModal');pushRepos()">↑ Publish current entry</button><button class="btn" onclick="closeModal('repoModal');pullRepos({overwrite:false})">↓ Pull entries</button><button class="btn" onclick="pullOverwriteConfirm()">↓ Pull &amp; overwrite</button><button class="btn" onclick="diagRepos()">⌕ Diagnose</button><a class="btn" id="provOpen" href="#" target="_blank" rel="noopener" hidden>Open ↗</a></div>
+    <div class="lastpub" id="lastPublish"></div>
     <pre id="repoDiag" style="display:none;white-space:pre-wrap;word-break:break-word;background:var(--line2);border:1px solid var(--line);border-radius:var(--radius);padding:11px;font:11px/1.5 var(--mono);margin-top:12px;max-height:260px;overflow:auto"></pre>
   </div>
 </div></div>
@@ -449,12 +463,12 @@ noscript{display:block;max-width:600px;margin:60px auto;text-align:center}
     <label class="f">Editor width</label>
     <div class="seg" id="widthSeg"><button data-w="820" onclick="setWidth(820)">Focused</button><button data-w="900" class="on" onclick="setWidth(900)">Comfortable</button><button data-w="1100" onclick="setWidth(1100)">Wide</button></div>
     <h5 style="margin-top:22px">AI provider <span class="muted" id="aiBadge">— optional, not connected</span></h5>
-    <div class="provgrid"><button data-prov="openai" onclick="pickProv('openai')">OpenAI</button><button data-prov="azure" onclick="pickProv('azure')">Azure OpenAI</button><button data-prov="foundry" onclick="pickProv('foundry')">Foundry Deployment</button><button data-prov="local" onclick="pickProv('local')">Local / Custom</button></div>
+    <select class="f" id="aiProvSel" onchange="pickProv(this.value)" aria-label="AI provider"><optgroup label="Recommended"><option value="relay">This computer’s relay (.env)</option></optgroup><optgroup label="Cloud"><option value="openai">OpenAI</option><option value="anthropic">Anthropic Claude</option><option value="gemini">Google Gemini</option><option value="openrouter">OpenRouter</option><option value="groq">Groq</option><option value="mistral">Mistral</option><option value="deepseek">DeepSeek</option><option value="xai">xAI Grok</option></optgroup><optgroup label="Microsoft Azure"><option value="azure">Azure OpenAI / Microsoft Foundry</option><option value="foundryclaude">Claude in Microsoft Foundry</option></optgroup><optgroup label="On this computer"><option value="ollama">Ollama</option><option value="lmstudio">LM Studio</option><option value="custom">Other OpenAI-compatible server</option></optgroup></select>
     <p class="muted" id="provHelp" style="margin:8px 0 0"></p>
     <label class="switch" style="margin-top:8px"><input type="checkbox" id="streamToggle" checked onchange="saveStreamPref(this.checked)"> Stream AI responses (tokens appear as they arrive)</label>
     <label class="f">Base URL</label><input class="f" id="aiBase" placeholder="https://api.openai.com/v1">
     <label class="f" id="aiModelLabel">Model / deployment</label><input class="f" id="aiModel" placeholder="gpt-4o-mini">
-    <div id="azVer" style="display:none"><label class="f">Azure API version</label><input class="f" id="aiVer" placeholder="2024-10-21"></div>
+    <div id="azVer" style="display:none"><label class="f">API version <span class="muted">(only for the classic deployments route; leave empty for …/openai/v1)</span></label><input class="f" id="aiVer" placeholder="empty = v1 API"></div>
     <label class="f">API key <span class="muted">(blank for local / relay)</span></label><input class="f" id="aiKey" type="password" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="sk-… or Azure key">
     <div class="bar"><button class="btn" onclick="saveAI()">Save AI</button><button class="btn" onclick="testAILink()">Test link</button></div>
     <pre id="aiDiag" style="display:none;white-space:pre-wrap;word-break:break-word;background:var(--line2);border:1px solid var(--line);border-radius:var(--radius);padding:11px;font:11px/1.5 var(--mono);margin-top:10px;max-height:220px;overflow:auto"></pre>
@@ -663,7 +677,7 @@ function autoTagInline(md,force){if(!force&&!obsidianTagPref())return md||'';con
 function applyAutoTags(){const before=entryText();const after=autoTagInline(before,true);if(after===before){toast('No new element tags to add.');return;}setEntryText(after);scheduleSave();renderRibbon();toast('Auto-tagged decisions · learnings · blockers…');}
 function currentProject(){const raw=explicitTags(entryText()).filter(x=>!isReservedTag(x)).map(x=>x.replace(/^project\//,''));if(!raw.length)return'';const f={};raw.forEach(x=>f[x]=(f[x]||0)+1);return Object.entries(f).sort((a,b)=>b[1]-a[1])[0][0];}
 function storageBytes(){let n=0;store.keys().forEach(k=>{if(k.indexOf('daily:')===0){n+=k.length+((store.get(k)||'').length);}});return n*2;}
-function renderQuota(){const b=storageBytes();const cap=5*1024*1024;const pct=Math.min(100,Math.round(b/cap*100));const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+' ('+pct+'%)';q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent='Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.';if($('backupStat'))$('backupStat').textContent='· '+allEntries().length+' entries stored';}
+function renderQuota(){const b=storageBytes();const cap=5*1024*1024;const pct=Math.min(100,Math.round(b/cap*100));const q=$('rQuota');if(q){q.textContent='· '+bytesL(b)+' ('+pct+'%)';q.className='r-quota'+(pct>90?' err':pct>75?' warn':'');}if($('quotaLine'))$('quotaLine').textContent='Using ~'+bytesL(b)+' of ~5 MB browser storage ('+pct+'%). Images are the biggest consumers — enable “Store images as files” or export a backup.';if($('backupStat'))$('backupStat').textContent=(n=>'· '+n+(n===1?' entry':' entries')+' stored')(allEntries().length)+'';}
 function renderRibbon(){const m=metrics();$('rMetrics').textContent=`${short(m.words)}w · ${short(m.chars)}c · ${m.read}m · ${m.lines}L · ${m.code}CB · ${m.arts}A · ${bytesL(m.size)}`;$('rStatus').title=`Words: ${m.words}\nCharacters: ${m.chars}\nReading time: ${m.read} min\nLines: ${m.lines}\nCode blocks: ${m.code}\nArtifacts: ${m.arts}\nSize: ${bytesL(m.size)}`;const p=currentProject();const c=$('rCtx');if(p){c.textContent='#'+p;c.classList.remove('empty')}else{c.textContent='no project';c.classList.add('empty')}const gh=ghReady(),az=azReady();$('rRepo').classList.toggle('ready',gh||az);$('rRepo').title=`Repositories — GitHub ${gh?'✓':'○'} · Azure ${az?'✓':'○'}`;renderQuota();}
 const CAND=[[/\b(?:we chose|i chose|decided to|the decision was|going with|opted for)\b/i,'◆ decision','type/decision'],[/\b(?:i learned|turns out|the fix was|solved it|root cause|realized that|lesson[: ])/i,'▣ learning','type/learning'],[/\b(?:hypothesis|experiment|i tried|testing whether|let'?s see if|A\/B)\b/i,'⚗ experiment','type/experiment'],[/\b(?:blocked by|couldn'?t because|not enabled|not approved|no owner|gated|waiting on)\b/i,'⛌ blocker','type/blocker'],[/\b(?:idea|what if|could we|might be worth|opportunity to)\b/i,'💡 idea','type/idea'],[/\b(?:shipped|launched|delivered|completed|done|finished|win\b)/i,'★ win','type/win']];
 function candidates(t){const out=[];(t||'').split(/\n+/).forEach(line=>{const l=line.trim();if(l.length<12)return;for(const[re,lab,tag]of CAND){if(re.test(l)){out.push({label:lab,text:l,tag:tag});break;}}});return out;}
@@ -732,7 +746,7 @@ function copySelection(){const s=window.getSelection().toString();if(!s){toast('
 async function copyExecSummary(){const t=entryText();if(!t.trim()){toast('Write something first.');return;}if(aiReady()){toast('Summarizing…');try{const r=await aiChat([{role:'system',content:'Turn the journal entry into a concise executive summary in Markdown: Theme, Key Insights, Decisions, Actions. Only supported facts.'},{role:'user',content:t}],{max:600,temp:.3});clip(r,'Executive summary');return;}catch(e){toast('AI error — copied a template.');}}clip(`## Executive Summary — ${curDate}\n\n**Theme:** ${t.split(/\n/).find(l=>l.trim())||'—'}\n\n**Highlights:**\n- \n`,'Executive summary');}
 async function copyStatus(){const t=entryText();if(!t.trim()){toast('Write something first.');return;}if(aiReady()){toast('Drafting status…');try{const r=await aiChat([{role:'system',content:'Turn the journal entry into a short status update: Status, Accomplishments, Risks/Blockers, Next Steps. Crisp. Only supported facts.'},{role:'user',content:t}],{max:500,temp:.3});clip(r,'Status update');return;}catch(e){toast('AI error — copied a template.');}}clip(`**Status — ${curDate}**\n\n**Accomplishments:**\n- \n\n**Risks / Blockers:**\n- \n\n**Next Steps:**\n- `,'Status update');}
 /* popovers */
-function placePop(anchor){const p=$('pop');const r=$('ribbon').getBoundingClientRect();const a=anchor.getBoundingClientRect();p.style.right=(r.right-a.right)+'px';p.style.left='auto';}
+function placePop(anchor){const p=$('pop');if(getComputedStyle($('ribbon')).overflowX!=='visible'){const a=anchor.getBoundingClientRect();Object.assign(p.style,{position:'fixed',left:'8px',right:'8px',top:'auto',bottom:Math.max(8,innerHeight-a.top+6)+'px',maxWidth:'none',width:'auto',maxHeight:Math.max(160,a.top-16)+'px',overflowY:'auto'});return}p.style.position=p.style.top=p.style.bottom=p.style.width=p.style.maxHeight=p.style.overflowY='';const r=$('ribbon').getBoundingClientRect();const a=anchor.getBoundingClientRect();p.style.maxWidth='calc(100vw - 16px)';let right=r.right-a.right;p.style.right=right+'px';p.style.left='auto';const pr=p.getBoundingClientRect();if(pr.left<8){right-=8-pr.left;p.style.right=right+'px'}}
 function openPop(anchor,kind,html){const p=$('pop');if(p.dataset.kind===kind&&!p.hidden){closePop();return;}document.querySelectorAll('.r-btn,.r-ctx').forEach(b=>b.setAttribute&&b.setAttribute('aria-expanded','false'));p.dataset.kind=kind;p.innerHTML=html;p.hidden=false;placePop(anchor);anchor.setAttribute&&anchor.setAttribute('aria-expanded','true');}
 function closePop(){const p=$('pop');if(p){p.hidden=true;p.dataset.kind=''}document.querySelectorAll('.r-btn').forEach(b=>b.setAttribute('aria-expanded','false'));}
 document.addEventListener('click',e=>{if(!e.target.closest('#ribbon')&&!e.target.closest('.aibar'))closePop();});
@@ -907,40 +921,72 @@ async function pullRepos(opts={}){opts=opts||{};const overwrite=!!opts.overwrite
 async function quickSave(){flush();const btns=[$('navSave'),$('tbSave')];btns.forEach(b=>b&&b.classList.add('busy'));try{if(ghReady()||azReady()){await pushRepos();}else{toast('Saved locally ✓ — configure a repo to Push.');}}finally{btns.forEach(b=>b&&b.classList.remove('busy'));}}
 /* ============================================================ AI (seamless, streaming, hardened) ============================================================ */
 function getAI(){try{return JSON.parse(store.get(LS.ai))||{}}catch{return{}}}
-function aiIsAzure(c){c=c||getAI();return c.prov==='azure'||c.prov==='foundry'||/\.(openai\.azure\.com|services\.ai\.azure\.com|cognitiveservices\.azure\.com)/i.test(c.base||'')}
-function aiReady(){const c=getAI();if(!c.base||!c.model)return false;if(aiIsAzure(c)&&!c.ver)return false;return true}
-function fillAI(){const c=getAI();if($('aiBase'))$('aiBase').value=c.base||'';if($('aiModel'))$('aiModel').value=c.model||'';if($('aiKey'))$('aiKey').value=c.key||'';if($('aiVer'))$('aiVer').value=c.ver||'';document.querySelectorAll('.provgrid button').forEach(b=>b.classList.toggle('on',b.dataset.prov===(c.prov||'openai')));provUI(c.prov||'openai');aiBadge();}
-function aiBadge(){if($('aiBadge'))$('aiBadge').textContent=aiReady()?'— connected':'— optional, not connected';}
-const PROV={openai:{base:'https://api.openai.com/v1',model:'gpt-4o-mini',ver:'',label:'Model',help:'OpenAI Chat Completions, from the browser with a Bearer key. Streams live.'},azure:{base:'https://YOUR-RESOURCE.openai.azure.com',model:'gpt-4o-mini',ver:'2024-10-21',label:'Deployment name',help:'Azure OpenAI. Browsers are blocked by CORS — run the local relay and point Base URL at http://localhost:8000/v1 (Local/Custom).'},foundry:{base:'https://YOUR-RESOURCE.openai.azure.com',model:'gpt-5-mini',ver:'2024-10-21',label:'Deployment name',help:'Foundry deployment (e.g. gpt-5-mini). Same CORS note — prefer the relay.'},local:{base:'http://localhost:8000/v1',model:'gpt-5-mini',ver:'',label:'Model / deployment',help:'Relay, LM Studio, or Ollama. Key optional.'}};
-function pickProv(p){const d=PROV[p]||PROV.openai;$('aiBase').value=d.base;$('aiModel').value=d.model;if($('aiVer'))$('aiVer').value=d.ver||'';document.querySelectorAll('.provgrid button').forEach(b=>b.classList.toggle('on',b.dataset.prov===p));provUI(p);}
-function provUI(p){const d=PROV[p]||PROV.openai;const az=(p==='azure'||p==='foundry');if($('azVer'))$('azVer').style.display=az?'block':'none';if($('aiModelLabel'))$('aiModelLabel').textContent=d.label;if($('provHelp'))$('provHelp').textContent=d.help||'';}
-function saveAI(){const sel=document.querySelector('.provgrid button.on');const prov=sel?sel.dataset.prov:'openai';const cfg={prov,base:$('aiBase').value.trim().replace(/\/+$/,''),model:$('aiModel').value.trim(),key:$('aiKey').value.trim(),ver:$('aiVer').value.trim()};store.set(LS.ai,JSON.stringify(cfg));const need=[];if(!cfg.base)need.push('Base URL');if(!cfg.model)need.push((PROV[prov]||{}).label||'Model');if(aiIsAzure(cfg)&&!cfg.ver)need.push('API version');setSt('aiStatus',need.length?('Saved — still need: '+need.join(', ')):'Saved ✓','ok');aiBadge();}
+/* Provider catalog. kind = wire format: openai (Chat Completions), azure (Azure OpenAI / Foundry), anthropic (Messages API).
+   relayOnly = the provider doesn't accept calls straight from a web page, so it's configured in .env for the relay. */
+const PROV={
+  relay:{label:'This computer’s relay (.env)',group:'Recommended',kind:'openai',base:'',model:'',key:false,help:'Uses the AI provider set in .env on this computer. No key is stored in the browser.'},
+  openai:{label:'OpenAI',group:'Cloud',kind:'openai',base:'https://api.openai.com/v1',model:'gpt-5-mini',ph:'e.g. gpt-5-mini',help:'OpenAI Chat Completions with an API key from platform.openai.com.',env:'openai'},
+  anthropic:{label:'Anthropic Claude',group:'Cloud',kind:'anthropic',base:'https://api.anthropic.com',model:'claude-sonnet-5-5',ph:'e.g. claude-sonnet-5-5',help:'Claude Messages API with a key from the Claude Console.',env:'anthropic'},
+  gemini:{label:'Google Gemini',group:'Cloud',kind:'openai',base:'https://generativelanguage.googleapis.com/v1beta/openai',model:'',ph:'a Gemini model ID',help:'Gemini through its OpenAI-compatible endpoint, with a key from Google AI Studio.',env:'gemini'},
+  openrouter:{label:'OpenRouter',group:'Cloud',kind:'openai',base:'https://openrouter.ai/api/v1',model:'',ph:'e.g. anthropic/claude-sonnet-5-5',help:'One key for many providers’ models.',env:'openrouter'},
+  groq:{label:'Groq',group:'Cloud',kind:'openai',base:'https://api.groq.com/openai/v1',model:'',ph:'a Groq model ID',help:'Fast hosted open-weight models.',env:'groq'},
+  mistral:{label:'Mistral',group:'Cloud',kind:'openai',base:'https://api.mistral.ai/v1',model:'',ph:'e.g. mistral-small-latest',help:'Mistral’s hosted models.',env:'mistral'},
+  deepseek:{label:'DeepSeek',group:'Cloud',kind:'openai',base:'https://api.deepseek.com/v1',model:'deepseek-chat',ph:'deepseek-chat',help:'DeepSeek’s hosted API.',env:'deepseek'},
+  xai:{label:'xAI Grok',group:'Cloud',kind:'openai',base:'https://api.x.ai/v1',model:'',ph:'a Grok model ID',help:'xAI’s hosted API.',env:'xai'},
+  azure:{label:'Azure OpenAI / Microsoft Foundry',group:'Microsoft Azure',kind:'azure',relayOnly:true,base:'https://YOUR-RESOURCE.openai.azure.com/openai/v1',model:'',ph:'your deployment name',help:'OpenAI and other Foundry models (DeepSeek, Llama, Grok, Mistral…) through the v1 endpoint. The model field is your deployment name.',env:'azure',entra:true},
+  foundryclaude:{label:'Claude in Microsoft Foundry',group:'Microsoft Azure',kind:'anthropic',relayOnly:true,base:'https://YOUR-RESOURCE.services.ai.azure.com/anthropic',model:'',ph:'your Claude deployment name',help:'Claude deployed in a Foundry resource, billed through Azure.',env:'anthropic',entra:true},
+  ollama:{label:'Ollama',group:'On this computer',kind:'openai',base:'http://localhost:11434/v1',model:'',ph:'e.g. llama3.1',key:false,help:'Runs models locally. Nothing leaves your machine.',env:'ollama'},
+  lmstudio:{label:'LM Studio',group:'On this computer',kind:'openai',base:'http://localhost:1234/v1',model:'',ph:'the loaded model ID',key:false,help:'Runs models locally. Start its local server first.',env:'lmstudio'},
+  custom:{label:'Other OpenAI-compatible server',group:'On this computer',kind:'openai',base:'',model:'',ph:'model ID',help:'Any server that speaks the OpenAI Chat Completions API.',env:'compatible'}
+};
+const PROV_ALIAS={foundry:'azure',local:'custom'};
+function aiProvKey(c){c=c||getAI();if(c.relay||(c.base&&aiSameOrigin(c.base)))return'relay';const p=PROV_ALIAS[c.prov]||c.prov;return PROV[p]?p:'openai'}
+function aiSameOrigin(u){try{return new URL(u,location.href).origin===location.origin}catch{return false}}
+function aiIsRelay(c){c=c||getAI();return !!(c.relay||(c.base&&aiSameOrigin(c.base)))}
+function aiKind(c){c=c||getAI();const b=(c.base||'').toLowerCase();if(/\/anthropic(\/|$)|api\.anthropic\.com/.test(b))return'anthropic';if(/\.(openai\.azure\.com|services\.ai\.azure\.com|cognitiveservices\.azure\.com)/.test(b))return'azure';if(aiIsRelay(c))return'openai';return(PROV[aiProvKey(c)]||{}).kind||'openai'}
+function aiIsAzure(c){return aiKind(c)==='azure'}
+function aiReady(){const c=getAI();if(aiIsRelay(c))return !!(c.base&&(c.model||window.__relayConfig?.ai?.configured));return !!(c.base&&c.model)}
+function fillAI(){const c=getAI(),p=aiProvKey(c);if($('aiBase'))$('aiBase').value=c.base||'';if($('aiModel'))$('aiModel').value=c.model||'';if($('aiKey'))$('aiKey').value=c.relay?'':(c.key||'');if($('aiVer'))$('aiVer').value=c.ver||'';const sel=$('aiProvSel');if(sel)sel.value=p;provUI(p);aiBadge();}
+function aiBadge(){const c=getAI();if($('aiBadge'))$('aiBadge').textContent=aiReady()?(aiIsRelay(c)?'— through the relay':'— connected'):'— optional, not connected';try{document.dispatchEvent(new CustomEvent('daily:ai'))}catch(_){}}
+function pickProv(p){const d=PROV[p]||PROV.openai;$('aiBase').value=p==='relay'?location.origin+'/v1':d.base;$('aiModel').value=p==='relay'?(window.__relayConfig?.ai?.model||''):d.model;if($('aiVer'))$('aiVer').value='';const sel=$('aiProvSel');if(sel)sel.value=p;provUI(p);}
+function provUI(p){const d=PROV[p]||PROV.openai,az=d.kind==='azure';if($('azVer'))$('azVer').style.display=az?'block':'none';if($('aiModelLabel'))$('aiModelLabel').textContent=az||p==='foundryclaude'?'Deployment name':'Model';if($('aiModel'))$('aiModel').placeholder=d.ph||'model';const k=$('aiKey');if(k){k.placeholder=d.key===false?'Not needed':(d.kind==='anthropic'?'sk-ant-…':az?'Azure key':'API key');k.disabled=d.key===false}if($('provHelp'))$('provHelp').textContent=(d.help||'')+(d.relayOnly?' Browsers can’t call this provider directly — set it up in .env for the relay (see above).':'');}
+function saveAI(){const sel=$('aiProvSel');const prov=sel?sel.value:(document.querySelector('.provgrid button.on')?.dataset.prov||'openai');const cfg={prov,base:$('aiBase').value.trim().replace(/\/+$/,''),model:$('aiModel').value.trim(),key:$('aiKey').disabled?'':$('aiKey').value.trim(),ver:($('aiVer')?.value||'').trim()};if(prov==='relay'){cfg.base=location.origin;cfg.key='';cfg.relay=true;cfg.model=cfg.model||window.__relayConfig?.ai?.model||''}store.set(LS.ai,JSON.stringify(cfg));const need=[];if(!cfg.base)need.push('Base URL');if(!cfg.model&&prov!=='relay')need.push('Model');setSt('aiStatus',need.length?('Saved — still need: '+need.join(', ')):'Saved ✓','ok');aiBadge();}
 function aiHost(u){try{return new URL(u).host}catch{return u}}
-function aiResolve(){const c=getAI();const azure=aiIsAzure(c);const h={'Content-Type':'application/json'};let url,base=(c.base||'').replace(/\/+$/,'');if(azure){if(c.key)h['api-key']=c.key;if(/\/chat\/completions$/i.test(base)){url=base;}else{if(!/\/openai\/deployments\//i.test(base))base+='/openai/deployments/'+encodeURIComponent(c.model);url=base.replace(/\/+$/,'')+'/chat/completions';}url+=(url.includes('?')?'&':'?')+'api-version='+encodeURIComponent(c.ver||'2024-10-21');}else{if(c.key)h['Authorization']='Bearer '+c.key;if(!/\/chat\/completions$/i.test(base)){if(!/\/v\d+$/.test(base))base+='/v1';base+='/chat/completions';}url=base;}return{url,h,azure};}
-function aiReconcile(data,msg){const low=(msg||'').toLowerCase();if(/use ['"`]max_completion_tokens['"`]/.test(low)&&'max_tokens'in data){data.max_completion_tokens=data.max_tokens;delete data.max_tokens;return true;}if(/use ['"`]max_tokens['"`]/.test(low)&&'max_completion_tokens'in data){data.max_tokens=data.max_completion_tokens;delete data.max_completion_tokens;return true;}if(low.includes('temperature')&&(low.includes('does not support')||low.includes('only the default')||low.includes('unsupported value'))){if('temperature'in data){delete data.temperature;return true;}}if(low.includes('top_p')&&(low.includes('does not support')||low.includes('unsupported'))){if('top_p'in data){delete data.top_p;return true;}}const m=low.match(/unsupported parameter: ['"`]([a-z0-9_]+)['"`]/);if(m&&m[1]in data){delete data[m[1]];return true;}return false;}
-function aiExtractText(j){if(!j||typeof j!=='object')return'';const ch=Array.isArray(j.choices)?j.choices[0]:null;if(!ch)return'';const v=ch.delta?.content??ch.message?.content??ch.text??'';if(typeof v==='string')return v;if(Array.isArray(v))return v.map(x=>typeof x==='string'?x:(x?.text??x?.content??'')).join('');return'';}
+function aiResolve(cfg){const c=cfg||getAI(),kind=aiKind(c),h={'Content-Type':'application/json'};let base=(c.base||'').replace(/\/+$/,''),url,includeModel=true;
+  if(kind==='anthropic'){if(c.key)h['x-api-key']=c.key;h['anthropic-version']='2023-06-01';if(/api\.anthropic\.com/i.test(base))h['anthropic-dangerous-direct-browser-access']='true';url=/\/messages$/.test(base)?base:(/\/v1$/.test(base)?base:base+'/v1')+'/messages';}
+  else if(kind==='azure'){if(c.key)h['api-key']=c.key;if(/\/chat\/completions(\?|$)/i.test(base)){url=base;includeModel=!/\/openai\/deployments\//i.test(base);}else if(/\/openai\/deployments\//i.test(base)){url=base+'/chat/completions';includeModel=false;}else if(/\/openai\/v1$/i.test(base)||/\/models$/i.test(base)){url=base+'/chat/completions';}else if(c.ver){url=base+'/openai/deployments/'+encodeURIComponent(c.model)+'/chat/completions';includeModel=false;}else{url=base+'/openai/v1/chat/completions';}if(!/\/openai\/v1\//i.test(url)&&!/api-version=/i.test(url))url+=(url.includes('?')?'&':'?')+'api-version='+encodeURIComponent(c.ver||'2024-10-21');}
+  else{if(c.key)h['Authorization']='Bearer '+c.key;if(/\/chat\/completions$/i.test(base))url=base;else{let path='';try{path=new URL(base,location.href).pathname}catch(_){}if(!path||path==='/')base+='/v1';url=base+'/chat/completions';}}
+  return{url,h,kind,azure:kind==='azure',includeModel};}
+function aiReconcile(data,msg){const low=(msg||'').toLowerCase();if(/max_completion_tokens/.test(low)&&/max_tokens/.test(low)){if('max_tokens'in data){data.max_completion_tokens=data.max_tokens;delete data.max_tokens;return true;}if('max_completion_tokens'in data){data.max_tokens=data.max_completion_tokens;delete data.max_completion_tokens;return true;}}for(const p of['temperature','top_p','reasoning_effort','presence_penalty','frequency_penalty']){if(low.includes(p)&&p in data){delete data[p];return true;}}const m=low.match(/unsupported parameter:?\s*['"`]?([a-z_]+)/);if(m&&m[1]in data){delete data[m[1]];return true;}return false;}
+function aiExtractText(j){if(!j||typeof j!=='object')return'';if(j.type==='content_block_delta')return j.delta?.text||'';if(Array.isArray(j.content)&&!j.choices)return j.content.filter(b=>b&&b.type==='text').map(b=>b.text).join('');const ch=Array.isArray(j.choices)?j.choices[0]:null;if(!ch)return'';const v=ch.delta?.content??ch.message?.content??ch.text??'';if(typeof v==='string')return v;if(Array.isArray(v))return v.map(x=>typeof x==='string'?x:(x?.text??x?.content??'')).join('');return'';}
 function aiSSEData(record){return String(record||'').split(/\r?\n/).filter(x=>/^data\s*:/i.test(x)).map(x=>x.replace(/^data\s*:\s?/i,'')).join('\n').trim();}
-function aiParseSSE(record){const data=aiSSEData(record);if(!data||data==='[DONE]')return'';try{return aiExtractText(JSON.parse(data));}catch{return'';}}
+function aiParseSSE(record){const data=aiSSEData(record);if(!data||data==='[DONE]')return'';try{const j=JSON.parse(data);if(j&&j.error&&!j.choices)throw new Error(j.error.message||'stream error');return aiExtractText(j);}catch(e){if(e&&e.message&&!/JSON/.test(e.message))throw e;return'';}}
 async function aiReadSSE(r,onToken){const reader=r.body.getReader(),dec=new TextDecoder();let buf='',acc='';const emit=x=>{if(x){acc+=x;if(onToken)onToken(acc);}};const consume=final=>{buf=buf.replace(/\r\n/g,'\n');let i;while((i=buf.indexOf('\n\n'))>=0){emit(aiParseSSE(buf.slice(0,i)));buf=buf.slice(i+2);}if(final&&buf.trim()){emit(aiParseSSE(buf));buf='';}};while(true){const{value,done}=await reader.read();if(value){buf+=dec.decode(value,{stream:!done});consume(false);}if(done){buf+=dec.decode();consume(true);break;}}return acc.trim();}
 function aiReadBufferedSSE(raw,onToken){let acc='';String(raw||'').replace(/\r\n/g,'\n').split(/\n\n+/).forEach(rec=>{const x=aiParseSSE(rec);if(x){acc+=x;if(onToken)onToken(acc);}});return acc.trim();}
-async function aiChat(messages,opts={}){const c=getAI();if(!aiReady())throw new Error('AI not configured');const{url,h,azure}=aiResolve();const wantStream=!!opts.onToken&&streamPref();const data={messages,temperature:opts.temp??.5,max_tokens:opts.max??600};if(!azure)data.model=c.model;if(wantStream)data.stream=true;let attempt=0;
-  while(true){attempt++;let r;try{r=await fetch(url,{method:'POST',headers:h,body:JSON.stringify(data)});}catch(e){var _oh=(location&&location.hostname)||'',_th='';try{_th=new URL(url).hostname}catch(_){}
-    var _hint=(_oh&&_th&&_oh!==_th)?(' Origin mismatch: this page is on "'+_oh+'" but the endpoint is "'+_th+'". Use the SAME host in the Base URL (e.g. http://'+_oh+':8000/v1), or open the app at http://'+_th+':8000.'):' If Azure, run the local relay and use Local/Custom with http://'+(_oh||'localhost')+':8000/v1.';
-    throw new Error('Network/CORS: could not reach '+aiHost(url)+'.'+_hint);}
-    if(!r.ok){let raw='';try{raw=await r.text();}catch{}let em=raw;try{const j=JSON.parse(raw);em=j?.error?.message||j?.message||raw;}catch{}if(r.status===400&&attempt<6&&aiReconcile(data,em))continue;let msg='HTTP '+r.status+(em?': '+String(em).slice(0,240):'');if(r.status===401||r.status===403)msg+=' — check the API key.';if(r.status===404)msg+=' — check the deployment/model name and API version.';throw new Error(msg);}
+const AI_REASONING=/^(o\d|gpt-5|gpt-oss|deepseek-r1|qwq)/i;
+function aiToAnthropic(data,model){const sys=[],msgs=[];for(const m of data.messages||[]){const t=typeof m.content==='string'?m.content:(Array.isArray(m.content)?m.content.map(x=>typeof x==='string'?x:(x?.text||'')).join(''):String(m.content||''));if(m.role==='system'){sys.push(t);continue}if(m.role!=='user'&&m.role!=='assistant')continue;if(msgs.length&&msgs[msgs.length-1].role===m.role)msgs[msgs.length-1].content+='\n\n'+t;else msgs.push({role:m.role,content:t});}if(!msgs.length||msgs[0].role!=='user')msgs.unshift({role:'user',content:'(continue)'});const out={model,messages:msgs,max_tokens:data.max_tokens||data.max_completion_tokens||1024};if(sys.length)out.system=sys.join('\n\n');if(typeof data.temperature==='number')out.temperature=Math.max(0,Math.min(1,data.temperature));if(data.stream)out.stream=true;return out;}
+function aiNetError(R,c){const host=aiHost(R.url);if(aiIsRelay(c))return'Can’t reach the relay at '+host+'. Is `python relay.py` still running?';if(R.kind==='azure'||/services\.ai\.azure\.com/i.test(R.url))return'Azure doesn’t accept AI calls straight from a web page (CORS). Set it up in .env for the relay instead — Studio → AI model → “Set up with the relay” writes the lines for you.';let a='',b='';try{a=location.hostname;b=new URL(R.url).hostname}catch(_){}if(/^(localhost|127\.0\.0\.1)$/.test(a)&&/^(localhost|127\.0\.0\.1)$/.test(b)&&a!==b)return'The page is on '+a+' but the AI endpoint is on '+b+'. Use the same name in both, e.g. '+location.origin+'/v1.';if(/^(localhost|127\.0\.0\.1)$/.test(b))return'Nothing answered at '+host+'. Start the local model server (Ollama or LM Studio) and enable its API.';return'Couldn’t reach '+host+'. Check the URL and your network. If the provider blocks browser calls (CORS), use the relay.';}
+async function aiChat(messages,opts={}){const c=getAI();if(!aiReady())throw new Error('AI not configured');const R=aiResolve(c),relay=aiIsRelay(c);const wantStream=!!opts.onToken&&streamPref();const data={messages,temperature:opts.temp??.5,max_tokens:opts.max??600};
+  if(!relay&&R.kind!=='anthropic'&&AI_REASONING.test(c.model||'')){data.max_completion_tokens=Math.max(data.max_tokens,1024);delete data.max_tokens;delete data.temperature;}
+  if(R.includeModel&&R.kind!=='anthropic'&&!relay)data.model=c.model;if(wantStream)data.stream=true;let attempt=0,grew=false;const t0=performance.now();
+  while(true){attempt++;const body=R.kind==='anthropic'?aiToAnthropic(data,c.model):data;let r;try{r=await fetch(R.url,{method:'POST',headers:R.h,body:JSON.stringify(body)});}catch(e){throw new Error(aiNetError(R,c));}
+    if(!r.ok){let raw='';try{raw=await r.text();}catch{}let em=raw;try{const j=JSON.parse(raw);em=j?.error?.message||(typeof j?.error==='string'?j.error:'')||j?.message||raw;}catch{}if(r.status===400&&attempt<7&&aiReconcile(data,em))continue;let msg=(relay?'':'HTTP '+r.status+': ')+String(em||'').slice(0,400);if(!relay){if(r.status===401||r.status===403)msg+=' — check the API key.';if(r.status===404)msg+=' — check the model'+(R.kind==='azure'?' (deployment name)':'')+' and the base URL.';}throw new Error(msg);}
+    const done=(text,usage)=>{window.__aiLast={ms:Math.round(performance.now()-t0),usage:usage||null,model:c.model||window.__relayConfig?.ai?.model||'',adapted:r.headers.get('X-Daily-AI-Adapted')||'',at:Date.now()};return text;};
     const type=r.headers.get('content-type')||'';
-    if(/text\/event-stream/i.test(type)&&r.body?.getReader)return await aiReadSSE(r,opts.onToken);
+    if(/text\/event-stream/i.test(type)&&r.body?.getReader)return done(await aiReadSSE(r,opts.onToken));
     const raw=await r.text(),trimmed=raw.trimStart();
-    if(/^data\s*:/i.test(trimmed)||/(?:^|\n)data\s*:/i.test(trimmed)){const text=aiReadBufferedSSE(raw,opts.onToken);if(!text)throw new Error('The endpoint returned SSE, but no assistant text was found.');return text;}
-    let j;try{j=JSON.parse(raw);}catch{throw new Error('AI endpoint returned neither JSON nor SSE: '+raw.replace(/\s+/g,' ').slice(0,180));}
-    const text=aiExtractText(j).trim();if(!text)throw new Error(j?.error?.message||j?.message||'No assistant content was returned.');if(opts.onToken)opts.onToken(text);return text;}}
-async function testAILink(){saveAI();const diag=$('aiDiag');if(diag){diag.style.display='none';diag.textContent='';}if(!aiReady()){const c=getAI();const need=[];if(!c.base)need.push('Base URL');if(!c.model)need.push('Model/Deployment');if(aiIsAzure(c)&&!c.ver)need.push('API version');setSt('aiStatus','Incomplete — add: '+need.join(', '),'err');return;}const{url,azure}=aiResolve();setSt('aiStatus','Testing '+aiHost(url)+'…','info');try{const r=await aiChat([{role:'user',content:'Reply with one word: connected'}],{max:8,temp:0});setSt('aiStatus','Link OK ✓ "'+r.slice(0,40)+'"','ok');}catch(e){setSt('aiStatus','Failed: '+e.message,'err');if(diag){diag.style.display='block';diag.textContent=['Endpoint: '+url,'Page origin: '+((location&&location.origin)||'?'),'Auth: '+(azure?'api-key':'Authorization: Bearer'),'','Azure/Foundry cannot be called from a browser directly (CORS).','Run the relay:  python relay.py','','MATCH HOSTS: if the page is on 127.0.0.1, set Base URL to','http://127.0.0.1:8000/v1 (not localhost) — or open the app at localhost.','The relay now returns CORS headers, but matching hosts is cleanest.','','Local/Custom · Base URL http://'+(((location&&location.hostname)||'localhost'))+':8000/v1 · Model your deployment · key blank.'].join('\n');}}}
+    if(/^(event|data)\s*:/i.test(trimmed)||/(?:^|\n)data\s*:/i.test(trimmed)){const text=aiReadBufferedSSE(raw,opts.onToken);if(!text)throw new Error('The endpoint streamed a reply, but it contained no text.');return done(text);}
+    let j;try{j=JSON.parse(raw);}catch{throw new Error('The AI endpoint returned something other than JSON: '+raw.replace(/\s+/g,' ').slice(0,180));}
+    const text=aiExtractText(j).trim();
+    if(!text){const fin=j?.choices?.[0]?.finish_reason||j?.stop_reason;if((fin==='length'||fin==='max_tokens')&&!grew&&!relay){grew=true;const cur=data.max_completion_tokens||data.max_tokens||0;data.max_completion_tokens=Math.max(cur*4,1024);delete data.max_tokens;delete data.temperature;continue;}throw new Error(j?.error?.message||j?.message||(fin==='length'?'The model used its whole token budget before answering (common with reasoning models). Raise the limit.':'No answer text was returned.'));}
+    if(opts.onToken)opts.onToken(text);return done(text,j.usage);}}
+async function testAILink(){saveAI();if(window.dailyAI&&dailyAI.runDoctor)return dailyAI.runDoctor();const R=aiResolve();setSt('aiStatus','Testing '+esc(aiHost(R.url))+'…','info');try{const r=await aiChat([{role:'user',content:'Reply with exactly one word: connected'}],{max:16,temp:0});setSt('aiStatus','Link OK ✓ “'+esc(r.slice(0,40))+'”','ok');}catch(e){setSt('aiStatus','Failed: '+esc(e.message),'err');}}
 function aiActions(){return[['improve','Improve writing'],['shorter','Make shorter'],['longer','Expand'],['bullets','To bullet points'],['fix','Fix grammar'],['explain','Explain simply']];}
 let aiSelRange=null;
 function showAiBar(){const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount){$('aibar').classList.remove('open');return;}const wr=$('writer');if(!wr.contains(s.anchorNode)){$('aibar').classList.remove('open');return;}aiSelRange=s.getRangeAt(0).cloneRange();const rect=aiSelRange.getBoundingClientRect();const wrRect=wr.getBoundingClientRect();const bar=$('aibar');bar.innerHTML=aiActions().map(([k,lb])=>`<button onmousedown="g(event)" onclick="aiOnSelection('${k}')">${lb}</button>`).join('');bar.style.left=Math.max(6,(rect.left-wrRect.left))+'px';bar.style.top=Math.max(2,(rect.top-wrRect.top-40))+'px';bar.classList.add('open');}
 function hideAiBar(){$('aibar').classList.remove('open');}
 document.addEventListener('selectionchange',()=>{if(mode==='write'){clearTimeout(window._sb);window._sb=setTimeout(showAiBar,120);}});
-function aiMenu(e){if(e&&e.stopPropagation)e.stopPropagation();const hasSel=(getSelection()+'').length>0;const acts=hasSel?aiActions():[['curate','Curate today'],['extract','Find artifacts'],['discover','Discover patterns'],['memory','Builder memory']];openPop($('rSpark'),'ai',`<h4>Ask AI<small>${aiReady()?'Connected · review-first':'Not connected — configure in Studio'}</small></h4>`+acts.map(([k,lb])=>`<button onclick="closePop();${hasSel?`aiOnSelection('${k}')`:`openIntel('${k}')`}">${lb}</button>`).join('')+`<hr><button onclick="closePop();openIntel('curate')">Open AI workspace</button>`);}
+function aiMenu(e){if(e&&e.stopPropagation)e.stopPropagation();const hasSel=(getSelection()+'').length>0;const acts=hasSel?aiActions():[['curate','Curate today'],['extract','Find artifacts'],['discover','Discover patterns'],['memory','Builder memory']];openPop($('rSpark'),'ai',`<h4>Ask AI<small>${aiReady()?'Connected · review-first':'Not connected — configure in Studio'}</small></h4>`+acts.map(([k,lb])=>`<button onclick="closePop();${hasSel?`aiOnSelection('${k}')`:`openIntel('${k}')`}">${lb}</button>`).join('')+`<hr><button onclick="closePop();openAskJournal()">Ask your journal…</button><button onclick="closePop();openIntel('curate')">Open AI workspace</button>`);}
 function aiMenuAt(){aiMenu({stopPropagation(){}});}
 async function aiOnSelection(kind){hideAiBar();if(!aiReady()){toast('Connect an AI provider in Studio first.');openModal('studioModal');return;}const sel=getSelection();const text=(sel&&sel.toString())||'';if(!text.trim()){openIntel('curate');return;}
   const prompts={improve:'Improve clarity and flow. Keep meaning and voice. Return only the revised text.',shorter:'Make more concise. Return only the revised text.',longer:'Expand with a little more detail. Return only the revised text.',bullets:'Rewrite as a tight Markdown bullet list. Return only the list.',fix:'Fix grammar and spelling only. Return only the corrected text.',explain:'Explain simply and briefly. Return only the explanation.'};
@@ -1175,7 +1221,7 @@ const dayParts=d=>String(d||todayISO()).split('-');
 const slugify=s=>String(s||'note').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,72)||'note';
 const safeId=id=>String(id||uid()).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,64);
 const entryKey=(date,id)=>MF.prefix+date+':'+safeId(id);
-const shaKey=(provider,id)=>'daily:sha:v2:'+provider+':'+safeId(id);
+const shaKey=(provider,id)=>'daily:sha:v2:'+provider+':'+safeId(id);window.__dailyShaKey=shaKey;
 LS.entry=(d,id)=>id?entryKey(d,id):'daily:entry:'+d;
 LS.sha=(d,id,provider='github')=>id?shaKey(provider,id):'daily:sha:'+d;
 function entryTitle(e){return (e&&e.title&&String(e.title).trim())||firstTitle(e&&e.text)||'Note'}
@@ -1217,7 +1263,7 @@ ghCommit=async function(){const c=getGH(),e=collect();let md=buildMD();if(assets
 azCommit=async function(){const c=getAZ(),e=collect(),base='https://dev.azure.com/'+c.org+'/'+c.project+'/_apis/git/repositories/'+c.repo,H={'Authorization':'Basic '+btoa(':'+c.token),'Content-Type':'application/json'};const refs=await(await fetch(base+'/refs?filter=heads/'+c.branch+'&api-version=7.1',{headers:H})).json(),oldId=refs.value?.[0]?.objectId;if(!oldId)throw new Error('Azure branch '+c.branch+' not found.');const path='/'+rootJoin(c.path,repoRelPath(e));let exists=false;try{exists=(await fetch(base+'/items?path='+encodeURIComponent(path)+'&versionDescriptor.version='+encodeURIComponent(c.branch)+'&versionDescriptor.versionType=branch&api-version=7.1',{headers:H})).ok}catch(_){}const payload={refUpdates:[{name:'refs/heads/'+c.branch,oldObjectId:oldId}],commits:[{comment:'Journal '+e.date+' - '+e.title,changes:[{changeType:exists?'edit':'add',item:{path},newContent:{content:buildMD(),contentType:'rawtext'}}]}]};const r=await fetch(base+'/pushes?api-version=7.1',{method:'POST',headers:H,body:JSON.stringify(payload)});if(!r.ok)throw new Error('Azure '+r.status+': '+(await r.text()).slice(0,120));return{provider:'Azure DevOps',path}};
 ghList=async function(){const c=getGH(),ref=encodeURIComponent(c.branch);const rr=await fetch('https://api.github.com/repos/'+c.owner+'/'+c.repo+'/git/ref/heads/'+ref,{headers:ghH(c.token),cache:'no-store'});if(!rr.ok)throw new Error('GitHub ref '+rr.status);const rj=await rr.json(),treeSha=rj.object?.sha;const tr=await fetch('https://api.github.com/repos/'+c.owner+'/'+c.repo+'/git/trees/'+treeSha+'?recursive=1&t='+Date.now(),{headers:ghH(c.token),cache:'no-store'});if(!tr.ok)throw new Error('GitHub tree '+tr.status);const tj=await tr.json(),root=String(c.path||'').replace(/^\/+|\/+$/g,''),prefix=root?root+'/':'';return (tj.tree||[]).filter(x=>x.type==='blob'&&x.path.startsWith(prefix)&&/\.md$/i.test(x.path)&&(dateFromPath(x.path)||/\d{4}-\d{2}-\d{2}\.md$/i.test(x.path))).map(x=>({name:x.path.split('/').pop(),path:x.path,sha:x.sha}))};
 azList=async function(){const c=getAZ(),base='https://dev.azure.com/'+c.org+'/'+c.project+'/_apis/git/repositories/'+c.repo,H={'Authorization':'Basic '+btoa(':'+c.token)},scope=c.path?'/'+c.path:'/';const u=base+'/items?scopePath='+encodeURIComponent(scope)+'&recursionLevel=Full&versionDescriptor.version='+encodeURIComponent(c.branch)+'&versionDescriptor.versionType=branch&api-version=7.1';const r=await fetch(u,{headers:H});if(r.status===404)return[];if(!r.ok)throw new Error('Azure '+r.status);const j=await r.json();return(j.value||[]).filter(it=>!it.isFolder&&/\.md$/i.test(it.path||'')&&(dateFromPath(it.path)||/\d{4}-\d{2}-\d{2}\.md$/i.test(it.path||'')))};
-function storePulled(p,name,f,overwrite){const rawPath=String(f.path||f.name||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');const repositoryKey=name.toLowerCase().replace(/\s+/g,'-')+':'+rawPath.toLowerCase();const fileName=rawPath.split('/').pop()||'';const fileId=((fileName.match(/--([a-zA-Z0-9_-]+)\.md$/)||[])[1]||'').trim();const contentKey='content:'+String(name).toLowerCase()+':'+p.date+':'+stableHash(normalizedContent(p.text));const prior=rawEntries().find(x=>x.repositoryKey===repositoryKey||repositoryIdentity(x)===contentKey);const resolvedId=prior?.id||p.id||fileId||safeId('repo-'+stableHash(repositoryKey));const e=normalizeEntry({id:resolvedId,date:p.date,title:p.title,slug:p.slug,created:prior?.created||p.created||isoNow(),savedAt:isoNow(),updated:isoNow(),text:p.text,project:p.project,promptId:p.promptId||'',prompt:p.prompt||'',source:name,repositoryKey,repositoryPath:rawPath,repositorySha:f.sha||f.objectId||'',contentFingerprint:stableHash(normalizedContent(p.text))},p.date,resolvedId);if(prior&&!overwrite&&prior.contentFingerprint===e.contentFingerprint)return 'seen';if(prior&&prior.id!==e.id){store.rm(entryKey(prior.date,prior.id));store.rm(shaKey('github',prior.id));store.rm(shaKey('azure',prior.id))}saveEntry(e);if(name==='GitHub'&&f.sha)store.set(shaKey('github',e.id),f.sha);if(p.promptId)store.set(LS.prompt(e.date),p.promptId);return prior?'updated':'added'}
+function storePulled(p,name,f,overwrite){const rawPath=String(f.path||f.name||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');const repositoryKey=name.toLowerCase().replace(/\s+/g,'-')+':'+rawPath.toLowerCase();const fileName=rawPath.split('/').pop()||'';const fileId=((fileName.match(/--([a-zA-Z0-9_-]+)\.md$/)||[])[1]||'').trim();const contentKey='content:'+String(name).toLowerCase()+':'+p.date+':'+stableHash(normalizedContent(p.text));const prior=rawEntries().find(x=>x.repositoryKey===repositoryKey||repositoryIdentity(x)===contentKey);const resolvedId=prior?.id||p.id||fileId||safeId('repo-'+stableHash(repositoryKey));const e=normalizeEntry({id:resolvedId,date:p.date,title:p.title,slug:p.slug,created:prior?.created||p.created||isoNow(),savedAt:isoNow(),updated:isoNow(),text:p.text,project:p.project,promptId:p.promptId||'',prompt:p.prompt||'',source:name,repositoryKey,repositoryPath:rawPath,repositorySha:f.sha||f.objectId||'',contentFingerprint:stableHash(normalizedContent(p.text))},p.date,resolvedId);if(prior&&!overwrite&&prior.contentFingerprint===e.contentFingerprint)return 'seen';if(prior&&prior.id!==e.id){store.rm(entryKey(prior.date,prior.id));store.rm(shaKey('github',prior.id));store.rm(shaKey('azure',prior.id))}saveEntry(e);if(name==='GitHub'&&f.sha)store.set(shaKey('github',e.id),f.sha);if(name==='Azure DevOps'&&f.objectId)store.set(shaKey('azure',e.id),f.objectId);if(p.promptId)store.set(LS.prompt(e.date),p.promptId);return prior?'updated':'added'}
 async function pullDay(date){const r=await pullRepos({silent:true,date});const list=entriesForDate(date);if(list.length&&!list.some(e=>e.id===curEntryId))selectEntry(date,list[list.length-1].id);return r}
 pullOne=async function(date){const r=await pullRepos({silent:true,date});return !!(r.added||r.updated||entriesForDate(date).length)};
 pullRepos=async function(opts={}){const overwrite=!!opts.overwrite,providers=[];if(ghReady())providers.push(['GitHub',ghList,ghFetch]);if(azReady())providers.push(['Azure DevOps',azList,azFetch]);if(!providers.length){if(!opts.silent){toast('Configure a repository first.');openModal('repoModal')}return{added:0,updated:0,seen:0,errors:[]}}setStatus('pushing');if(!opts.silent)toast('Pulling...');let added=0,updated=0,seen=0;const errors=[];for(const [name,list,fetchOne] of providers){try{const files=await list();for(const f of files){const path=f.path||f.name||'',pd=dateFromPath(path);if(opts.date&&pd&&pd!==opts.date)continue;seen++;try{const md=await fetchOne(f),fb=pd||(path.match(/(\d{4}-\d{2}-\d{2})/)||[])[1]||todayISO(),p=parseEntryMD(md,fb);const result=storePulled(p,name,f,overwrite);if(result==='added')added++;else if(result==='updated')updated++}catch(err){errors.push(name+': '+err.message)}}}catch(err){errors.push(name+' list: '+err.message)}}setStatus('saved');const current=loadEntry(curDate,curEntryId)||loadEntry(curDate);if(current&&document.activeElement!==document.getElementById('entry')){curEntryId=current.id;setEntryText(current.text)}renderDayNotes();renderRibbon();if(document.getElementById('browseModal')?.classList.contains('open')){const on=document.querySelector('#browseSeg button.on');browseTab(on?on.dataset.b:'constellation')}if(!opts.silent||added||updated){let msg='Pulled '+added+' new'+(updated?', '+updated+' updated':'')+(seen?' · '+seen+' files':'');if(errors.length)msg+=' · '+errors.length+' error(s)';toast(msg)}return{added,updated,seen,errors}};
@@ -1243,8 +1289,8 @@ function overview(b){let a=allEntries(),p=[...new Set(a.flatMap(x=>projectSlugs(
 window.repairRepositoryDuplicates=function(){const integrity=window.dailyEntryIntegrity,count=integrity?.duplicateCount?.()||0;if(!count){toast('No duplicate repository records detected.');return}const data={type:'the-daily-integrity-backup',version:1,exportedAt:new Date().toISOString(),entries:{}};integrity.entries().forEach(e=>data.entries[e.id]=e);download('the-daily-before-dedup-'+todayISO()+'.json',JSON.stringify(data,null,2),'application/json');if(!confirm('A backup was downloaded. Remove '+count+' exact duplicate repository record'+(count===1?'':'s')+'? Local entries are never grouped by content.'))return;const removed=integrity.repair();toast('Removed '+removed+' duplicate repository record'+(removed===1?'':'s')+'.');repositoryTab('overview')};
 function evidence(b){let a=[...events()].reverse();b.innerHTML='<p class="muted">Repository, storage, and entry lineage from this session.</p>'+(a.length?a.slice(0,100).map(x=>'<div class="repo-event"><time>'+new Date(x.timestamp).toLocaleString()+'</time><b>'+e(x.name)+'</b><code>'+e(x.attributes?.provider||x.status||x.level)+'</code></div>').join(''):'<div class="intel-empty">No repository evidence recorded.</div>')}
 function settings(b){b.innerHTML='';b.className='bwrap repo-settings';if(settingsBody){b.appendChild(settingsBody);fillRepo()}}
-window.repositoryTab=function(t){rt=t;document.querySelectorAll('#browseSeg [data-b]').forEach(x=>x.classList.toggle('on',x.dataset.b===t));let b=$2('browseBody');if(!b)return;b.className='bwrap';command();if(t==='overview')overview(b);else if(t==='evidence')evidence(b);else if(t==='settings')settings(b);else oldTab(t)};window.browseTab=window.repositoryTab;window.openRepository=function(t){oldModal('browseModal');repositoryTab(t||rt)};window.openBrowse=window.openRepository;window.openModal=function(id){if(id==='repoModal')return openRepository('settings');return oldModal(id)};
-function installRepo(){let m=$2('browseModal');m.querySelector('.modal').classList.add('repo-shell');m.querySelector('.mt').textContent='Repository';m.querySelector('.ms').textContent='Retain, synchronize, explore, connect, and verify your knowledge.';let seg=$2('browseSeg');seg.className='repo-tabs';seg.innerHTML=[['overview','Overview'],['timeline','Entries'],['projects','Projects'],['constellation','Graph'],['artifacts','Artifacts'],['evidence','Evidence'],['search','Search'],['settings','Settings']].map((x,i)=>'<button class="repo-tab'+(!i?' on':'')+'" data-b="'+x[0]+'" onclick="repositoryTab(\''+x[0]+'\')">'+x[1]+'</button>').join('');$2('browseSync').closest('.bar').style.display='none';let b=$2('browseBody'),bar=document.createElement('div');bar.className='repo-bar';bar.innerHTML='<span class="id" id="repoIdentity"></span><span class="state" id="repoState"></span><span class="sp"></span><button onclick="syncFromBrowse()">Sync</button><button onclick="pushRepos()">Push current</button><button class="primary" onclick="newDailyNote()">New entry</button>';b.parentNode.insertBefore(bar,b);settingsBody=$2('repoModal').querySelector('.mbody');document.querySelectorAll('.nav button').forEach(x=>{if(x.textContent.trim()==='Browse'){x.textContent='Repository';x.onclick=()=>openRepository('overview')}});let rr=$2('rRepo');rr.onclick=x=>{x.stopPropagation();openRepository(rt)};rr.title='Repository · explore, sync, configure'}
+window.repositoryTab=function(t){rt=t;document.querySelectorAll('#browseSeg [data-b]').forEach(x=>x.classList.toggle('on',x.dataset.b===t));let b=$2('browseBody');if(!b)return;b.className='bwrap';command();if(t==='overview')overview(b);else if(t==='evidence')evidence(b);else if(t==='settings')settings(b);else oldTab(t)};window.browseTab=window.repositoryTab;window.openRepository=function(t){oldModal('browseModal');repositoryTab(t||rt)};window.openBrowse=window.openRepository;window.openModal=function(id){if(id==='repoModal')return openRepository('settings');return oldModal(id)};const oldClose=window.closeModal;window.closeModal=function(id){if(id==='repoModal'&&settingsBody&&$2('browseModal').contains(settingsBody))return oldClose('browseModal');return oldClose(id)};document.addEventListener('daily:provider',command);
+function installRepo(){let m=$2('browseModal');m.querySelector('.modal').classList.add('repo-shell');m.querySelector('.mt').textContent='Repository';m.querySelector('.ms').textContent='Retain, synchronize, explore, connect, and verify your knowledge.';let seg=$2('browseSeg');seg.className='repo-tabs';seg.innerHTML=[['overview','Overview'],['timeline','Entries'],['projects','Projects'],['constellation','Graph'],['artifacts','Artifacts'],['evidence','Evidence'],['search','Search'],['settings','Settings']].map((x,i)=>'<button class="repo-tab'+(!i?' on':'')+'" data-b="'+x[0]+'" onclick="repositoryTab(\''+x[0]+'\')">'+x[1]+'</button>').join('');$2('browseSync').closest('.bar').style.display='none';let b=$2('browseBody'),bar=document.createElement('div');bar.className='repo-bar';bar.innerHTML='<span class="id" id="repoIdentity"></span><span class="state" id="repoState"></span><span class="sp"></span><button onclick="syncFromBrowse()">Sync</button><button onclick="pushRepos()">Push current</button><button class="primary" onclick="newDailyNote()">New entry</button>';b.parentNode.insertBefore(bar,b);settingsBody=$2('repoModal').querySelector('.mbody');document.querySelectorAll('.nav button').forEach(x=>{if(x.textContent.trim()==='Browse'){x.textContent='Repository';x.onclick=()=>openRepository('overview')}});let rr=$2('rRepo');rr.onclick=x=>window.repoPopover(x);rr.title='Repository · provider, publish, work, runs'}
 function installStudio(){let m=$2('studioModal'),old=m.querySelector('.mbody');m.querySelector('.modal').classList.add('studio-v2');m.querySelector('.ms').textContent='Configure how The Daily looks, thinks, structures, and protects your work.';let groups={appearance:[],workspace:[],intelligence:[],models:[],knowledge:[],data:[],advanced:[]},cur='appearance';[...old.childNodes].forEach(n=>{if(n.nodeType===1&&n.matches('h5')){let t=n.textContent.toLowerCase();if(t.includes('ai provider'))cur='models';else if(t.includes('intelligence layer'))cur='intelligence';else if(t.includes('knowledge schema'))cur='knowledge';else if(t.includes('backup')||t.includes('this entry')||t==='data')cur='data'}groups[cur].push(n)});let defs=[['workspace','Workspace','Docking panels, presets'],['appearance','Appearance','Color, type, layout'],['intelligence','Intelligence','Signals and behavior'],['models','Models','Provider and relay'],['knowledge','Knowledge','Schema and structure'],['data','Data','Portability and privacy'],['advanced','Advanced','Diagnostics and reset']],lay=document.createElement('div'),rail=document.createElement('aside'),content=document.createElement('div');lay.className='studio-layout';lay.id='studioLayout';rail.className='studio-rail';content.className='studio-content';rail.innerHTML=defs.map((x,i)=>'<button class="studio-nav'+(!i?' on':'')+'" data-s="'+x[0]+'" onclick="studioSection(\''+x[0]+'\')">'+x[1]+'<small>'+x[2]+'</small></button>').join('');defs.forEach((x,i)=>{let sec=document.createElement('section');sec.className='studio-section'+(!i?' on':'');sec.dataset.s=x[0];sec.innerHTML='<h4>'+x[1]+'</h4><p class="intro">'+x[2]+'</p>';groups[x[0]].forEach(n=>sec.appendChild(n));if(x[0]==='advanced')sec.innerHTML+='<div class="studio-card"><h5>Runtime</h5><div class="bar"><button class="btn" onclick="openConsole()">Open Console</button><button class="btn" onclick="fetch(\'/healthz\').then(r=>r.json()).then(x=>toast(\'Relay \'+x.status+\' · \'+x.provider)).catch(()=>toast(\'Relay unavailable\'))">Check relay</button><button class="btn" onclick="exportConsole()">Export diagnostics</button></div></div><div class="studio-card studio-danger"><h5>Danger zone</h5><p class="muted">Destructive operations are separated from routine settings.</p><div class="bar"><button class="btn" onclick="store.rm(LS.ai);toast(\'AI configuration removed.\')">Remove AI configuration</button><button class="btn" onclick="store.rm(LS.gh);store.rm(LS.az);toast(\'Repository credentials removed.\')">Remove repository credentials</button><button class="btn" onclick="clearAll()">Delete local journal</button></div></div>';content.appendChild(sec)});lay.append(rail,content);old.replaceWith(lay)}
 window.studioSection=function(t){st=t;document.querySelectorAll('.studio-nav').forEach(x=>x.classList.toggle('on',x.dataset.s===t));document.querySelectorAll('.studio-section').forEach(x=>x.classList.toggle('on',x.dataset.s===t));if(t==='appearance'){applyS();if(typeof window.renderAppearance==='function')window.renderAppearance()}if(t==='models')fillAI();renderQuota()};window.openStudioHome=function(t){oldModal('studioModal');studioSection(t||st)};
 function boot2(){installRepo();installStudio();repositoryTab('overview')}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot2,0));else setTimeout(boot2,0)})();
@@ -1372,10 +1418,19 @@ function mergeEnv(){const c=RELAY.config;if(!c)return;
 }
 /* Relay not reachable (e.g. served by the static Express host): drop stale relay markers. */
 function clearRelayMarkers(){let n=0;[[LS.gh,getGH],[LS.az,getAZ]].forEach(([k,g])=>{if(g().relay){store.rm(k);n++}});try{const a=JSON.parse(store.get(LS.ai)||'{}');if(a.relay){store.rm(LS.ai);n++}}catch(_){}if(n){try{fillAI();fillRepo();renderRibbon()}catch(_){}}}
-async function init(){try{RELAY.config=await relayJSON('/api/config');mergeEnv();workspaceEvents?.emit?.({category:'storage',name:'relay.configuration.loaded',status:'success',attributes:{secretsReturned:false}})}catch(_){clearRelayMarkers()}}
+async function init(){try{RELAY.config=await relayJSON('/api/config');window.__relayConfig=RELAY.config;mergeEnv();try{document.dispatchEvent(new CustomEvent('daily:relay',{detail:RELAY.config}))}catch(_){}workspaceEvents?.emit?.({category:'storage',name:'relay.configuration.loaded',status:'success',attributes:{secretsReturned:false}})}catch(_){clearRelayMarkers()}}
 const directGhCommit=window.ghCommit,directAzCommit=window.azCommit,directGhList=window.ghList,directAzList=window.azList,directGhFetch=window.ghFetch,directAzFetch=window.azFetch;
-window.ghCommit=async function(){const c=getGH();if(!c.relay)return directGhCommit();const e=collect(),parts=String(e.date).split('-'),rel=parts.concat([(e.slug||'note')+'--'+e.id+'.md']).join('/');return relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify({provider:'github',path:rel,markdown:buildMD(),message:'Journal '+e.date+' - '+(e.title||'Note')})})};
-window.azCommit=async function(){const c=getAZ();if(!c.relay)return directAzCommit();const e=collect(),parts=String(e.date).split('-'),rel=parts.concat([(e.slug||'note')+'--'+e.id+'.md']).join('/');return relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify({provider:'ado',path:rel,markdown:buildMD(),message:'Journal '+e.date+' - '+(e.title||'Note')})})};
+async function relayPush(provider){const e=collect(),parts=String(e.date).split('-'),rel=parts.concat([(e.slug||'note')+'--'+e.id+'.md']).join('/');
+  const sk=window.__dailyShaKey?window.__dailyShaKey(provider==='github'?'github':'azure',e.id):'';const mode=(window.DailyProvider&&DailyProvider.publishMode())||'commit';
+  const name=provider==='github'?'GitHub':'Azure DevOps',title='Journal '+e.date+' - '+(e.title||'Note');
+  const body={provider,path:rel,markdown:buildMD(),message:title,title,mode,knownSha:(sk&&store.get(sk))||'',date:e.date,summary:String(e.text||'').replace(/[#>*_`]/g,'').replace(/\s+/g,' ').trim().slice(0,300)};
+  let r;try{r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
+  catch(err){if(!/REMOTE_CHANGED/.test(err.message))throw err;
+    if(!confirm('“'+(e.title||e.date)+'” changed in '+name+' since your last sync.\n\nOverwrite the copy in '+name+' with this version?\n\nChoose Cancel, then Pull, to keep the remote changes.'))throw new Error('Push canceled: the note changed in '+name);
+    body.force=true;r=await relayJSON('/api/repositories/push',{method:'POST',body:JSON.stringify(body)})}
+  if(r&&r.sha&&mode!=='pr'&&sk)store.set(sk,r.sha);return r}
+window.ghCommit=async function(){const c=getGH();if(!c.relay)return directGhCommit();return relayPush('github')};
+window.azCommit=async function(){const c=getAZ();if(!c.relay)return directAzCommit();return relayPush('ado')};
 window.ghList=async function(){if(!getGH().relay)return directGhList();return (await relayJSON('/api/repositories/files?provider=github')).value||[]};
 window.azList=async function(){if(!getAZ().relay)return directAzList();return (await relayJSON('/api/repositories/files?provider=ado')).value||[]};
 window.ghFetch=async function(f){if(!getGH().relay)return directGhFetch(f);const r=await fetch('/api/repositories/content?provider=github&path='+encodeURIComponent(f.path));if(!r.ok)throw new Error('Relay content '+r.status);return r.text()};
@@ -1383,6 +1438,171 @@ window.azFetch=async function(f){if(!getAZ().relay)return directAzFetch(f);const
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+<style id="provider-switch-css">
+@media (max-width:560px){.top-in{padding:0 16px;gap:8px;min-width:0}.top-in>*{min-width:0}.nav{overflow-x:auto;scrollbar-width:none;flex:0 1 auto;min-width:0}.nav::-webkit-scrollbar{display:none}.nav button{padding:7px 6px;white-space:nowrap}.top-in>:first-child{white-space:nowrap;flex:none}.nav{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}}
+
+.provhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:12px}
+.provseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.provseg button{border:0;background:var(--canvas);color:var(--soft);padding:7px 14px;font:650 12px var(--font);cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.provseg button+button{border-left:1px solid var(--line)}
+.provseg button.on{background:var(--accent-soft);color:var(--ink)}
+.provseg .pdot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.provseg .pdot.ok{background:var(--ok)}
+.provmode{font:11px var(--mono);color:var(--faint)}
+.capgrid{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.cap{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:999px;padding:3px 10px;font:600 11px var(--font);color:var(--soft);background:var(--canvas)}
+.cap i{font-style:normal;font-weight:700}
+.cap.on{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.cap.on i{color:var(--ok)}
+.cap.off i{color:var(--faint)}
+.cap[title]{cursor:help}
+.provsec[hidden]{display:none!important}
+.pubopts{margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);display:grid;gap:10px}
+.pubrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.pubrow .lbl{font:650 11px var(--font);color:var(--soft);min-width:84px}
+.pubseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.pubseg button{border:0;background:var(--canvas);color:var(--soft);padding:6px 12px;font:600 12px var(--font);cursor:pointer}
+.pubseg button+button{border-left:1px solid var(--line)}
+.pubseg button.on{background:var(--accent-soft);color:var(--ink)}
+.pubseg button:disabled{opacity:.45;cursor:not-allowed}
+.pubhint{font-size:11px;color:var(--faint)}
+.lastpub{margin-top:10px;font-size:12px;color:var(--soft)}
+.lastpub a{color:var(--accent)}
+.r-repo .pv{font:700 8px var(--mono);letter-spacing:.04em;margin-left:3px;vertical-align:2px;color:var(--accent)}
+.pop-prov{display:flex;gap:6px;margin:0 0 8px}
+.pop-prov button{flex:1}
+/* drawer: project board + runs */
+.wit-cols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:10px;overflow-x:auto;padding-bottom:6px}
+.wit-col{border:1px solid var(--line2);border-radius:9px;background:var(--canvas);min-width:0}
+.wit-col h4{margin:0;padding:8px 10px;border-bottom:1px solid var(--line2);font:700 11px var(--font);display:flex;justify-content:space-between;color:var(--soft)}
+.wit-col .it{padding:8px 10px;border-bottom:1px solid var(--line2);display:grid;gap:5px;font-size:12px}
+.wit-col .it:last-child{border-bottom:0}
+.wit-col .it b{font-weight:600;color:var(--ink)}
+.wit-col .it .sub{display:flex;gap:6px;align-items:center;color:var(--faint);font:11px var(--mono)}
+.wit-col select{width:100%;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font:11px var(--font);padding:3px 6px}
+.wit-runs{display:grid;gap:6px}
+.wit-run{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:start;border:1px solid var(--line2);border-radius:9px;padding:9px 11px;background:var(--canvas)}
+.wit-run .st{width:9px;height:9px;border-radius:50%;margin-top:5px;background:var(--faint)}
+.wit-run .st.success{background:var(--ok)}.wit-run .st.failure{background:var(--err)}.wit-run .st.partial,.wit-run .st.waiting{background:var(--warn)}
+.wit-run .st.running{background:var(--accent);animation:witpulse 1.2s ease-in-out infinite}
+@keyframes witpulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.wit-run .st.running{animation:none}}
+.wit-run b{font-weight:650;font-size:12.5px}
+.wit-run .sub{grid-column:2;font:11px var(--mono);color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wit-run .acts{grid-row:1/span 2;grid-column:3;display:flex;gap:6px;align-items:center}
+.wit-run .acts button,.wit-run .acts a{font:650 11px var(--font);border:1px solid var(--line);border-radius:6px;padding:4px 8px;background:var(--canvas);color:var(--ink);cursor:pointer;text-decoration:none}
+</style>
+<script id="provider-switch">
+/* PROVIDER SWITCH — one active provider (GitHub or Azure DevOps) drives push, pull, work tracking
+   and the integrations that only one of them has. The other can receive a mirrored copy. */
+(function(){'use strict';
+const h=x=>esc(String(x==null?'':x));
+const K={p:'daily:provider',m:'daily:mirror',pm:'daily:publishMode',last:'daily:lastPublish'};
+const _gh=ghReady,_az=azReady;
+const NAMES={github:'GitHub',ado:'Azure DevOps'};
+const cfg=()=>window.__relayConfig||null;
+const configured=p=>p==='github'?_gh():_az();
+const label=p=>NAMES[p]||p;
+const other=p=>p==='github'?'ado':'github';
+function available(){const a=[];if(_gh())a.push('github');if(_az())a.push('ado');const c=cfg();((c&&c.provider&&c.provider.available)||[]).forEach(x=>{if(!a.includes(x))a.push(x)});return a}
+function active(){const s=store.get(K.p),av=available();if(s&&(av.includes(s)||!av.length))return s;const c=cfg(),d=c&&c.provider&&c.provider.default;if(d&&av.includes(d))return d;return av[0]||s||'github'}
+function relayOn(){return !!cfg()}
+function caps(p){p=p||active();const c=cfg();if(c&&c.capabilities&&c.capabilities[p]){const x=Object.assign({},c.capabilities[p]);x.repo=x.repo||configured(p);return x}
+  return {repo:configured(p),pr:false,issues:false,projects:false,runs:false,conflicts:p==='github',assets:p==='github'}}
+function mirror(){const v=store.get(K.m);if(v!==null)return v==='1';const c=cfg();return !!(c&&c.provider&&c.provider.mirror)}
+function mirrorTarget(){const a=active(),o=other(a);return mirror()&&configured(o)?o:null}
+function publishMode(){const c=cfg(),def=(c&&c.provider&&c.provider.publishMode)||'commit',m=store.get(K.pm)||def;return m==='pr'&&caps().pr?'pr':'commit'}
+function branchOf(p){const c=p==='github'?getGH():getAZ();return c.branch||'main'}
+function repoUrl(p){const c=p==='github'?getGH():getAZ();if(p==='github')return c.owner&&c.repo?'https://github.com/'+encodeURIComponent(c.owner)+'/'+encodeURIComponent(c.repo):'';
+  return c.org&&c.project&&c.repo?'https://dev.azure.com/'+encodeURIComponent(c.org)+'/'+encodeURIComponent(c.project)+'/_git/'+encodeURIComponent(c.repo):''}
+function set(p){if(p!=='github'&&p!=='ado')return;store.set(K.p,p);apply();document.dispatchEvent(new CustomEvent('daily:provider',{detail:p}));toast('Active provider: '+label(p))}
+/* Push/pull/browse follow the active provider only. */
+ghReady=function(){return active()==='github'&&_gh()};
+azReady=function(){return active()==='ado'&&_az()};
+repoBadges=function(){const g=$('ghBadge'),a=$('azBadge');if(g)g.textContent=_gh()?'— configured':'— not configured';if(a)a.textContent=_az()?'— configured':'— not configured'};
+pushRepos=async function(){
+  flush();const a=active();
+  if(!configured(a)){toast('Connect '+label(a)+' first.');openModal('repoModal');return}
+  const run=p=>p==='github'?ghCommit():azCommit();const targets=[a],m=mirrorTarget();if(m)targets.push(m);
+  const mode=publishMode();setStatus('pushing');toast(mode==='pr'?'Opening a pull request…':'Pushing…');
+  const res=await Promise.allSettled(targets.map(run));setStatus('saved');
+  const ok=[],bad=[];res.forEach((r,i)=>{if(r.status==='fulfilled')ok.push(Object.assign({target:targets[i]},r.value||{}));else bad.push(label(targets[i])+': '+((r.reason&&r.reason.message)||r.reason))});
+  const last={at:new Date().toISOString(),mode,results:ok.map(x=>({provider:x.provider||label(x.target),url:x.url||'',pr:x.pr||null,unchanged:!!x.unchanged,assets:x.assets||0,branch:x.branch||''})),errors:bad};
+  store.set(K.last,JSON.stringify(last));renderLast();
+  if(!ok.length){toast(bad.join(' | '));return}
+  const pr=ok.find(x=>x.pr);
+  const head=pr?('Pull request #'+pr.pr.number+(pr.pr.existing?' updated':' opened')+' on '+(pr.provider||label(pr.target))):('Pushed ✓ '+ok.map(x=>(x.provider||label(x.target))+(x.unchanged?' (no changes)':'')).join(' + '));
+  toast(head+(bad.length?' · '+bad.join(' | '):''));
+  try{workspaceEvents.emit({category:'repository',name:'publish.completed',status:bad.length?'partial':'success',attributes:{provider:a,mode,mirror:!!m}})}catch(_){}
+};
+/* ---------- Repository settings ---------- */
+const CAPROWS={github:[['repo','Push & pull','Commit entries to the repository and pull them back'],['pr','Pull requests','Publish an entry on its own branch and open a pull request'],['issues','Issues','Track and update GitHub Issues from the Work drawer'],['projects','Projects','Move issues across a GitHub Projects board'],['runs','Actions','See recent workflow runs and re-run failed jobs'],['conflicts','Change checks','Ask before overwriting a note that changed in the repository'],['assets','Image files','Store pasted images as files in assets/']],
+  ado:[['repo','Push & pull','Commit entries to Azure Repos and pull them back'],['pr','Pull requests','Publish an entry on its own branch and open a pull request'],['issues','Boards','Track and update Azure Boards work items from the Work drawer'],['runs','Pipelines','See recent pipeline runs and queue them again'],['conflicts','Change checks','Ask before overwriting a note that changed in the repository'],['assets','Image files','Store pasted images as files in assets/']]};
+function why(p,k){if(k==='repo')return 'Fill in the fields below';if(!relayOn())return 'Needs the local relay (python relay.py)';
+  return {pr:'Configure the repository in .env',issues:p==='github'?'DAILY_GITHUB_ISSUES_ENABLED=true':'DAILY_ADO_WIT_ENABLED=true',projects:'Set DAILY_GITHUB_PROJECT_NUMBER',runs:p==='github'?'DAILY_GITHUB_ACTIONS_ENABLED=true':'DAILY_ADO_PIPELINES_ENABLED=true',conflicts:'Configure the repository',assets:'DAILY_ASSETS=true'}[k]||''}
+function renderModal(){
+  const seg=$('provSeg');if(!seg)return;const a=active();
+  seg.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.p===a);b.setAttribute('aria-selected',b.dataset.p===a);const d=b.querySelector('.pdot');if(d)d.classList.toggle('ok',configured(b.dataset.p))});
+  $('provGH').hidden=a!=='github';$('provAZ').hidden=a!=='ado';
+  const managed=(a==='github'?getGH():getAZ()).relay;
+  $('provMode').textContent=managed?'Managed by the relay (.env) — credentials never reach this page':relayOn()?'Relay connected — this provider uses browser settings':'Stored in this browser';
+  ['ghOwner','ghRepo','ghBranch','ghPath','ghToken'].forEach(id=>{const el=$(id);if(el)el.readOnly=!!getGH().relay});
+  ['azOrg','azProject','azRepo','azBranch','azPath','azToken'].forEach(id=>{const el=$(id);if(el)el.readOnly=!!getAZ().relay});
+  const cp=caps(a);
+  $('provCaps').innerHTML=CAPROWS[a].map(([k,t,d])=>{const on=!!cp[k];return '<span class="cap '+(on?'on':'off')+'" title="'+h(on?d:(d+' — '+why(a,k)))+'"><i>'+(on?'✓':'○')+'</i>'+h(t)+'</span>'}).join('');
+  const pm=publishMode(),prOK=!!cp.pr;
+  $('pubSeg').querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.m===pm);if(b.dataset.m==='pr')b.disabled=!prOK});
+  $('pubBranch').textContent=branchOf(a);
+  $('pubHint').textContent=pm==='pr'?'Each entry gets its own branch ('+(((cfg()||{}).provider||{}).prBranchPrefix||'journal')+'/<date>-<title>) and one pull request; pushing again updates it.':prOK?'Commits land directly on '+branchOf(a)+'.':'Pull requests need the local relay.';
+  const o=other(a),mt=$('mirrorToggle');mt.checked=mirror();mt.disabled=!configured(o);$('mirrorName').textContent=label(o)+(configured(o)?'':' (not configured)');
+  const at=$('assetsToggle');if(at)at.closest('label').querySelector('.alabel').textContent=relayOn()?'Store pasted images as files in assets/ (the relay setting DAILY_ASSETS controls relay pushes)':'Store pasted images as files in assets/ on GitHub push (keeps .md small & diff-able)';
+  $('provWarn').innerHTML=managed?'Tokens live in <code>.env</code> on this computer. Push checks for remote changes and asks before overwriting.':'Tokens are stored only in this browser. '+(a==='github'?'Push checks for remote changes and asks before overwriting.':'Use the relay for change checks on Azure DevOps.');
+  const ru=repoUrl(a),ol=$('provOpen');if(ol){ol.hidden=!ru;ol.href=ru||'#';ol.textContent='Open in '+label(a)+' ↗'}
+  renderLast();
+}
+function renderLast(){const el=$('lastPublish');if(!el)return;let l=null;try{l=JSON.parse(store.get(K.last)||'null')}catch(_){}
+  if(!l||!l.results){el.innerHTML='';return}
+  const t=new Date(l.at).toLocaleString();
+  el.innerHTML='Last publish '+h(t)+': '+l.results.map(r=>r.pr?('<a href="'+h(r.pr.url)+'" target="_blank" rel="noopener">'+h(r.provider)+' pull request #'+h(r.pr.number)+' ↗</a>'):(r.url?'<a href="'+h(r.url)+'" target="_blank" rel="noopener">'+h(r.provider)+(r.unchanged?' (no changes)':'')+' ↗</a>':h(r.provider)+(r.unchanged?' (no changes)':''))).join(' · ')+(l.errors&&l.errors.length?' · <span style="color:var(--err)">'+h(l.errors.join(' | '))+'</span>':'')}
+function apply(){renderModal();const b=$('rRepo');if(b){b.innerHTML='◎<span class="pv">'+(active()==='github'?'GH':'AZ')+'</span>';b.title='Repositories · '+label(active())}
+  try{repoBadges();renderRibbon()}catch(_){}}
+/* Ribbon popover: switch provider + jump to provider features */
+repoPopover=function(e){e.stopPropagation();const a=active(),cp=caps(a),ready=configured(a),av=['github','ado'];
+  const sw='<div class="pop-prov">'+av.map(p=>'<button class="'+(p===a?'primary':'')+'" onclick="DailyProvider.set(\''+p+'\');closePop();repoPopover(event)">'+(configured(p)?'● ':'○ ')+label(p)+'</button>').join('')+'</div>';
+  const pm=publishMode();
+  const links=[];if(cp.issues)links.push('<button onclick="closePop();openWorkItems(\'focus\')">'+(a==='github'?'Issues':'Work items')+'</button>');
+  if(cp.projects)links.push('<button onclick="closePop();openWorkItems(\'project\')">Project board</button>');
+  if(cp.runs)links.push('<button onclick="closePop();openWorkItems(\'runs\')">'+(a==='github'?'Actions runs':'Pipeline runs')+'</button>');
+  const ru=repoUrl(a);if(ru)links.push('<button onclick="closePop();window.open(\''+ru.replace(/'/g,'%27')+'\',\'_blank\',\'noopener\')">Open '+label(a)+' ↗</button>');
+  openPop($('rRepo'),'repo','<h4>'+label(a)+'<small>'+(ready?(pm==='pr'?'Publishing as pull requests':'Publishing to '+branchOf(a))+(mirrorTarget()?' · mirroring to '+label(mirrorTarget()):''):'Not configured yet')+'</small></h4>'+sw+
+    '<button class="primary" onclick="closePop();pushRepos()">'+(pm==='pr'?'⇡ Open pull request':'↑ Push current entry')+' <span class="st '+(ready?'ready':'')+'">'+(ready?'ready':'setup')+'</span></button><button onclick="closePop();pullRepos()">↓ Pull entries</button>'+links.join('')+'<button onclick="closePop();openRepository(\'overview\')">Browse repository</button><button onclick="closePop();openModal(\'repoModal\')">Repository settings</button>')};
+/* Relay-mode Test + Diagnose use the relay's view of the repository */
+async function relayTest(p){const st=p==='github'?'ghStatus':'azStatus';setSt(st,'Testing…','info');
+  try{const r=await fetch('/api/repositories/test?provider='+p);const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||r.status);
+    setSt(st,'Connected ✓ '+h(j.name)+(j.private?' (private)':'')+' · branch '+h(j.branch)+(j.branchExists?'':' <b>not found</b>')+(j.canPush===false?' · <b>read-only token</b>':''),j.branchExists&&j.canPush!==false?'ok':'err')}catch(e){setSt(st,'Relay test failed: '+h(e.message),'err')}}
+const _testGH=testGH,_testAZ=testAZ;
+testGH=function(){return getGH().relay?relayTest('github'):_testGH()};
+testAZ=function(){return getAZ().relay?relayTest('ado'):_testAZ()};
+const _diag=diagRepos;
+diagRepos=async function(outId,append){const a=active(),c=a==='github'?getGH():getAZ();if(!c.relay)return _diag(outId,append);
+  const out=$(outId||'repoDiag');out.style.display='block';out.textContent='Diagnosing '+label(a)+' through the relay…';
+  try{const t=await (await fetch('/api/repositories/test?provider='+a)).json();const f=await (await fetch('/api/repositories/files?provider='+a)).json();
+    const files=f.value||[];out.textContent=['■ '+label(a)+' '+(t.name||'?')+(t.project?(' ('+t.project+')'):''),'  branch: '+t.branch+(t.branchExists?'':'  ← NOT FOUND'),'  folder: '+(t.root||'(root)'),'  journal files: '+files.length,'  newest: '+(files.map(x=>x.path).sort().slice(-3).join(', ')||'(none)'),'  publish: '+publishMode()+(mirrorTarget()?' · mirror → '+label(mirrorTarget()):''),'  capabilities: '+Object.entries(caps(a)).filter(x=>x[1]).map(x=>x[0]).join(', ')].join('\n')}
+  catch(e){out.textContent='Diagnose failed: '+e.message}};
+function wire(){
+  const seg=$('provSeg');if(!seg||seg._w)return;seg._w=true;
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>set(b.dataset.p));
+  $('pubSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(b.disabled)return;store.set(K.pm,b.dataset.m);renderModal();toast(b.dataset.m==='pr'?'Pushes will open pull requests.':'Pushes will commit directly.')});
+  $('mirrorToggle').onchange=e=>{store.set(K.m,e.target.checked?'1':'0');renderModal()};
+  const mod=$('repoModal');if(mod)new MutationObserver(()=>{if(mod.classList.contains('open'))renderModal()}).observe(mod,{attributes:true,attributeFilter:['class']});
+}
+document.addEventListener('daily:relay',()=>{apply()});
+window.DailyProvider={active,set,available,configured,caps,mirror,mirrorTarget,publishMode,label,relayOn,repoUrl,apply};
+function boot(){wire();apply()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
 
 <style id="enterprise-platform-css">
 .ent-shell{max-width:1260px}.ent-tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid var(--line2);overflow:auto}.ent-tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--soft);padding:12px 13px;font:700 11px var(--font);cursor:pointer;white-space:nowrap}.ent-tab.on{color:var(--accent);border-color:var(--accent)}.ent-command{display:flex;gap:8px;align-items:center;border:1px solid var(--line2);border-radius:10px;padding:9px 11px;margin-bottom:13px}.ent-command input,.ent-command select{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:8px 10px;font:11px var(--font)}.ent-command input{flex:1}.ent-command button{border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:8px 11px;font-weight:700;cursor:pointer}.ent-command .primary{background:var(--accent);border-color:var(--accent);color:#fff}.ent-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.ent-kpi,.ent-card{border:1px solid var(--line);border-radius:11px;background:var(--canvas)}.ent-kpi{padding:13px}.ent-kpi b{display:block;font-size:22px}.ent-kpi small{font:9px var(--mono);color:var(--faint)}.ent-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:11px}.ent-card{overflow:hidden}.ent-card h4{margin:0;padding:10px 12px;border-bottom:1px solid var(--line2);font:800 10px var(--mono);color:var(--soft)}.ent-card .in{padding:12px}.ent-graph{height:520px;position:relative;background:radial-gradient(circle at center,color-mix(in srgb,var(--accent) 5%,transparent),transparent 65%)}.ent-graph svg{width:100%;height:100%}.ent-edge{stroke:var(--line);stroke-width:1}.ent-edge.strong{stroke:var(--accent);stroke-width:1.7;opacity:.65}.ent-node circle{stroke:var(--canvas);stroke-width:2}.ent-node text{fill:var(--soft);font:9px var(--mono)}.ent-node.person circle{fill:#2563eb}.ent-node.team circle{fill:#7c3aed}.ent-node.project circle{fill:#0f766e}.ent-node.decision circle{fill:#b45309}.ent-node.entry circle{fill:var(--accent)}.ent-list-row{display:grid;grid-template-columns:110px 1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}.ent-list-row:last-child{border:0}.ent-list-row small,.ent-list-row code{font:9px var(--mono);color:var(--faint)}.ent-pill{border:1px solid var(--line);border-radius:999px;padding:2px 7px;font:8px var(--mono);color:var(--soft)}.ent-empty{padding:36px;text-align:center;color:var(--faint)}.ent-policy{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ent-policy label{display:flex;gap:8px;padding:11px;border:1px solid var(--line2);border-radius:9px;font-size:11px}.ent-policy small{display:block;color:var(--faint);font:9px var(--mono)}.ent-warning{padding:11px;border-radius:9px;background:color-mix(in srgb,var(--warn) 10%,var(--canvas));border:1px solid color-mix(in srgb,var(--warn) 30%,var(--line));font-size:10px;color:var(--soft)}@media(max-width:780px){.ent-kpis{grid-template-columns:repeat(2,1fr)}.ent-grid,.ent-policy{grid-template-columns:1fr}.ent-command{flex-wrap:wrap}.ent-command input{flex-basis:100%}}
@@ -1535,9 +1755,9 @@ let tries=0,t=setInterval(()=>{if(document.querySelector('.nav')&&document.query
 </style>
 <aside class="wit-drawer" id="witDrawer" aria-hidden="true" aria-label="Work Items">
   <div class="wit-head">
-    <div><h2>Work Items</h2><small id="witSub">Azure DevOps &middot; augmented</small></div>
+    <div><h2 id="witTitle">Work Items</h2><small id="witSub">Azure DevOps &middot; augmented</small></div>
     <span class="sp"></span>
-    <select id="witProject" title="Azure DevOps project" style="max-width:190px;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:6px 8px;font:650 11px var(--font)"><option>Loading projects…</option></select>
+    <select id="witProject" title="Project" style="max-width:190px;border:1px solid var(--line);border-radius:7px;background:var(--canvas);color:var(--ink);padding:6px 8px;font:650 11px var(--font)"><option>Loading projects…</option></select>
     <button id="witRefresh" title="Refresh">&#8635;</button>
     <button id="witCloseBtn">Close</button>
   </div>
@@ -1556,14 +1776,24 @@ var CFG=null, TAB='focus', ITEMS=[], DETAILS={}, dismissedAmbient='', booting=fa
 /* ---- multi-project state ---- */
 var PROJECT=(function(){try{return localStorage.getItem('daily.wit.project')||''}catch(e){return ''}})();
 var PROJECTS=null, TYPES_CACHE={}, projectsLoading=false;
-function defaultProject(){return (CFG&&CFG.workItems&&CFG.workItems.project)||''}
-function curProject(){return PROJECT||defaultProject()}
+function defaultProject(){return TR().project||''}
+function curProject(){return GH()?defaultProject():(PROJECT||defaultProject())}
 function setProject(p){PROJECT=p||'';try{PROJECT?localStorage.setItem('daily.wit.project',PROJECT):localStorage.removeItem('daily.wit.project')}catch(e){}}
-function multiProject(){return !!(CFG&&CFG.workItems&&CFG.workItems.multiProject!==false)}
+function multiProject(){return !GH()&&TR().multiProject!==false}
 /* querystring + body helpers that scope every call to the chosen project */
-function pq(extra){var p=curProject(),parts=[];if(p)parts.push('project='+encodeURIComponent(p));(extra||[]).forEach(function(x){parts.push(x)});return parts.length?'?'+parts.join('&'):''}
-function withP(obj){var o=Object.assign({},obj||{});var p=curProject();if(p)o.project=p;return o}
+function pq(extra){var p=curProject(),parts=['provider='+PV()];if(p&&!GH())parts.push('project='+encodeURIComponent(p));(extra||[]).forEach(function(x){parts.push(x)});return parts.length?'?'+parts.join('&'):''}
+function withP(obj){var o=Object.assign({},obj||{});var p=curProject();if(p&&!GH())o.project=p;o.provider=PV();return o}
 var STATES=['New','Active','Resolved','Closed','Committed','Approved','Done','To Do','In Progress','Doing','Proposed','Removed'];
+/* ---- provider awareness: GitHub Issues or Azure Boards, chosen by the active provider ---- */
+function PV(){try{return window.DailyProvider?DailyProvider.active():'ado'}catch(e){return 'ado'}}
+function GH(){return PV()==='github'}
+function TR(){var t=CFG&&CFG.tracking&&CFG.tracking[PV()];if(t)return t;
+  if(!GH()&&CFG&&CFG.workItems)return Object.assign({system:'Azure DevOps',label:'Work items',noun:'work item',refPrefix:'ado',states:STATES,iterationLabel:'Iteration',tagsLabel:'Tags',html:true,
+    webUrl:CFG.workItems.organization?'https://dev.azure.com/'+encodeURIComponent(CFG.workItems.organization)+'/_workitems/edit/{id}':''},CFG.workItems);
+  return {enabled:false,system:GH()?'GitHub':'Azure DevOps',label:GH()?'Issues':'Work items',noun:GH()?'issue':'work item',refPrefix:GH()?'gh':'ado',states:GH()?['Open','Closed','Not planned']:STATES,types:[]}}
+function CAP(k){try{return !!DailyProvider.caps()[k]}catch(e){return false}}
+function states(){return TR().states||STATES}
+function noun(){return TR().noun||'work item'}
 /* ---- tiny utils ---- */
 function d(id){return document.getElementById(id)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -1572,17 +1802,17 @@ function log(name,attrs,level){try{if(window.workspaceEvents)workspaceEvents.emi
 function txt(){try{return entryText()}catch(e){return ''}}
 function clientKey(){try{return (typeof getS==='function'&&getS().relayClientKey)||''}catch(e){return ''}}
 function F(it,k){return it&&it.fields&&it.fields[k]!=null?it.fields[k]:''}
-function stateClass(s){s=String(s||'').toLowerCase();if(/(closed|done|completed|removed)/.test(s))return 'closed';if(/(resolved|committed)/.test(s))return 'resolved';if(/(active|in progress|approved|doing|committed)/.test(s))return 'active';return 'new'}
+function stateClass(s){s=String(s||'').toLowerCase();if(/(closed|done|completed|removed|not planned)/.test(s))return 'closed';if(s==='open')return 'active';if(/(resolved|committed)/.test(s))return 'resolved';if(/(active|in progress|approved|doing|committed)/.test(s))return 'active';return 'new'}
 function assignedName(it){var a=F(it,'System.AssignedTo');return a&&a.displayName?a.displayName:(typeof a==='string'&&a?a:'Unassigned')}
-function editURL(id){if(!CFG||!CFG.workItems)return '#';var o=CFG.workItems.organization;return o?'https://dev.azure.com/'+encodeURIComponent(o)+'/_workitems/edit/'+id:'#'}
+function editURL(id){var u=TR().webUrl;return u?u.replace('{id}',encodeURIComponent(id)):'#'}
 function stripHtml(s){return String(s||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}
-function refIds(){var t=txt(),out=[],m,re=/#ado\/(\d+)/g;while((m=re.exec(t)))if(out.indexOf(m[1])<0)out.push(m[1]);return out}
+function refIds(){var t=txt(),out=[],m,re=new RegExp('#'+(TR().refPrefix||'ado')+'\\/(\\d+)','g');while((m=re.exec(t)))if(out.indexOf(m[1])<0)out.push(m[1]);return out}
 async function api(path,opt){opt=opt||{};var h=Object.assign({'Content-Type':'application/json'},opt.headers||{});var k=clientKey();if(k)h['X-Daily-Client-Key']=k;opt.headers=h;var r=await fetch(path,opt);var raw=await r.text();var j;try{j=JSON.parse(raw)}catch(e){j={error:{message:raw||('HTTP '+r.status)}}}if(!r.ok)throw new Error((j&&j.error&&j.error.message)||(j&&j.message)||('HTTP '+r.status));return j}
 /* ---- config ---- */
 async function loadConfig(force){if(CFG&&!force)return CFG;try{CFG=await api('/api/config')}catch(e){CFG=null}return CFG}
-function enabled(){return !!(CFG&&CFG.workItems&&CFG.workItems.enabled)}
+function enabled(){return !!TR().enabled}
 function relayUp(){return !!CFG}
-function types(){var live=TYPES_CACHE[curProject()];if(live&&live.length)return live;return (CFG&&CFG.workItems&&CFG.workItems.types)||['Bug','Task','User Story']}
+function types(){var live=TYPES_CACHE[PV()+':'+curProject()];if(live&&live.length)return live;return TR().types||['Bug','Task','User Story']}
 /* Load the project list once and fill the header picker. */
 async function loadProjects(force){
   if(!enabled())return;
@@ -1608,7 +1838,7 @@ function fillProjectPicker(){
   sel.onchange=async function(){setProject(sel.value);DETAILS={};ITEMS=[];say('Project: '+(curProject()||'default'));await loadTypes();renderDiag();render();refreshChips();refreshAmbient()};
 }
 /* Optional: pull live work item types for the selected project (falls back to env list). */
-async function loadTypes(){var p=curProject();if(TYPES_CACHE[p])return;try{var j=await api('/api/workitems/types'+pq());var names=(j.value||[]).map(function(t){return t.name}).filter(function(n){return n&&!/^(Code Review|Feedback|Shared|Test )/.test(n)});if(names.length)TYPES_CACHE[p]=names}catch(e){}}
+async function loadTypes(){var p=PV()+':'+curProject();if(TYPES_CACHE[p])return;try{var j=await api('/api/workitems/types'+pq());var names=(j.value||[]).map(function(t){return t.name}).filter(function(n){return n&&!/^(Code Review|Feedback|Shared|Test )/.test(n)});if(names.length)TYPES_CACHE[p]=names}catch(e){}}
 /* ---- detection (reuses the app's own intelligence) ---- */
 function detected(){
   var t=txt(),out={decision:0,blocker:0,task:0};
@@ -1623,25 +1853,32 @@ function closeDrawer(){var el=d('witDrawer');el.classList.remove('open');el.setA
 window.openWorkItems=function(tab){openDrawer(tab||'focus')};
 window.closeWorkItems=closeDrawer;
 async function ensureConfigThenRender(){if(!CFG){await loadConfig();renderDiag();render();if(enabled()){loadProjects();loadTypes()}}}
-function renderTabs(){d('witTabs').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.wt===TAB)})}
+function tabList(){var t=[['focus','Focus'],['board',GH()?'Issues':'Board'],['create','Create']];if(GH()&&TR().projects&&CAP('projects'))t.push(['project','Project']);if(CAP('runs'))t.push(['runs',GH()?'Actions':'Pipelines']);return t}
+function renderTabs(){var host=d('witTabs'),list=tabList();if(!list.some(function(x){return x[0]===TAB}))TAB='focus';
+  host.innerHTML=list.map(function(x){return '<button data-wt="'+x[0]+'"'+(x[0]===TAB?' class="on"':'')+'>'+x[1]+'</button>'}).join('');
+  host.querySelectorAll('button').forEach(function(b){b.onclick=function(){TAB=b.dataset.wt;render()}});
+  var tt=d('witTitle');if(tt)tt.textContent=TR().label||'Work items';var sub=d('witSub');if(sub)sub.innerHTML=esc(TR().system||'')+' &middot; '+esc(curProject()||'not configured');
+  var sel=d('witProject');if(sel&&!multiProject())sel.style.display='none'}
 function renderDiag(){
   var relay=relayUp(), en=enabled();
   var wit=relay?(en?'<b>on</b>':'<b class="off">off</b>'):'<b class="err">n/a</b>';
   var proj=curProject()?esc(curProject()):'&mdash;';
   var isDefault=curProject()&&curProject()===defaultProject();
-  d('witDiag').innerHTML='Relay '+(relay?'<b>up</b>':'<b class="err">down</b>')+' &middot; WIT '+wit+' &middot; Project <b>'+proj+'</b>'+(isDefault?' \u2605':'')+' &middot; Linked <b>'+refIds().length+'</b>';
+  d('witDiag').innerHTML='Relay '+(relay?'<b>up</b>':'<b class="err">down</b>')+' &middot; '+esc(TR().label||'Work items')+' '+wit+' &middot; '+(GH()?'Repo':'Project')+' <b>'+proj+'</b>'+(isDefault&&!GH()?' \u2605':'')+' &middot; Linked <b>'+refIds().length+'</b>';
 }
 function render(){
   renderTabs();
   var b=d('witBody');
   if(!relayUp()){b.innerHTML=notConnected();return}
+  if(TAB==='runs'){renderRuns(b);return}
   if(!enabled()){b.innerHTML=notEnabled();return}
   if(TAB==='focus')renderFocus(b);
   else if(TAB==='board')renderBoard(b);
+  else if(TAB==='project')renderProjectBoard(b);
   else renderCreate(b);
 }
-function notConnected(){return '<div class="wit-empty"><b>The relay isn\u2019t reachable.</b><br><br>Open The Daily through the relay at <code>http://127.0.0.1:8000</code> (run <code>python relay.py</code>), not from a file. Then reopen Work Items.</div>'}
-function notEnabled(){return '<div class="wit-empty"><b>Work item tracking is off.</b><br><br>In <code>.env</code> set:<br><code>DAILY_ADO_ENABLED=true</code><br><code>DAILY_ADO_WIT_ENABLED=true</code><br>plus <code>DAILY_ADO_ORGANIZATION</code>, <code>DAILY_ADO_PROJECT</code>, and a PAT with <b>Work Items (Read &amp; Write)</b>.<br>Restart the relay and reopen.</div>'}
+function notConnected(){return '<div class="wit-empty"><b>The relay isn\u2019t reachable.</b><br><br>Open The Daily through the relay at <code>http://127.0.0.1:8000</code> (run <code>python relay.py</code>), not from a file. Then reopen this drawer.</div>'}
+function notEnabled(){if(GH())return '<div class="wit-empty"><b>GitHub Issues are off.</b><br><br>In <code>.env</code> set <code>DAILY_GITHUB_ISSUES_ENABLED=true</code> and give the GitHub token <b>Issues: Read and write</b>.<br>Restart the relay and reopen.</div>';return '<div class="wit-empty"><b>Work item tracking is off.</b><br><br>In <code>.env</code> set:<br><code>DAILY_ADO_ENABLED=true</code><br><code>DAILY_ADO_WIT_ENABLED=true</code><br>plus <code>DAILY_ADO_ORGANIZATION</code>, <code>DAILY_ADO_PROJECT</code>, and a PAT with <b>Work Items (Read &amp; Write)</b>.<br>Restart the relay and reopen.</div>'}
 /* ---------------- FOCUS: this entry + its tracked work ---------------- */
 async function renderFocus(b){
   var ids=refIds(), det=detected();
@@ -1649,15 +1886,15 @@ async function renderFocus(b){
   /* detected-but-untracked */
   if(det.total){
     var parts=[];if(det.decision)parts.push('<b>'+det.decision+'</b> decision'+(det.decision>1?'s':''));if(det.blocker)parts.push('<b>'+det.blocker+'</b> blocker'+(det.blocker>1?'s':''));if(det.task)parts.push('<b>'+det.task+'</b> task'+(det.task>1?'s':''));
-    html+='<div class="wit-detected"><div class="dtxt">This entry contains '+parts.join(' &middot; ')+' that aren\u2019t tracked in Azure DevOps yet.</div><div class="acts"><button onclick="witDraftFromEntry()">&#10022; Draft work item</button><button class="ghost" onclick="openWorkItems(\'create\')">Create manually</button></div></div>';
+    html+='<div class="wit-detected"><div class="dtxt">This entry contains '+parts.join(' &middot; ')+' that aren\u2019t tracked in '+esc(TR().system)+' yet.</div><div class="acts"><button onclick="witDraftFromEntry()">&#10022; Draft '+esc(noun())+'</button><button class="ghost" onclick="openWorkItems(\'create\')">Create manually</button></div></div>';
   }
   html+='<div class="wit-sec">Tracked by this entry ('+ids.length+')</div>';
-  if(!ids.length){html+='<div class="wit-empty">No <code>#ado/&lt;id&gt;</code> links in this entry yet.<br>Draft one above, or link an existing item from the <b>Board</b> tab.</div>'}
+  if(!ids.length){html+='<div class="wit-empty">No <code>#'+esc(TR().refPrefix||'ado')+'/&lt;id&gt;</code> links in this entry yet.<br>Draft one above, or link an existing item from the <b>Board</b> tab.</div>'}
   b.innerHTML=html+'<div id="witFocusList"></div>';
   var list=d('witFocusList');
   if(!ids.length)return;
   list.innerHTML=ids.map(function(id){return '<div class="wit-card" id="witF_'+id+'"><div class="wit-empty" style="padding:14px">Loading #'+id+'\u2026</div></div>'}).join('');
-  ids.forEach(async function(id){try{var it=DETAILS[id]||(DETAILS[id]=await api('/api/workitems/'+id+pq()));var el=d('witF_'+id);if(el){el.outerHTML=cardHTML(it,true);loadCardComments(id)}}catch(e){var el2=d('witF_'+id);if(el2)el2.innerHTML='<div class="wit-empty" style="padding:14px">#'+id+' could not load: '+esc(e.message)+'</div>'}});
+  ids.forEach(async function(id){try{var it=DETAILS[id]||(DETAILS[id]=await api('/api/workitems/'+id+pq()));var el=d('witF_'+id);if(el){el.outerHTML=cardHTML(it,true);loadCardComments(id);loadCardProject(id)}}catch(e){var el2=d('witF_'+id);if(el2)el2.innerHTML='<div class="wit-empty" style="padding:14px">#'+id+' could not load: '+esc(e.message)+'</div>'}});
 }
 /* --- Safe HTML rendering for ADO rich-text fields (Description, Acceptance, Repro) --- */
 var WIT_ALLOWED={A:1,B:1,STRONG:1,I:1,EM:1,U:1,P:1,BR:1,DIV:1,SPAN:1,UL:1,OL:1,LI:1,H1:1,H2:1,H3:1,H4:1,PRE:1,CODE:1,BLOCKQUOTE:1,TABLE:1,THEAD:1,TBODY:1,TR:1,TD:1,TH:1,IMG:1,HR:1};
@@ -1727,8 +1964,8 @@ function factsHTML(it){
   add('Assigned',assignedName(it));
   var pr=F(it,'Microsoft.VSTS.Common.Priority');if(pr)add('Priority','P'+pr);
   add('Area',F(it,'System.AreaPath'));
-  add('Iteration',F(it,'System.IterationPath'));
-  var tags=F(it,'System.Tags');if(tags)add('Tags',String(tags).split(';').map(function(x){return x.trim()}).filter(Boolean).join(', '));
+  add(TR().iterationLabel||'Iteration',F(it,'System.IterationPath'));
+  var tags=F(it,'System.Tags');if(tags)add(TR().tagsLabel||'Tags',String(tags).split(';').map(function(x){return x.trim()}).filter(Boolean).join(', '));
   add('Created',fmtDate(F(it,'System.CreatedDate'))+(F(it,'System.CreatedBy')&&F(it,'System.CreatedBy').displayName?' by '+F(it,'System.CreatedBy').displayName:''));
   add('Changed',fmtDate(F(it,'System.ChangedDate')));
   return '<div class="wit-facts">'+rows.join('')+'</div>';
@@ -1741,7 +1978,8 @@ function cardHTML(it,editable){
   if(editable){
     /* quick-edit */
     h+='<div class="row"><label>State</label><input list="witStateList" id="wf_state_'+id+'" value="'+esc(st)+'"></div>'+
-       '<div class="row"><label>Assigned</label><input id="wf_asg_'+id+'" value="'+esc(assignedName(it))+'" placeholder="email or name"></div>'+
+       '<div class="row"><label>Assigned</label><input id="wf_asg_'+id+'" value="'+esc(assignedName(it))+'" placeholder="'+(GH()?'GitHub username':'email or name')+'"></div>'+
+       (GH()&&TR().projects&&CAP('projects')?'<div class="row"><label>Project</label><select id="wf_proj_'+id+'" onchange="witSetProjectStatus('+id+',this.value)"><option>Loading\u2026</option></select></div>':'')+
        '<div class="acts">'+
          '<button class="primary" onclick="witSaveCard('+id+')">Save</button>'+
          '<button class="ai" onclick="witSummarize('+id+')">&#10022; Summarize into entry</button>'+
@@ -1793,7 +2031,7 @@ async function loadCardComments(id){
 }
 window.witPostComment=async function(id){
   var ta=d('witCmt_'+id);if(!ta)return;var t=(ta.value||'').trim();if(!t){say('Write a comment first.');return}
-  try{await api('/api/workitems/comment',{method:'POST',body:JSON.stringify(withP({id:id,text:t}))});ta.value='';say('Comment posted to #'+id+'.');loadCardComments(id)}catch(e){say('Comment failed: '+e.message)}
+  try{await api('/api/workitems/comment'+pq(),{method:'POST',body:JSON.stringify(withP({id:id,text:t}))});ta.value='';say('Comment posted to #'+id+'.');loadCardComments(id)}catch(e){say('Comment failed: '+e.message)}
 };
 /* Generate acceptance criteria with AI and save to the work item's field. */
 window.witGenAcceptance=async function(id){
@@ -1803,7 +2041,7 @@ window.witGenAcceptance=async function(id){
   try{
     var r=await aiChat([{role:'system',content:'Write 3-6 concise, testable acceptance criteria as an HTML unordered list (<ul><li>\u2026</li></ul>) only. No preamble.'},{role:'user',content:'Title: '+F(it,'System.Title')+'\nType: '+F(it,'System.WorkItemType')+'\nDescription: '+stripHtml(F(it,'System.Description'))}],{max:500,temp:.3});
     var htmlAc=/<li/i.test(r)?r:('<ul>'+r.split(/\n+/).filter(Boolean).map(function(x){return '<li>'+esc(x.replace(/^[-*]\s*/,''))+'</li>'}).join('')+'</ul>');
-    DETAILS[id]=await api('/api/workitems/update',{method:'POST',body:JSON.stringify(withP({id:id,fields:{'Microsoft.VSTS.Common.AcceptanceCriteria':htmlAc}}))});
+    DETAILS[id]=await api('/api/workitems/update'+pq(),{method:'POST',body:JSON.stringify(withP({id:id,fields:{'Microsoft.VSTS.Common.AcceptanceCriteria':htmlAc}}))});
     say('Acceptance criteria saved to #'+id+'.');
     var host=d('witDetail_'+id);if(host){host.innerHTML=detailSectionsHTML(DETAILS[id]);loadCardComments(id)}
   }catch(e){say('AI/save failed: '+e.message)}
@@ -1813,18 +2051,19 @@ window.witSaveCard=async function(id){
   var st=d('wf_state_'+id).value.trim();if(st&&st!==String(F(it,'System.State')||''))f['System.State']=st;
   var asg=d('wf_asg_'+id).value.trim();if(asg&&asg!==assignedName(it)&&asg!=='Unassigned')f['System.AssignedTo']=asg;
   if(!Object.keys(f).length){say('No changes to save.');return}
-  try{DETAILS[id]=await api('/api/workitems/update',{method:'POST',body:JSON.stringify(withP({id:id,fields:f}))});say('#'+id+' updated.');render();refreshChips();log('workitem.update.completed',{id:id})}catch(e){say('Update failed: '+e.message)}
+  try{DETAILS[id]=await api('/api/workitems/update'+pq(),{method:'POST',body:JSON.stringify(withP({id:id,fields:f}))});say('#'+id+' updated.');render();refreshChips();log('workitem.update.completed',{id:id})}catch(e){say('Update failed: '+e.message)}
 };
 window.witComment=async function(id){
   var t=prompt('Add a comment to work item #'+id+':');if(!t||!t.trim())return;
-  try{await api('/api/workitems/comment',{method:'POST',body:JSON.stringify(withP({id:id,text:t.trim()}))});say('Comment posted to #'+id+'.')}catch(e){say('Comment failed: '+e.message)}
+  try{await api('/api/workitems/comment'+pq(),{method:'POST',body:JSON.stringify(withP({id:id,text:t.trim()}))});say('Comment posted to #'+id+'.')}catch(e){say('Comment failed: '+e.message)}
 };
 /* ---------------- BOARD: query view ---------------- */
 function renderBoard(b){
-  b.innerHTML='<datalist id="witStateList">'+STATES.map(function(s){return '<option value="'+esc(s)+'">'}).join('')+'</datalist>'+
+  b.innerHTML='<datalist id="witStateList">'+states().map(function(s){return '<option value="'+esc(s)+'">'}).join('')+'</datalist>'+
     '<div class="wit-toolbar">'+
       '<label><input type="checkbox" id="witMine" checked onchange="witQuery()"> Mine</label>'+
-      '<select id="witStateF" onchange="witQuery()"><option value="open">Open</option><option value="active">Active</option><option value="new">New</option><option value="resolved">Resolved</option><option value="all">All</option></select>'+
+      (GH()?'<select id="witStateF" onchange="witQuery()"><option value="open">Open</option><option value="closed">Closed</option><option value="notplanned">Not planned</option><option value="all">All</option></select>'
+           :'<select id="witStateF" onchange="witQuery()"><option value="open">Open</option><option value="active">Active</option><option value="new">New</option><option value="resolved">Resolved</option><option value="all">All</option></select>')+
       '<select id="witTypeF" onchange="witQuery()"><option value="">All types</option>'+types().map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>'}).join('')+'</select>'+
       '<input class="search" id="witSearch" placeholder="Search titles\u2026" onkeydown="if(event.key===\'Enter\')witQuery()">'+
       '<button onclick="witQuery()">Search</button>'+
@@ -1833,6 +2072,8 @@ function renderBoard(b){
   witQuery();
 }
 function boardFilters(){
+  if(GH()){var g=(d('witStateF')||{}).value||'open',gb={assignedToMe:(d('witMine')||{}).checked,search:((d('witSearch')||{}).value||'').trim()};
+    if(g!=='all')gb.states=[{open:'Open',closed:'Closed',notplanned:'Not planned'}[g]];var gt=(d('witTypeF')||{}).value;if(gt)gb.types=[gt];return withP(gb)}
   var st=(d('witStateF')||{}).value||'open',states=null;
   if(st==='active')states=['Active','In Progress','Committed','Doing'];
   else if(st==='new')states=['New','To Do','Proposed'];
@@ -1846,8 +2087,8 @@ function boardFilters(){
 }
 window.witQuery=async function(){
   var el=d('witBoardList');if(!el)return;el.innerHTML='<div class="wit-empty"><span class="wit-busy">Querying\u2026</span></div>';
-  try{var j=await api('/api/workitems/query',{method:'POST',body:JSON.stringify(boardFilters())});ITEMS=j.value||[];
-    if(!ITEMS.length){el.innerHTML='<div class="wit-empty">No work items match.</div>';return}
+  try{var j=await api('/api/workitems/query'+pq(),{method:'POST',body:JSON.stringify(boardFilters())});ITEMS=j.value||[];
+    if(!ITEMS.length){el.innerHTML='<div class="wit-empty">No '+esc(noun())+'s match.</div>';return}
     el.innerHTML=ITEMS.map(function(it){var id=it.id,st=F(it,'System.State'),linked=refIds().indexOf(String(id))>=0;
       return '<div class="wit-card"><div class="top"><span class="wit-dot '+stateClass(st)+'" style="margin-top:5px"></span><b>'+esc(F(it,'System.Title'))+'</b><a class="wit-open" href="'+editURL(id)+'" target="_blank" rel="noopener">#'+id+' \u2197</a></div><div class="meta"><span class="wit-badge type">'+esc(F(it,'System.WorkItemType'))+'</span><span class="wit-badge">'+esc(st)+'</span><span class="wit-badge">'+esc(assignedName(it))+'</span></div><div class="acts">'+(linked?'<button disabled style="opacity:.5">Linked \u2713</button>':'<button class="primary" onclick="witLink('+id+')">Link to entry</button>')+'<button class="ai" onclick="witSummarize('+id+')">&#10022; Summarize</button></div></div>'}).join('');
     DETAILS={};ITEMS.forEach(function(it){DETAILS[it.id]=it});log('workitem.query.completed',{count:ITEMS.length});
@@ -1857,11 +2098,11 @@ window.witQuery=async function(){
 function renderCreate(b,pref){
   pref=pref||{};
   b.innerHTML='<div class="wit-card">'+
-    '<div class="row"><label>Project</label><div style="font:600 12px var(--font);color:var(--ink)">'+esc(curProject()||'(default)')+(curProject()&&curProject()===defaultProject()?' <span style="color:var(--faint)">\u2605 default</span>':'')+' <span style="color:var(--faint);font-weight:400">\u2014 change in header</span></div></div>'+
-    '<div class="row"><label>Type</label><select id="witN_type">'+types().map(function(t){return '<option'+(t===(pref.type||(CFG.workItems.defaultType))?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select></div>'+
+    '<div class="row"><label>'+(GH()?'Repository':'Project')+'</label><div style="font:600 12px var(--font);color:var(--ink)">'+esc(curProject()||'(default)')+(!GH()&&curProject()&&curProject()===defaultProject()?' <span style="color:var(--faint)">\u2605 default</span>':'')+(GH()?'':' <span style="color:var(--faint);font-weight:400">\u2014 change in header</span>')+'</div></div>'+
+    '<div class="row"><label>Type</label><select id="witN_type">'+types().map(function(t){return '<option'+(t===(pref.type||TR().defaultType)?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select></div>'+
     '<div class="row"><label>Title</label><input id="witN_title" value="'+esc(pref.title||'')+'"></div>'+
-    '<div class="row"><label>Priority</label><input id="witN_prio" value="'+esc(pref.priority||'2')+'" placeholder="1-4"></div>'+
-    '<div class="row"><label>Tags</label><input id="witN_tags" value="'+esc(pref.tags||'the-daily')+'"></div>'+
+    '<div class="row"><label>Priority</label><input id="witN_prio" value="'+esc(pref.priority||(GH()?'':'2'))+'" placeholder="'+(GH()?'optional, 1-4 (adds a P label)':'1-4')+'"></div>'+
+    '<div class="row"><label>'+esc(TR().tagsLabel||'Tags')+'</label><input id="witN_tags" value="'+esc(pref.tags||'the-daily')+'" placeholder="separate with ;"></div>'+
     '<div class="row"><label>Description</label><textarea id="witN_desc">'+esc(pref.description||'')+'</textarea></div>'+
     '<div class="acts">'+
       '<button class="primary" onclick="witCreate()">Create &amp; link</button>'+
@@ -1869,16 +2110,16 @@ function renderCreate(b,pref){
       '<button class="ai" onclick="witDraftFromSelection()">&#10022; From selection</button>'+
       '<button class="ai" onclick="witAcceptance()">&#10022; Acceptance criteria</button>'+
     '</div>'+
-    '<div class="wit-note">Created via JSON Patch on the relay-held PAT. On success, <code>#ado/&lt;id&gt;</code> is inserted into this entry to link it'+(enterpriseOn()?' and a <b>tracks</b> edge is added to the enterprise graph':'')+'.</div>'+
+    '<div class="wit-note">'+(GH()?'Created as a GitHub issue with the relay-held token; the type and priority become labels and the description is Markdown.':'Created via JSON Patch on the relay-held PAT.')+' On success, <code>#'+esc(TR().refPrefix||'ado')+'/&lt;id&gt;</code> is inserted into this entry to link it'+(enterpriseOn()?' and a <b>tracks</b> edge is added to the enterprise graph':'')+'.</div>'+
   '</div>';
 }
 window.witCreate=async function(){
   var title=(d('witN_title').value||'').trim();if(!title){say('A title is required.');return}
   var fields={'System.Title':title};var pr=parseInt(d('witN_prio').value,10);if(pr)fields['Microsoft.VSTS.Common.Priority']=pr;
   var tags=(d('witN_tags').value||'').trim();if(tags)fields['System.Tags']=tags;
-  var desc=(d('witN_desc').value||'').trim();if(desc)fields['System.Description']=desc.replace(/\n/g,'<br>');
-  try{var it=await api('/api/workitems',{method:'POST',body:JSON.stringify(withP({type:d('witN_type').value,fields:fields}))});
-    DETAILS[it.id]=it;say('Created work item #'+it.id+'.');linkId(it.id);await ingest(it);TAB='focus';render();refreshChips();log('workitem.create.completed',{id:it.id});
+  var desc=(d('witN_desc').value||'').trim();if(desc)fields['System.Description']=TR().html===false?desc:desc.replace(/\n/g,'<br>');
+  try{var it=await api('/api/workitems'+pq(),{method:'POST',body:JSON.stringify(withP({type:d('witN_type').value,fields:fields}))});
+    DETAILS[it.id]=it;say('Created '+noun()+' #'+it.id+'.');linkId(it.id);await ingest(it);TAB='focus';render();refreshChips();log('workitem.create.completed',{id:it.id});
   }catch(e){say('Create failed: '+e.message)}
 };
 /* ---------------- AI actions ---------------- */
@@ -1899,7 +2140,7 @@ window.witDraftFromSelection=async function(){
 };
 async function aiDraft(source){
   var ty=types().join(', ');
-  var r=await aiChat([{role:'system',content:'From the text, draft ONE Azure DevOps work item. Return ONLY strict minified JSON: {"type":"<one of: '+ty+'>","title":"...","priority":2,"description":"...","acceptanceCriteria":["...","..."]}. Pick the most fitting type; title under 120 chars; base everything only on the text.'},{role:'user',content:source}],{max:700,temp:.3});
+  var r=await aiChat([{role:'system',content:'From the text, draft ONE '+TR().system+' '+noun()+'. Return ONLY strict minified JSON: {"type":"<one of: '+ty+'>","title":"...","priority":2,"description":"...","acceptanceCriteria":["...","..."]}. Pick the most fitting type; title under 120 chars; base everything only on the text.'},{role:'user',content:source}],{max:700,temp:.3});
   var m=r.match(/\{[\s\S]*\}/);var o=m?JSON.parse(m[0]):{};
   var desc=o.description||'';if(o.acceptanceCriteria&&o.acceptanceCriteria.length)desc+='\n\nAcceptance criteria:\n'+o.acceptanceCriteria.map(function(x){return '- '+x}).join('\n');
   return {type:o.type,title:o.title,priority:o.priority,description:desc.trim()};
@@ -1916,12 +2157,50 @@ window.witSummarize=async function(id){
   if(!aiOK()){say('Connect an AI provider first.');return}
   var it=DETAILS[id]||(DETAILS[id]=await api('/api/workitems/'+id+pq()).catch(function(){return null}));if(!it){say('Load failed.');return}
   say('Summarizing #'+id+'\u2026');
-  try{var r=await aiChat([{role:'system',content:'Summarize this Azure DevOps work item into a concise Markdown journal note: a bold one-line status, then Context, then Next steps. Only supported facts.'},{role:'user',content:'#'+id+' '+F(it,'System.WorkItemType')+' ['+F(it,'System.State')+']\nTitle: '+F(it,'System.Title')+'\nDescription: '+stripHtml(F(it,'System.Description'))}],{max:600,temp:.3});
-    if(typeof insertBlock==='function')insertBlock('\n> [!info] Work item #'+id+'\n'+r+'\n#ado/'+id+' ');if(typeof scheduleSave==='function')scheduleSave();refreshChips();ingest(it);say('Summary inserted below the entry.');
+  try{var r=await aiChat([{role:'system',content:'Summarize this '+TR().system+' '+noun()+' into a concise Markdown journal note: a bold one-line status, then Context, then Next steps. Only supported facts.'},{role:'user',content:'#'+id+' '+F(it,'System.WorkItemType')+' ['+F(it,'System.State')+']\nTitle: '+F(it,'System.Title')+'\nDescription: '+stripHtml(F(it,'System.Description'))}],{max:600,temp:.3});
+    if(typeof insertBlock==='function')insertBlock('\n> [!info] '+(GH()?'Issue':'Work item')+' #'+id+'\n'+r+'\n#'+(TR().refPrefix||'ado')+'/'+id+' ');if(typeof scheduleSave==='function')scheduleSave();refreshChips();ingest(it);say('Summary inserted below the entry.');
   }catch(e){say('AI error: '+e.message)}
 };
+/* ---------------- provider switch ---------------- */
+function onProviderChange(){DETAILS={};ITEMS=[];TYPES_CACHE={};PROJECTS=null;
+  var nb=d('witNav');if(nb)nb.textContent=GH()?'Issues':'Work Items';var rb=d('rWit');if(rb)rb.title=(TR().label||'Work items')+' · '+(TR().system||'')+' (Ctrl+Shift+W)';
+  if(d('witDrawer').classList.contains('open')){renderDiag();render();if(enabled()){loadProjects(true);loadTypes()}}refreshChips();refreshAmbient()}
+/* ---------------- GitHub Projects (v2) ---------------- */
+async function loadCardProject(id){var sel=d('wf_proj_'+id);if(!sel)return;
+  try{var j=await api('/api/projects/issue?number='+id);var opts=['<option value="">'+(j.inProject?'No status':'Not on the board')+'</option>'].concat((j.statuses||[]).map(function(s){return '<option'+(s===j.status?' selected':'')+'>'+esc(s)+'</option>'}));
+    sel.innerHTML=opts.join('');sel.title=(j.project&&j.project.title)||''}catch(e){sel.innerHTML='<option>Unavailable</option>';sel.disabled=true;sel.title=e.message}}
+window.witSetProjectStatus=async function(id,status){if(!status)return;try{await api('/api/projects/item',{method:'POST',body:JSON.stringify({issue:id,status:status})});say('#'+id+' → '+status+' on the project board.')}catch(e){say('Project update failed: '+e.message)}};
+async function renderProjectBoard(b){b.innerHTML='<div class="wit-empty"><span class="wit-busy">Loading the project board…</span></div>';
+  try{var p=await api('/api/projects');var cols=(p.statuses||[]).concat(['']);
+    var linked=refIds();var missing=linked.filter(function(n){return !p.items.some(function(i){return i.kind==='issue'&&String(i.number)===String(n)})});
+    var head='<div class="wit-toolbar"><b style="font:650 12px var(--font)">'+esc(p.title||'Project')+'</b><a class="wit-open" href="'+esc(p.url||'#')+'" target="_blank" rel="noopener">Open board ↗</a><span style="flex:1"></span>'+
+      (missing.length?'<button onclick="witAddLinkedToProject()">Add '+missing.length+' linked issue'+(missing.length>1?'s':'')+'</button>':'')+'<button onclick="witProjectRefresh()">Refresh</button></div>';
+    b.innerHTML=head+'<div class="wit-cols">'+cols.map(function(c){var its=p.items.filter(function(i){return (i.status||'')===c});
+      if(!c&&!its.length)return '';
+      return '<section class="wit-col"><h4><span>'+esc(c||'No status')+'</span><span>'+its.length+'</span></h4>'+its.map(function(i){
+        return '<div class="it"><b>'+esc(i.title||'(untitled)')+'</b><div class="sub">'+(i.number?'<a href="'+esc(i.url)+'" target="_blank" rel="noopener">#'+i.number+'</a>':'')+'<span>'+esc(i.kind)+'</span>'+(i.state?'<span>'+esc(i.state)+'</span>':'')+'</div>'+
+          '<select aria-label="Status" data-item="'+esc(i.itemId)+'" onchange="witMoveItem(this.dataset.item,this.value)">'+(p.statuses||[]).map(function(s){return '<option'+(s===i.status?' selected':'')+'>'+esc(s)+'</option>'}).join('')+(i.status?'':'<option selected value="">No status</option>')+'</select></div>'}).join('')+'</section>'}).join('')+'</div>';
+    window._witProj=p}catch(e){b.innerHTML='<div class="wit-empty">Project board unavailable: '+esc(e.message)+'<br><br>Set <code>DAILY_GITHUB_PROJECT_NUMBER</code>. For a project on a personal account, put a classic token with the <code>project</code> scope in <code>DAILY_GITHUB_PROJECTS_TOKEN</code>.</div>'}}
+window.witMoveItem=async function(itemId,status){if(!status)return;try{await api('/api/projects/item',{method:'POST',body:JSON.stringify({itemId:itemId,status:status})});say('Moved to '+status+'.');renderProjectBoard(d('witBody'))}catch(e){say('Move failed: '+e.message)}};
+window.witProjectRefresh=function(){api('/api/projects?refresh=1').catch(function(){}).then(function(){renderProjectBoard(d('witBody'))})};
+window.witAddLinkedToProject=async function(){var p=window._witProj;if(!p)return;var first=(p.statuses||[])[0]||'';var ids=refIds().filter(function(n){return !p.items.some(function(i){return i.kind==='issue'&&String(i.number)===String(n)})});
+  for(var k=0;k<ids.length;k++){try{await api('/api/projects/item',{method:'POST',body:JSON.stringify({issue:+ids[k],status:first})})}catch(e){say('#'+ids[k]+': '+e.message)}}say('Added '+ids.length+' issue'+(ids.length>1?'s':'')+' to '+(p.title||'the board')+'.');renderProjectBoard(d('witBody'))};
+/* ---------------- pipeline runs (GitHub Actions / Azure Pipelines) ---------------- */
+function ago(s){if(!s)return '';var m=Math.round((Date.now()-new Date(s))/60000);if(m<1)return 'just now';if(m<60)return m+'m ago';var h=Math.round(m/60);if(h<48)return h+'h ago';return Math.round(h/24)+'d ago'}
+async function renderRuns(b){b.innerHTML='<div class="wit-empty"><span class="wit-busy">Loading runs…</span></div>';
+  try{var j=await api('/api/runs?provider='+PV());var runs=j.value||[];
+    var head='<div class="wit-toolbar"><b style="font:650 12px var(--font)">'+esc(j.provider)+'</b><a class="wit-open" href="'+esc(j.url||'#')+'" target="_blank" rel="noopener">Open ↗</a><span style="flex:1"></span><button onclick="witRunsRefresh()">Refresh</button></div>';
+    if(!runs.length){b.innerHTML=head+'<div class="wit-empty">No runs yet.</div>';return}
+    b.innerHTML=head+'<div class="wit-runs">'+runs.map(function(r){var cls=r.status!=='completed'?'running':(r.result||'');
+      var again=GH()?(/failure|cancelled/.test(r.result)?'Re-run failed jobs':'Re-run'):'Queue again';
+      return '<div class="wit-run"><span class="st '+esc(cls)+'" title="'+esc(r.status+(r.result?' · '+r.result:''))+'"></span><b>'+esc(r.name)+(r.title?' — '+esc(r.title):'')+'</b>'+
+        '<div class="acts">'+(r.status==='completed'?'<button data-id="'+(+r.id)+'" data-result="'+esc(r.result||'')+'" onclick="witRerun(+this.dataset.id,this.dataset.result)">'+again+'</button>':'')+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener" aria-label="Open run">↗</a>':'')+'</div>'+
+        '<div class="sub">'+esc([r.status==='completed'?(r.result||'done'):String(r.status||'').replace('_',' '),r.branch,r.commit,r.actor,ago(r.started)].filter(Boolean).join(' · '))+'</div></div>'}).join('')+'</div>'}
+  catch(e){b.innerHTML='<div class="wit-empty">Runs unavailable: '+esc(e.message)+'<br><br>'+(GH()?'Give the GitHub token <b>Actions: Read</b> (and <b>Read and write</b> to re-run).':'Give the PAT <b>Build: Read &amp; execute</b>.')+'</div>'}}
+window.witRunsRefresh=function(){renderRuns(d('witBody'))};
+window.witRerun=async function(id,result){try{var r=await api('/api/runs/rerun?provider='+PV(),{method:'POST',body:JSON.stringify({id:id,result:result})});say((GH()?'Re-running ':'Queued: ')+(r.mode||'')+'.');setTimeout(function(){if(TAB==='runs')renderRuns(d('witBody'))},1500)}catch(e){say('Re-run failed: '+e.message)}};
 /* ---------------- linking + graph ---------------- */
-function linkId(id){if(refIds().indexOf(String(id))>=0){say('Entry already references #'+id+'.');return}if(typeof insertBlock==='function')insertBlock('\n#ado/'+id+' ');if(typeof scheduleSave==='function')scheduleSave();refreshChips()}
+function linkId(id){if(refIds().indexOf(String(id))>=0){say('Entry already references #'+id+'.');return}if(typeof insertBlock==='function')insertBlock('\n#'+(TR().refPrefix||'ado')+'/'+id+' ');if(typeof scheduleSave==='function')scheduleSave();refreshChips()}
 window.witLink=function(id){linkId(id);if(DETAILS[id])ingest(DETAILS[id]);say('Linked #'+id+' to the entry.');if(TAB==='board')witQuery()};
 function enterpriseOn(){return !!(CFG&&CFG.features&&CFG.features.enterprise)}
 async function ingest(it){if(!enterpriseOn())return;try{var e=(typeof collect==='function')?collect():null;var wid='workitem:'+it.id;var nodes=[{id:wid,type:'workitem',label:'#'+it.id+' '+F(it,'System.Title'),workItemType:F(it,'System.WorkItemType'),state:F(it,'System.State'),visibility:'team'}];var edges=[];if(e){nodes.push({id:'entry:'+e.id,type:'entry',label:e.title||e.date,date:e.date,visibility:'private',ownerId:'local-user'});edges.push({source:'entry:'+e.id,target:wid,type:'tracks'})}await api('/api/enterprise/ingest',{method:'POST',body:JSON.stringify({nodes:nodes,edges:edges})})}catch(e){}}
@@ -1930,7 +2209,7 @@ async function ingest(it){if(!enterpriseOn())return;try{var e=(typeof collect===
 function installRibbonButton(){
   var ribbon=d('ribbon');if(!ribbon||d('rWit'))return;
   var btn=document.createElement('button');btn.className='r-btn r-wit';btn.id='rWit';btn.type='button';
-  btn.title='Work Items \u00b7 Azure DevOps (Ctrl+Shift+W)';btn.setAttribute('aria-label','Work Items');
+  btn.title=(TR().label||'Work items')+' \u00b7 '+(TR().system||'')+' (Ctrl+Shift+W)';btn.setAttribute('aria-label','Work Items');
   btn.innerHTML='\u25EB<span class="wit-count" id="witRibbonCount"></span>';
   btn.onclick=function(){openWorkItems('focus')};
   var console_=d('rConsole');if(console_&&console_.parentNode===ribbon)ribbon.insertBefore(btn,console_);else ribbon.appendChild(btn);
@@ -1950,7 +2229,7 @@ function refreshChips(){
   var count=d('witRibbonCount');if(count){count.textContent=ids.length||'';count.classList.toggle('show',ids.length>0)}
   if(!enabled()||!ids.length){row.classList.remove('show');row.innerHTML='';return}
   row.classList.add('show');
-  row.innerHTML='<span class="lbl">Work items</span>'+ids.map(function(id){return '<span class="wit-chip" data-id="'+id+'" onclick="openWorkItems(\'focus\')"><span class="dot"></span><span class="id">#'+id+'</span><span class="t">\u2026</span></span>'}).join('');
+  row.innerHTML='<span class="lbl">'+esc(TR().label||'Work items')+'</span>'+ids.map(function(id){return '<span class="wit-chip" data-id="'+id+'" onclick="openWorkItems(\'focus\')"><span class="dot"></span><span class="id">#'+id+'</span><span class="t">\u2026</span></span>'}).join('');
   ids.forEach(async function(id){try{var it=DETAILS[id]||(DETAILS[id]=await api('/api/workitems/'+id+pq()));var el=row.querySelector('.wit-chip[data-id="'+id+'"]');if(!el)return;el.querySelector('.dot').className='dot '+stateClass(F(it,'System.State'));el.querySelector('.t').textContent=String(F(it,'System.Title')||'').slice(0,34);el.title=F(it,'System.WorkItemType')+' \u00b7 '+F(it,'System.State')}catch(e){var el2=row.querySelector('.wit-chip[data-id="'+id+'"]');if(el2){el2.querySelector('.dot').className='dot err';el2.querySelector('.t').textContent='#'+id}}});
 }
 function refreshAmbient(){
@@ -1960,20 +2239,20 @@ function refreshAmbient(){
   if(!det.total||det.signature===dismissedAmbient){amb.classList.remove('show');return}
   var parts=[];if(det.decision)parts.push(det.decision+' decision'+(det.decision>1?'s':''));if(det.blocker)parts.push(det.blocker+' blocker'+(det.blocker>1?'s':''));if(det.task)parts.push(det.task+' task'+(det.task>1?'s':''));
   amb.classList.add('show');
-  amb.innerHTML='<span class="glyph">\u2726</span><span class="txt"><b>'+parts.join(' \u00b7 ')+'</b> in this entry could be tracked in Azure DevOps.</span><button onclick="witDraftFromEntry()">Draft</button><button class="ghost" onclick="openWorkItems(\'focus\')">Review</button><button class="x" title="Dismiss" onclick="witDismissAmbient()">\u00d7</button>';
+  amb.innerHTML='<span class="glyph">\u2726</span><span class="txt"><b>'+parts.join(' \u00b7 ')+'</b> in this entry could be tracked in '+esc(TR().system)+'.</span><button onclick="witDraftFromEntry()">Draft</button><button class="ghost" onclick="openWorkItems(\'focus\')">Review</button><button class="x" title="Dismiss" onclick="witDismissAmbient()">\u00d7</button>';
 }
 window.witDismissAmbient=function(){dismissedAmbient=detected().signature;d('witAmbient').classList.remove('show')};
 /* nav button (secondary entry point) */
 function installNav(){
   var nav=document.querySelector('.nav');if(!nav||d('witNav'))return;
-  var b=document.createElement('button');b.id='witNav';b.textContent='Work Items';b.onclick=function(){openWorkItems('focus')};
+  var b=document.createElement('button');b.id='witNav';b.textContent=GH()?'Issues':'Work Items';b.onclick=function(){openWorkItems('focus')};
   var ent=d('enterpriseNav');if(ent&&ent.parentNode===nav)nav.insertBefore(b,ent);else nav.insertBefore(b,nav.querySelector('button:last-child'));
 }
 /* ============================================================ BOOT (robust, multi-anchor, retrying) ============================================================ */
 function wireDrawer(){
   d('witCloseBtn').onclick=closeDrawer;
   d('witRefresh').onclick=function(){DETAILS={};TYPES_CACHE={};loadConfig(true).then(function(){return loadProjects(true)}).then(function(){return loadTypes()}).then(function(){renderDiag();render();refreshChips()})};
-  d('witTabs').querySelectorAll('button').forEach(function(b){b.onclick=function(){TAB=b.dataset.wt;render()}});
+  document.addEventListener('daily:provider',onProviderChange);document.addEventListener('daily:relay',onProviderChange);
   document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='w'){e.preventDefault();d('witDrawer').classList.contains('open')?closeDrawer():openWorkItems('focus')}if(e.key==='Escape'&&d('witDrawer').classList.contains('open'))closeDrawer()});
 }
 async function init(){
@@ -2000,6 +2279,7 @@ window.DailyWIT={
   loadProjects:function(f){return loadProjects(f)},
   curProject:function(){return curProject()},
   setProject:function(p){setProject(p);DETAILS={};ITEMS=[];},
+  onProviderChange:function(){try{onProviderChange()}catch(e){}},
   defaultProject:function(){return defaultProject()},
   multiProject:function(){return multiProject()},
   linkedIds:function(){return refIds()},
@@ -2137,7 +2417,7 @@ body.ws-on main.stage{margin-left:var(--ws-dl);margin-right:var(--ws-dr);margin-
   <div class="ws-pane ws-ai" id="wsPaneAi" hidden>
     <div class="ws-ai-log" id="wsAiLog"></div>
     <div class="ws-ai-quick" id="wsAiQuick"></div>
-    <div class="ws-ai-in"><textarea id="wsAiInput" placeholder="Ask AI about your entry, work items, or anything…" rows="1"></textarea><button id="wsAiSend">Send</button></div>
+    <div class="ws-ai-in"><textarea id="wsAiInput" placeholder="Ask about your journal or this entry…" rows="1"></textarea><button id="wsAiSend">Send</button></div>
   </div>
   <div class="ws-rz" data-ws-rz="bottom"></div>
 </aside>
@@ -2274,25 +2554,46 @@ async function renderBottomBoard(){var host=id('wsPaneBoard');if(!witOK()){host.
 /* ---- AI console ---- */
 var AI=S.aiHistory||[];
 function aiReadyX(){try{return typeof aiReady==='function'&&aiReady()}catch(e){return false}}
+function aiScope(){return S.aiScope==='entry'?'entry':'journal'}
+function aiQuick(){
+  var gh=(function(){try{return !window.DailyProvider||DailyProvider.active()==='github'}catch(e){return true}})();
+  return aiScope()==='journal'
+    ?[['This week','Summarize what I worked on, decided and learned over the last 7 days.'],['Open threads','What open questions, blockers and unfinished threads appear in my recent entries?'],['Decisions','List the decisions I recorded, with the reasoning I gave and the date of each.'],['What do I know about…','What have I written about ']]
+    :[['Summarize entry','Summarize my current journal entry concisely.'],[gh?'Draft an issue':'Draft a work item','From my current entry, propose one '+(gh?'GitHub issue (title, description, labels, acceptance criteria)':'Azure DevOps work item (type, title, description, acceptance criteria)')+'.'],['Next steps','List concrete next steps based on my current entry.']];
+}
 function renderAi(){
   var log=id('wsAiLog');if(!log)return;
-  if(!AI.length){log.innerHTML='<div class="ws-msg system">'+(aiReadyX()?'Ask anything. I can see your current entry and linked work items when you reference them.':'Connect an AI provider in Studio → Models to chat here.')+'</div>'}
-  else log.innerHTML=AI.map(function(m){return '<div class="ws-msg '+m.role+'">'+esc(m.content)+'</div>'}).join('');
+  var R=window.dailyAI;
+  if(!AI.length){log.innerHTML='<div class="ws-msg system">'+(aiReadyX()?(aiScope()==='journal'?'Ask about anything in your journal. Answers cite the entries they draw on — click a date to open it.':'Ask about the entry you have open.'):'Connect an AI provider in Studio → AI model to chat here.')+'</div>'}
+  else log.innerHTML=AI.map(function(m,i){
+    if(m.role==='assistant'&&R)return '<div class="ws-msg assistant ai-rich">'+R.renderAnswer(m.content,m.sources)+(m.meta?'<div class="ai-meta">'+esc(m.meta)+'</div>':'')+'</div>';
+    return '<div class="ws-msg '+m.role+'">'+esc(m.content)+'</div>'}).join('');
   log.scrollTop=log.scrollHeight;
-  var quick=id('wsAiQuick');
-  quick.innerHTML=[['Summarize entry','Summarize my current journal entry concisely.'],['Draft work item','From my current entry, propose one Azure DevOps work item (type, title, description, acceptance criteria).'],['Next steps','List concrete next steps based on my current entry.']].map(function(q,i){return '<button data-q="'+i+'">'+esc(q[0])+'</button>'}).join('');
-  quick._map=[['Summarize entry','Summarize my current journal entry concisely.'],['Draft work item','From my current entry, propose one Azure DevOps work item (type, title, description, acceptance criteria).'],['Next steps','List concrete next steps based on my current entry.']];
-  quick.querySelectorAll('[data-q]').forEach(function(b){b.onclick=function(){var p=quick._map[+b.dataset.q][1];id('wsAiInput').value=p;aiSend()}});
+  var quick=id('wsAiQuick');var Q=aiQuick();
+  quick.innerHTML='<span class="ai-scope" role="group" aria-label="Answer from"><button data-scope="journal" class="'+(aiScope()==='journal'?'on':'')+'">Whole journal</button><button data-scope="entry" class="'+(aiScope()==='entry'?'on':'')+'">This entry</button></span>'+
+    Q.map(function(q,i){return '<button data-q="'+i+'">'+esc(q[0])+'</button>'}).join('')+(AI.length?'<button data-clear title="Clear the conversation">Clear</button>':'');
+  quick.querySelectorAll('[data-scope]').forEach(function(b){b.onclick=function(){S.aiScope=b.dataset.scope;save();renderAi()}});
+  quick.querySelectorAll('[data-q]').forEach(function(b){b.onclick=function(){var p=Q[+b.dataset.q][1],inp=id('wsAiInput');inp.value=p;if(/ $/.test(p)){inp.focus();inp.setSelectionRange(p.length,p.length)}else aiSend()}});
+  var cl=quick.querySelector('[data-clear]');if(cl)cl.onclick=function(){AI.length=0;persistAi();renderAi()};
+  log.querySelectorAll('[data-cite]').forEach(function(a){a.onclick=function(e){e.preventDefault();if(R)R.openEntry(a.dataset.cite,a.dataset.id)}});
 }
 function entryContext(){try{return (typeof entryText==='function')?entryText().slice(0,8000):''}catch(e){return''}}
 async function aiSend(){
   var inp=id('wsAiInput');var text=(inp.value||'').trim();if(!text)return;
-  if(!aiReadyX()){AI.push({role:'system',content:'Connect an AI provider in Studio → Models first.'});persistAi();renderAi();return}
-  AI.push({role:'user',content:text});inp.value='';persistAi();renderAi();
-  var log=id('wsAiLog');var wait=document.createElement('div');wait.className='ws-msg assistant';wait.textContent='…';log.appendChild(wait);log.scrollTop=log.scrollHeight;
-  var msgs=[{role:'system',content:'You are a concise assistant embedded in The Daily journal. The user\'s current entry follows for context:\n\n'+entryContext()}].concat(AI.filter(function(m){return m.role!=='system'}).slice(-8));
-  try{var r=await aiChat(msgs,{max:800,temp:.5});AI.push({role:'assistant',content:r});persistAi();renderAi()}
-  catch(e){wait.textContent='Error: '+e.message}
+  if(!aiReadyX()){AI.push({role:'system',content:'Connect an AI provider in Studio → AI model first.'});persistAi();renderAi();return}
+  AI.push({role:'user',content:text});inp.value='';inp.style.height='auto';persistAi();renderAi();
+  var log=id('wsAiLog');var wait=document.createElement('div');wait.className='ws-msg assistant ai-rich';wait.innerHTML='<span class="ai-typing"><i></i><i></i><i></i></span>';log.appendChild(wait);log.scrollTop=log.scrollHeight;
+  var R=window.dailyAI,scope=aiScope(),ctx,sources=[];
+  if(scope==='journal'&&R){var hits=R.retrieve(text+' '+AI.filter(function(m){return m.role==='user'}).slice(-3,-1).map(function(m){return m.content}).join(' '),7);sources=hits.map(function(h){return {date:h.date,id:h.id,title:h.title}});ctx=R.contextBlock(hits)}
+  var sys=scope==='journal'
+    ?'You are the research assistant inside The Daily, a personal engineering and research journal. Answer from the journal excerpts below. Cite every claim with the entry date in square brackets, in the form [YYYY-MM-DD]. If the excerpts don\'t contain the answer, say so plainly and suggest what to write down. Be concise and specific; prefer short paragraphs or bullets.\n\n'+(ctx||'(No matching entries were found.)')
+    :'You are a concise assistant embedded in The Daily journal. The user\'s current entry follows for context:\n\n'+entryContext();
+  var msgs=[{role:'system',content:sys}].concat(AI.filter(function(m){return m.role==='user'||m.role==='assistant'}).slice(-8).map(function(m){return {role:m.role,content:m.content}}));
+  try{
+    var r=await aiChat(msgs,{max:1200,temp:.3,onToken:function(t){if(R){wait.innerHTML=R.renderAnswer(t,sources);log.scrollTop=log.scrollHeight}}});
+    var L=window.__aiLast||{},meta=[];if(scope==='journal')meta.push(sources.length+' entr'+(sources.length===1?'y':'ies')+' sent');if(L.ms)meta.push((L.ms/1000).toFixed(1)+' s');if(L.usage&&L.usage.total_tokens)meta.push(L.usage.total_tokens+' tokens');
+    AI.push({role:'assistant',content:r,sources:sources,meta:meta.join(' · ')});persistAi();renderAi()}
+  catch(e){wait.className='ws-msg system';wait.textContent='Error: '+e.message}
 }
 function persistAi(){S.aiHistory=AI.slice(-40);save()}
 
@@ -2526,6 +2827,596 @@ function mount(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
 setTimeout(mount,1200);
+})();
+</script>
+
+<style id="refine-css">
+/* ==========================================================================
+   Calm instrument layer — a quieter main view, a first-run introduction,
+   and one consistent settings surface. Loaded last; only refines.
+   ========================================================================== */
+
+/* ---- Main view: nothing competes with the page ---- */
+/* closed side drawers no longer cast a shadow onto the page edge */
+.wit-drawer:not(.open),.ai-hub:not(.open),.intel-drawer:not(.open){box-shadow:none;visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s}
+.wit-drawer.open,.ai-hub.open,.intel-drawer.open{visibility:visible;transition:transform .2s ease}
+
+/* Collapsed panels become small edge tabs; the name appears on hover/focus */
+.ws-rail{opacity:.5;gap:0;box-shadow:none;transition:opacity .15s,border-color .15s,color .15s}
+.ws-rail:hover,.ws-rail:focus-visible{opacity:1}
+.ws-rail .ri{font-size:11px;line-height:1;font-weight:400}
+.ws-rail .rl{display:none;white-space:nowrap}
+.ws-rail:hover .rl,.ws-rail:focus-visible .rl{display:inline}
+.ws-rail.left,.ws-rail.right{padding:8px 3px;min-height:30px;justify-content:center}
+.ws-rail.left:hover .rl,.ws-rail.right:hover .rl,.ws-rail.left:focus-visible .rl,.ws-rail.right:focus-visible .rl{margin-top:7px}
+.ws-rail.bottom{padding:3px 9px;min-width:30px;justify-content:center}
+.ws-rail.bottom:hover .rl,.ws-rail.bottom:focus-visible .rl{margin-left:7px}
+
+/* Editor chrome: one quiet toolbar row; it steps back while you type */
+.toolbar .sep{margin:0 3px}
+.toolbar .tb{min-width:26px;padding:0 5px;white-space:nowrap}
+.toolbar .grp{flex:none}
+/* When the column is narrow, undo/redo (still on Ctrl/⌘+Z and Ctrl/⌘+Shift+Z) and
+   clear-formatting leave the bar so the toolbar stays on one row. */
+.toolbar{container-type:inline-size}
+@container (max-width:940px){.toolbar .tb-hist,.toolbar .tb-hist+.sep,.toolbar .tb-clear{display:none}}
+@media (max-width:560px){.toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.toolbar::-webkit-scrollbar{display:none}}
+.toolbar .tb.save{background:transparent;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:none}
+.toolbar .tb.save:hover{background:var(--accent);color:#fff}
+.toolbar,.ribbon,.mfbar,.prompt-actions{transition:opacity .25s ease}
+.wrap:has(#entry:focus) .toolbar:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .ribbon:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .mfbar:not(:hover):not(:focus-within),
+.wrap:has(#entry:focus) .prompt-actions:not(:hover){opacity:.32}
+@media (prefers-reduced-motion:reduce){.toolbar,.ribbon,.mfbar,.prompt-actions{transition:none}}
+
+/* ---- First-run introduction ---- */
+.intro-back{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 62%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:introFade .22s ease both}
+.intro-card{position:relative;width:min(640px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--canvas);border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 80px -30px #0006,0 2px 8px -4px #0002;padding:34px 38px 28px;animation:introRise .28s cubic-bezier(.2,.8,.2,1) both}
+.intro-card .ix{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--faint);font-size:15px;cursor:pointer}
+.intro-card .ix:hover{border-color:var(--line);color:var(--ink)}
+.intro-kicker{display:flex;align-items:center;gap:8px;font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.intro-kicker .mk{width:18px;height:18px;border-radius:5px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+.intro-kicker .mk i{width:6px;height:6px;border-radius:50%;background:#fff}
+.intro-card h2{font:700 30px/1.12 var(--font);letter-spacing:-.025em;margin:18px 0 10px;color:var(--ink)}
+.intro-lede{font-size:15px;line-height:1.6;color:var(--soft);margin:0 0 22px;max-width:52ch}
+.intro-steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--line2)}
+.intro-steps li{display:grid;grid-template-columns:38px 1fr;gap:4px 10px;padding:13px 0;border-bottom:1px solid var(--line2)}
+.intro-steps .n{font:600 11px var(--mono);color:var(--accent);padding-top:2px;font-variant-numeric:tabular-nums}
+.intro-steps b{display:block;font:650 14px var(--font);color:var(--ink)}
+.intro-steps span{display:block;font-size:13px;line-height:1.55;color:var(--soft);margin-top:2px}
+.intro-keys{display:flex;flex-wrap:wrap;gap:6px 16px;margin:18px 0 6px;font:11px var(--mono);color:var(--faint)}
+.intro-keys kbd{display:inline-block;min-width:20px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;margin-right:6px;font:600 10.5px var(--mono);color:var(--ink);background:var(--canvas)}
+.intro-status{display:flex;align-items:center;gap:8px;margin:14px 0 0;padding:10px 12px;border-radius:9px;background:color-mix(in srgb,var(--line2) 55%,transparent);font:11.5px var(--mono);color:var(--soft)}
+.intro-status i{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.intro-status i.ok{background:var(--ok)}
+.intro-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:22px}
+.intro-actions .sp{flex:1}
+.intro-actions .lnk{border:0;background:transparent;color:var(--soft);font:600 12.5px var(--font);cursor:pointer;padding:9px 6px}
+.intro-actions .lnk:hover{color:var(--accent)}
+@keyframes introFade{from{opacity:0}}
+@keyframes introRise{from{opacity:0;transform:translateY(10px) scale(.985)}}
+@media (prefers-reduced-motion:reduce){.intro-back,.intro-card{animation:none}}
+@media (max-width:560px){.intro-card{padding:26px 20px 20px;border-radius:12px}.intro-card h2{font-size:24px}.intro-lede{font-size:14px}.intro-actions .sp{display:none}.intro-actions .btn{flex:1 1 auto}}
+
+/* ---- Studio: one consistent settings surface ---- */
+#studioModal .modal.studio-v2{width:min(1080px,96vw);max-width:1080px}
+#studioModal .studio-layout{grid-template-columns:228px minmax(0,1fr);min-height:min(640px,74vh)}
+#studioModal .studio-rail{padding:14px 12px 18px;background:color-mix(in srgb,var(--line2) 32%,var(--bg));overflow:auto;max-height:76vh}
+.st-search{position:relative;margin:0 0 6px}
+.st-search input{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--canvas);color:var(--ink);padding:8px 10px 8px 28px;font:12.5px var(--font);outline:none}
+.st-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.st-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--faint)}
+.st-group{font:600 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:16px 10px 5px}
+#studioModal .studio-nav{padding:7px 10px;margin:1px 0;border-radius:7px;font:600 12.5px var(--font);color:var(--ink)}
+#studioModal .studio-nav small{font:11px var(--font);color:var(--faint);margin-top:1px}
+#studioModal .studio-nav:hover{background:color-mix(in srgb,var(--line2) 70%,transparent)}
+#studioModal .studio-nav.on{background:var(--canvas);color:var(--accent);box-shadow:inset 2px 0 0 var(--accent),0 0 0 1px var(--line2)}
+#studioModal .studio-nav[hidden]{display:none}
+.st-empty{font-size:12px;color:var(--faint);padding:10px}
+#studioModal .studio-content{padding:26px 32px 36px;max-height:76vh}
+#studioModal .studio-section>h4{font:650 20px/1.2 var(--font);letter-spacing:-.012em;margin:0}
+#studioModal .studio-section>.intro{font-size:13px;color:var(--soft);margin:5px 0 20px}
+#studioModal .studio-card{border:1px solid var(--line2);border-radius:10px;padding:18px 20px;margin:0 0 14px;background:var(--canvas)}
+#studioModal .studio-card h5{font:650 13px var(--font);margin:0 0 4px;color:var(--ink)}
+#studioModal .studio-card h5 .muted{font-weight:500}
+#studioModal .studio-card>h5:not(:first-child){margin-top:20px}
+#studioModal .studio-card p.muted,#studioModal .studio-card .intro{font-size:12.5px;line-height:1.55;color:var(--soft);margin:2px 0 12px}
+#studioModal .studio-card .bar{margin-top:12px}
+#studioModal .studio-card .warn{margin-top:14px}
+#studioModal label.f{margin:14px 0 5px}
+#studioModal .studio-danger{border-color:color-mix(in srgb,var(--err) 30%,var(--line2))}
+#studioModal .studio-danger .btn{color:var(--err)}
+#studioModal .studio-danger .btn:hover{border-color:var(--err)}
+/* one segmented-control style everywhere in Studio */
+#studioModal .seg,#studioModal .aw-seg,#studioModal .provgrid{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;margin:0;border:1px solid var(--line2);border-radius:8px;background:color-mix(in srgb,var(--line2) 60%,var(--bg));overflow:visible;max-width:100%}
+#studioModal .seg button,#studioModal .aw-seg button,#studioModal .provgrid button{flex:0 0 auto;min-width:0;border:0;border-radius:6px;background:transparent;color:var(--soft);padding:6px 12px;font:600 12px var(--font);cursor:pointer;box-shadow:none}
+#studioModal .seg button:hover,#studioModal .aw-seg button:hover,#studioModal .provgrid button:hover{color:var(--ink)}
+#studioModal .seg button.on,#studioModal .aw-seg button.on,#studioModal .provgrid button.on{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 1px 2px -1px #0003}
+#studioModal .provgrid{margin:4px 0 2px}
+/* label / control rows */
+.st-row{display:grid;grid-template-columns:minmax(150px,210px) minmax(0,1fr);gap:8px 20px;align-items:center;padding:14px 0;border-top:1px solid var(--line2)}
+.st-row:first-of-type{border-top:0;padding-top:4px}
+.st-row:last-child{padding-bottom:2px}
+.st-row .lb b{display:block;font:600 12.5px var(--font);color:var(--ink)}
+.st-row .lb small{display:block;font-size:11.5px;line-height:1.45;color:var(--faint);margin-top:2px}
+.st-row .ct{min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-row .ct input.f{max-width:360px;margin:0}
+#studioModal .aw-row{padding:14px 0 2px;border-top:1px solid var(--line2);margin-top:14px}
+#studioModal .aw-field label{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.st-kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;font:12px var(--mono);margin:6px 0 0}
+.st-kv dt{color:var(--faint)}
+.st-kv dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.st-caps{display:flex;flex-wrap:wrap;gap:6px}
+#studioModal .studio-card .btn{padding:7px 12px;font-size:12.5px}
+#studioModal .studio-card .btn.primary{font-weight:600}
+#studioModal select.f{max-width:360px}
+#studioModal .intel-config{border:0;padding:0;margin-top:14px;background:none}
+#studioModal .intel-profile{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;border:1px solid var(--line2);border-radius:8px;background:color-mix(in srgb,var(--line2) 60%,var(--bg))}
+#studioModal .intel-profile button{border:0;border-radius:6px;background:transparent;color:var(--soft);padding:6px 14px;font:600 12px var(--font)}
+#studioModal .intel-profile button.on{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 1px 2px -1px #0003}
+#studioModal .intel-slider{max-width:560px}
+#studioModal .ws-preset-btn.on{background:var(--canvas);color:var(--ink);border-color:var(--ink)}
+#studioModal .ws-preset-btn.on small{color:var(--soft)}
+.st-note{font-size:12px;color:var(--faint);margin:10px 0 0}
+@media (max-width:760px){
+  #studioModal .studio-layout{grid-template-columns:1fr}
+  #studioModal .studio-rail{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;max-height:none;padding:8px}
+  .st-search{flex:0 0 150px;margin:0}
+  .st-group{display:none}
+  #studioModal .studio-nav{flex:none}
+  #studioModal .studio-content{padding:18px 16px 28px;max-height:none}
+  .st-row{grid-template-columns:1fr;gap:8px}
+}
+</style>
+<script id="refine-shell">
+(function(){'use strict';
+var $=function(x){return document.getElementById(x)};
+var K={ui:'daily:ui.v2',intro:'daily:introSeen',studio:'daily:studioSection'};
+function get(k){try{return localStorage.getItem(k)}catch(_){return null}}
+function put(k,v){try{localStorage.setItem(k,v)}catch(_){}}
+function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var MAC=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
+var MOD=MAC?'⌘':'Ctrl';
+function provGH(){try{return !window.DailyProvider||DailyProvider.active()==='github'}catch(_){return true}}
+function relayCfg(){return window.__relayConfig||null}
+
+/* ---------------------------------------------------------------- main view */
+function calmDefaults(){
+  if(get(K.ui))return;put(K.ui,'1');
+  try{var w=window.dailyWorkspace;if(!w)return;var s=w.state();['left','right','bottom'].forEach(function(k){if(s[k]&&s[k].open)w.open(k,false)})}catch(_){}
+}
+function tagToolbar(){var t=$('toolbar');if(!t)return;t.querySelectorAll('.tb').forEach(function(x){var ti=(x.title||'').toLowerCase();if(/^undo|^redo/.test(ti)){var g=x.closest('.grp');if(g)g.classList.add('tb-hist')}if(/clear format|remove format/.test(ti))x.classList.add('tb-clear')})}
+function rails(){
+  var gh=provGH(),L={wsRailLeft:['▤','Repository'],wsRailRight:['▥',gh?'Issues':'Work items'],wsRailBottom:['▦','Board · AI']};
+  Object.keys(L).forEach(function(k){var b=$(k);if(!b)return;b.innerHTML='<span class="ri" aria-hidden="true">'+L[k][0]+'</span><span class="rl">'+h(L[k][1])+'</span>';b.setAttribute('aria-label','Open '+L[k][1]+' panel');b.title=L[k][1]});
+  var t=document.querySelector('#wsRight .ws-head .ttl');if(t)t.textContent=gh?'Issues':'Work items';
+  [].forEach.call(document.querySelectorAll('#studioModal .ws-panel-card h5, #studioModal .diag-grid dt'),function(x){x.textContent=x.textContent.replace(/^(Work Items|Work items|Issues)/,gh?'Issues':'Work items')});
+}
+
+/* ---------------------------------------------------------------- introduction */
+function hasWritten(){try{return typeof allEntries==='function'&&allEntries().some(function(e){return String(e.text||'').trim().length>0})}catch(_){return false}}
+function setupLine(){
+  var c=relayCfg(),parts=[];
+  if(c){
+    if(c.github&&c.github.enabled)parts.push('GitHub');
+    if(c.ado&&c.ado.enabled)parts.push('Azure DevOps');
+    if(c.ai&&c.ai.configured)parts.push('AI · '+(c.ai.model||'configured'));
+    return parts.length?{ok:true,text:'Relay connected · '+parts.join(' · ')+' — credentials stay in .env'}:{ok:true,text:'Relay connected · add integrations in .env when you want them'};
+  }
+  return {ok:false,text:'Running in this browser only · everything works offline; connect a repository or AI in Studio'};
+}
+function showIntro(){
+  if($('introBack'))return;
+  var st=setupLine();
+  var back=document.createElement('div');back.className='intro-back';back.id='introBack';
+  back.innerHTML='<div class="intro-card" role="dialog" aria-modal="true" aria-labelledby="introTitle">'+
+    '<button class="ix" data-x aria-label="Close">✕</button>'+
+    '<div class="intro-kicker"><span class="mk"><i></i></span>The Daily · local-first journal</div>'+
+    '<h2 id="introTitle">A precise record of your work.</h2>'+
+    '<p class="intro-lede">Write plainly. The Daily structures, links and keeps every entry — on this device, in plain Markdown, published only when you say so.</p>'+
+    '<ol class="intro-steps">'+
+      '<li><span class="n">01</span><div><b>Capture</b><span>Press <kbd>/</kbd> for scaffolds — decisions, experiments, findings, blockers. Each one tags itself as you insert it.</span></div></li>'+
+      '<li><span class="n">02</span><div><b>Connect</b><span>Tags and links turn entries into a knowledge graph you can browse and search here, or open as an Obsidian vault.</span></div></li>'+
+      '<li><span class="n">03</span><div><b>Publish</b><span>Push entries to GitHub or Azure DevOps and keep the related issues, boards and runs beside your notes.</span></div></li>'+
+      '<li><span class="n">04</span><div><b>Keep it yours</b><span>No account, no server, no trackers. With the relay, your tokens never leave the <code>.env</code> file on your computer.</span></div></li>'+
+    '</ol>'+
+    '<div class="intro-keys"><span><kbd>/</kbd>scaffolds</span><span><kbd>'+MOD+' K</kbd>commands</span><span><kbd>'+MOD+' S</kbd>save</span><span><kbd>Alt 1–3</kbd>panels</span></div>'+
+    '<div class="intro-status"><i class="'+(st.ok?'ok':'')+'"></i>'+h(st.text)+'</div>'+
+    '<div class="intro-actions"><button class="btn primary" data-go="write">Start writing</button><button class="btn" data-go="tour">Take the full tour</button><span class="sp"></span><button class="lnk" data-go="studio">Settings</button></div>'+
+  '</div>';
+  document.body.appendChild(back);
+  var prev=document.activeElement;
+  function close(next){put(K.intro,new Date().toISOString());document.removeEventListener('keydown',onKey,true);back.remove();
+    if(next==='tour'&&typeof openAbout==='function')openAbout();
+    else if(next==='studio'&&typeof openStudioHome==='function')openStudioHome('general');
+    else{var e=$('entry');if(e)try{e.focus()}catch(_){}else if(prev&&prev.focus)prev.focus()}}
+  function onKey(e){if(e.key==='Escape'){e.preventDefault();close()}else if(e.key==='Tab'){var f=back.querySelectorAll('button');var first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}
+  document.addEventListener('keydown',onKey,true);
+  back.addEventListener('click',function(e){if(e.target===back){close();return}var x=e.target.closest('[data-x],[data-go]');if(x)close(x.dataset.go)});
+  setTimeout(function(){var p=back.querySelector('[data-go="write"]');if(p)p.focus()},30);
+}
+window.dailyIntro={show:showIntro,reset:function(){try{localStorage.removeItem(K.intro)}catch(_){}}};
+
+/* ---------------------------------------------------------------- Studio */
+var NAV=[
+  ['Personal',[['general','General','Name, theme, editor width'],['appearance','Appearance','Color, type, density'],['workspace','Panels','Docks, presets, shortcuts']]],
+  ['Intelligence',[['models','AI model','Provider and connection'],['intelligence','Signals','What gets surfaced, and when'],['knowledge','Knowledge schema','Tags and frontmatter']]],
+  ['Connections',[['integrations','Repository & tracking','GitHub or Azure DevOps']]],
+  ['Data & system',[['data','Backup & export','Portability and storage'],['advanced','Diagnostics','Runtime checks and reset'],['about','About','Version and introduction']]]
+];
+var INFO={};NAV.forEach(function(g){g[1].forEach(function(x){INFO[x[0]]=x})});
+function sec(k){return document.querySelector('#studioModal .studio-section[data-s="'+k+'"]')}
+function ensureSection(k){var s=sec(k);if(s)return s;var host=document.querySelector('#studioModal .studio-content');if(!host)return null;s=document.createElement('section');s.className='studio-section';s.dataset.s=k;s.innerHTML='<h4></h4><p class="intro"></p>';host.appendChild(s);return s}
+function row(label,desc,control){return '<div class="st-row"><div class="lb"><b>'+h(label)+'</b>'+(desc?'<small>'+h(desc)+'</small>':'')+'</div><div class="ct">'+control+'</div></div>'}
+/* Wrap loose nodes into cards, starting a new card at each loose <h5>. */
+function normalize(s){
+  var kids=[].slice.call(s.children).filter(function(c){return c.tagName!=='H4'&&!(c.classList.contains('intro')&&c.parentElement===s&&c.tagName==='P')});
+  var card=null;
+  kids.forEach(function(c){
+    if(c.classList.contains('studio-card')||c.classList.contains('ws-panel-grid')){card=null;return}
+    if(c.tagName==='H5'||!card){card=document.createElement('div');card.className='studio-card';s.insertBefore(card,c)}
+    card.appendChild(c);
+  });
+  s.querySelectorAll('.studio-card').forEach(function(cd){if(!cd.children.length)cd.remove()});
+}
+function moveRow(card,node,label,desc){if(!node)return;var r=document.createElement('div');r.className='st-row';r.innerHTML='<div class="lb"><b>'+h(label)+'</b>'+(desc?'<small>'+h(desc)+'</small>':'')+'</div><div class="ct"></div>';r.querySelector('.ct').appendChild(node);card.appendChild(r)}
+function dropLabel(node,tag,text){var p=node&&node.previousElementSibling;if(p&&p.tagName===tag&&(!text||p.textContent.trim().toLowerCase().indexOf(text)===0))p.remove()}
+function buildGeneral(){
+  var s=ensureSection('general');if(s.querySelector('.st-general'))return;
+  var name=$('nameField'),theme=$('themeSeg'),width=$('widthSeg');
+  dropLabel(name,'H5','your name');dropLabel(theme,'H5','appearance');dropLabel(width,'LABEL','editor width');
+  var card=document.createElement('div');card.className='studio-card st-general';
+  moveRow(card,name,'Your name','Used in greetings and summaries. Stored only in this browser.');
+  moveRow(card,theme,'Theme','Auto follows your operating system.');
+  moveRow(card,width,'Editor width','Measure of the writing column.');
+  var intro=document.createElement('div');intro.className='st-row';intro.innerHTML='<div class="lb"><b>Introduction</b><small>The welcome overview shown on first visit.</small></div><div class="ct"><button class="btn" data-st="intro">Show introduction</button><button class="btn" data-st="about">Full tour</button></div>';
+  card.appendChild(intro);s.appendChild(card);
+  var app=sec('appearance'),leg=app&&app.querySelector('.aw-legacy');if(leg){leg.querySelectorAll('.aw-built').forEach(function(c){app.appendChild(c)});leg.querySelectorAll('.studio-launch').forEach(function(x){x.remove()});if(!leg.querySelector('input,button,select,textarea')){leg.innerHTML='';leg.style.display='none'}}
+}
+function buildIntegrations(){
+  var s=ensureSection('integrations');var P=window.DailyProvider;
+  var host=s.querySelector('.st-int');if(!host){host=document.createElement('div');host.className='st-int';s.appendChild(host)}
+  if(!P){host.innerHTML='<div class="studio-card"><p class="muted">Repository settings are loading…</p></div>';return}
+  try{P.apply()}catch(_){}
+  var a=P.active(),other=a==='github'?'ado':'github',c=relayCfg(),managed=!!(c&&((a==='github'&&c.github&&c.github.enabled)||(a==='ado'&&c.ado&&c.ado.enabled)));
+  var caps=($('provCaps')||{}).innerHTML||'';
+  var pm=P.publishMode(),mt=P.mirrorTarget();
+  host.innerHTML=
+    '<div class="studio-card">'+
+      row('Active provider','Publishing, the work drawer and run status follow this choice.','<div class="seg" data-st-prov>'+['github','ado'].map(function(p){return '<button data-p="'+p+'" class="'+(p===a?'on':'')+'">'+(P.configured(p)?'● ':'○ ')+h(P.label(p))+'</button>'}).join('')+'</div>')+
+      row('Credentials',managed?'Read from .env by the relay; never sent to this page.':(P.relayOn()?'This provider is not set in .env, so browser settings are used.':'Stored in this browser.'),'<span class="cap '+(P.configured(a)?'on':'off')+'"><i>'+(P.configured(a)?'✓':'○')+'</i>'+(P.configured(a)?(managed?'Managed by relay':'Configured'):'Not configured')+'</span>')+
+      row('Publishing',pm==='pr'?'Each entry gets its own branch and pull request.':'Entries are committed directly to the branch.','<span class="cap on"><i>↑</i>'+(pm==='pr'?'Pull request':'Commit')+'</span>'+(mt?'<span class="cap on"><i>⇉</i>Mirrors to '+h(P.label(mt))+'</span>':''))+
+      row('Capabilities','Hover a chip for details or what is missing.','<div class="st-caps">'+caps+'</div>')+
+      '<div class="bar"><button class="btn primary" data-st="repo">Repository settings…</button><button class="btn" data-st="browse">Browse repository</button><button class="btn" data-st="test">Test connection</button></div>'+
+      '<p class="st-note">Tokens, owners and folders are edited in Repository settings. Switching providers here never deletes the other provider’s settings.</p>'+
+    '</div>';
+  host.querySelectorAll('[data-st-prov] button').forEach(function(b){b.onclick=function(){if(b.dataset.p!==P.active()){P.set(b.dataset.p);buildIntegrations()}}});
+}
+function buildAbout(){
+  var s=ensureSection('about');var host=s.querySelector('.st-about');if(!host){host=document.createElement('div');host.className='st-about';s.appendChild(host)}
+  var seen=get(K.intro),c=relayCfg();
+  host.innerHTML='<div class="studio-card"><h5>The Daily</h5><p class="muted">A local-first journal for engineering and research work. Entries live in this browser and are published as plain Markdown to a repository you control.</p>'+
+    '<dl class="st-kv"><dt>Version</dt><dd id="stVersion">'+(c&&c.version?h(c.version):'—')+'</dd><dt>Mode</dt><dd>'+(c?'Local relay (credentials in .env)':'Browser only')+'</dd><dt>Storage</dt><dd>This browser · '+h(location.host||'file')+'</dd><dt>Introduction</dt><dd>'+(seen?(isNaN(Date.parse(seen))?'Seen':'Seen '+h(new Date(seen).toLocaleDateString())):'Not yet shown')+'</dd><dt>License</dt><dd>MIT</dd></dl>'+
+    '<div class="bar"><button class="btn" data-st="intro">Show introduction</button><button class="btn" data-st="about">Full tour</button><button class="btn" data-st="abouttab">Open tour in a new tab</button></div></div>'+
+    '<div class="studio-card"><h5>Privacy</h5><p class="muted" style="margin-bottom:0">No analytics, no third-party scripts, no account. Content leaves this device only when you publish to your repository or run an AI action against the provider you configured.</p></div>';
+  if(c&&!c.version)fetch('/healthz').then(function(r){return r.json()}).then(function(j){var v=$('stVersion');if(v&&j.version)v.textContent=j.version+' (relay)'}).catch(function(){});
+}
+function act(k){
+  if(k==='intro'){closeModal('studioModal');showIntro()}
+  else if(k==='about'){closeModal('studioModal');if(typeof openAbout==='function')openAbout()}
+  else if(k==='abouttab'){if(typeof openAboutTab==='function')openAboutTab()}
+  else if(k==='repo'){closeModal('studioModal');openModal('repoModal')}
+  else if(k==='browse'){closeModal('studioModal');if(typeof openRepository==='function')openRepository('overview')}
+  else if(k==='test'){var a=window.DailyProvider?DailyProvider.active():'github';closeModal('studioModal');openModal('repoModal');setTimeout(function(){try{(a==='github'?testGH:testAZ)()}catch(_){}} ,60)}
+}
+function buildRail(){
+  var rail=document.querySelector('#studioModal .studio-rail');if(!rail||rail.dataset.v3)return;rail.dataset.v3='1';
+  rail.innerHTML='<label class="st-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><input id="stSearch" type="search" placeholder="Search settings" aria-label="Search settings" autocomplete="off"></label>'+
+    NAV.map(function(g){return '<div class="st-group">'+h(g[0])+'</div>'+g[1].map(function(x){return '<button class="studio-nav" data-s="'+x[0]+'" onclick="studioSection(\''+x[0]+'\')">'+h(x[1])+'<small>'+h(x[2])+'</small></button>'}).join('')}).join('')+
+    '<div class="st-empty" id="stEmpty" hidden>No matching settings</div>';
+  var q=$('stSearch');
+  q.addEventListener('input',function(){var t=q.value.trim().toLowerCase(),firstHit=null;
+    rail.querySelectorAll('.studio-nav').forEach(function(b){var s=sec(b.dataset.s),hay=(b.textContent+' '+(s?s.textContent:'')+' '+[].map.call(s?s.querySelectorAll('input[placeholder]'):[],function(i){return i.placeholder}).join(' ')).toLowerCase();var hit=!t||hay.indexOf(t)>=0;b.hidden=!hit;if(hit&&!firstHit)firstHit=b});
+    rail.querySelectorAll('.st-group').forEach(function(g){var n=g.nextElementSibling,any=false;while(n&&!n.classList.contains('st-group')){if(n.classList.contains('studio-nav')&&!n.hidden)any=true;n=n.nextElementSibling}g.hidden=!any});
+    $('stEmpty').hidden=!!firstHit;
+    if(t&&firstHit){var cur=rail.querySelector('.studio-nav.on');if(!cur||cur.hidden)studioSection(firstHit.dataset.s)}});
+  q.addEventListener('keydown',function(e){if(e.key==='Enter'){var b=rail.querySelector('.studio-nav:not([hidden])');if(b)studioSection(b.dataset.s)}else if(e.key==='Escape'&&q.value){e.stopPropagation();q.value='';q.dispatchEvent(new Event('input'))}});
+}
+var installed=false;
+function installStudio(){
+  if(installed)return true;
+  var lay=$('studioLayout');if(!lay||!sec('workspace')||!sec('workspace').querySelector('.ws-master'))return false;
+  installed=true;
+  var modal=document.querySelector('#studioModal .modal');var ms=modal&&modal.querySelector('.ms');if(ms)ms.textContent='Preferences for this browser. Credentials kept in .env are never shown here.';
+  try{if(typeof window.renderAppearance==='function')window.renderAppearance()}catch(_){}
+  buildGeneral();
+  ensureSection('integrations');ensureSection('about');
+  ['models','intelligence','knowledge','data','advanced'].forEach(function(k){var s=sec(k);if(s)normalize(s)});
+  /* tidy specific headings */
+  [].forEach.call(document.querySelectorAll('#studioModal .studio-section[data-s="data"] h5'),function(x){if(x.textContent.trim()==='Data')x.textContent='Storage'});
+  [].forEach.call(document.querySelectorAll('#studioModal .studio-section[data-s="appearance"] .aw-built h5'),function(x){if(/^Layout/.test(x.textContent))x.textContent='Layout, motion & editing'});
+  Object.keys(INFO).forEach(function(k){var s=ensureSection(k);if(!s)return;var t=s.querySelector('h4'),p=s.querySelector(':scope > p.intro');if(t)t.textContent=INFO[k][1];if(p)p.textContent=INFO[k][2]});
+  /* order sections to match the navigation */
+  var host=document.querySelector('#studioModal .studio-content');NAV.forEach(function(g){g[1].forEach(function(x){var s=sec(x[0]);if(s)host.appendChild(s)})});
+  buildRail();
+  [].forEach.call(document.querySelectorAll('#studioModal .studio-danger .btn'),function(btn){var t=btn.textContent.trim(),ai=/AI configuration/.test(t),repo=/repository credentials/.test(t);if(!ai&&!repo)return;btn.removeAttribute('onclick');btn.addEventListener('click',function(){if(!confirm(t+'? This only affects this browser'+(relayCfg()?'; settings in .env are unchanged.':'.')))return;try{if(ai){store.rm(LS.ai);toast('AI configuration removed.')}else{store.rm(LS.gh);store.rm(LS.az);toast('Repository credentials removed.')}}catch(_){}})});
+  document.querySelector('#studioModal').addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(b)act(b.dataset.st)});
+  /* remember the last section; build live sections when shown */
+  var orig=window.studioSection;
+  window.studioSection=function(t){if(!sec(t))t='general';orig(t);put(K.studio,t);if(t==='integrations')buildIntegrations();if(t==='about')buildAbout();var c=document.querySelector('#studioModal .studio-content');if(c)c.scrollTop=0};
+  var origHome=window.openStudioHome;
+  window.openStudioHome=function(t){origHome(t||get(K.studio)||'general');studioSection(t||get(K.studio)||'general')};
+  studioSection(get(K.studio)||'general');rails();
+  return true;
+}
+
+/* ---------------------------------------------------------------- boot */
+function boot(){
+  calmDefaults();rails();tagToolbar();
+  var tries=0;(function wait(){if(!installStudio()&&tries++<60)setTimeout(wait,100)})();
+  if(!get(K.intro)&&!hasWritten())setTimeout(function(){if(!get(K.intro)&&!document.querySelector('.mback.open')&&!($('aboutBack')&&$('aboutBack').classList.contains('open')))showIntro()},450);
+  else if(!get(K.intro))put(K.intro,'existing-user');
+}
+document.addEventListener('daily:provider',function(){rails();if(sec('integrations')&&sec('integrations').classList.contains('on'))buildIntegrations()});
+document.addEventListener('daily:relay',function(){rails()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,60)});else setTimeout(boot,60);
+})();
+</script>
+
+<style id="ai-studio-css">
+/* ---- AI: connection, diagnostics, relay setup, journal-grounded answers ---- */
+.ai-state{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:9px;background:color-mix(in srgb,var(--line2) 50%,transparent);font-size:12.5px;line-height:1.5;color:var(--ink);margin:8px 0 4px}
+.ai-state i{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px;background:var(--faint)}
+.ai-state i.ok{background:var(--ok)}.ai-state i.warn{background:#d4a72c}
+.ai-state small{display:block;color:var(--faint);font:11px var(--mono);margin-top:2px}
+.ai-doctor:empty,.ai-models:empty{display:none}
+.ai-doctor{margin-top:12px;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.ai-step{display:grid;grid-template-columns:22px 120px minmax(0,1fr);gap:4px 10px;padding:10px 12px;border-top:1px solid var(--line2);font-size:12.5px;align-items:start}
+.ai-step:first-child{border-top:0}
+.ai-step .ic{font:700 12px var(--mono);text-align:center;line-height:18px;border-radius:50%;width:18px;height:18px}
+.ai-step.ok .ic{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.ai-step.fail .ic{color:var(--err);background:color-mix(in srgb,var(--err) 14%,transparent)}
+.ai-step.run .ic{color:var(--faint)}
+.ai-step b{font-weight:600}
+.ai-step .dt{color:var(--soft);font:11.5px var(--mono);overflow-wrap:anywhere}
+.ai-step .fx{grid-column:3;color:var(--ink);background:color-mix(in srgb,var(--err) 7%,transparent);border-left:2px solid var(--err);padding:6px 9px;border-radius:0 6px 6px 0;margin-top:2px;line-height:1.5}
+.ai-step.ok .fx{background:color-mix(in srgb,var(--line2) 60%,transparent);border-left-color:var(--line)}
+.ai-models{margin-top:12px}
+.ai-models .note{font-size:11.5px;color:var(--faint);margin:0 0 7px}
+.ai-models .chips{display:flex;flex-wrap:wrap;gap:5px;max-height:160px;overflow:auto}
+.ai-models button{border:1px solid var(--line);background:var(--canvas);color:var(--ink);border-radius:999px;padding:3px 10px;font:11.5px var(--mono);cursor:pointer}
+.ai-models button:hover,.ai-models button.cur{border-color:var(--accent);color:var(--accent)}
+.ai-last{font:11px var(--mono);color:var(--faint);margin-top:8px}
+#studioModal details.ai-details>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;font:650 13px var(--font);color:var(--ink)}
+#studioModal details.ai-details>summary::-webkit-details-marker{display:none}
+#studioModal details.ai-details>summary::before{content:'›';display:inline-block;transition:transform .15s;color:var(--faint);font-size:15px;width:10px}
+#studioModal details.ai-details[open]>summary::before{transform:rotate(90deg)}
+#studioModal details.ai-details>summary small{font:500 12px var(--font);color:var(--faint)}
+#studioModal details.ai-details[open]>summary{margin-bottom:10px}
+.ai-env{position:relative;margin-top:12px}
+.ai-env pre{margin:0;padding:12px 14px;border:1px solid var(--line2);border-radius:9px;background:color-mix(in srgb,var(--line2) 40%,var(--bg));font:12px/1.65 var(--mono);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.ai-env pre .c{color:var(--faint)}
+.ai-env button{position:absolute;top:8px;right:8px}
+.ai-steps{margin:10px 0 0;padding-left:18px;font-size:12.5px;color:var(--soft);line-height:1.6}
+/* console */
+.ai-rich{white-space:normal!important}
+.ai-rich p{margin:0 0 7px}.ai-rich p:last-child{margin-bottom:0}
+.ai-rich ul,.ai-rich ol{margin:2px 0 8px;padding-left:18px}
+.ai-rich li{margin:2px 0}
+.ai-rich code{font:11.5px var(--mono);background:color-mix(in srgb,var(--line2) 70%,transparent);padding:1px 4px;border-radius:4px}
+.ai-rich pre{background:color-mix(in srgb,var(--line2) 60%,transparent);padding:8px 10px;border-radius:7px;overflow:auto;margin:4px 0 8px}
+.ai-rich pre code{background:none;padding:0}
+.ai-rich h4{font:650 12.5px var(--font);margin:8px 0 4px}
+.ai-cite{display:inline-block;font:600 10.5px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:0 4px;margin:0 1px;text-decoration:none;cursor:pointer;vertical-align:1px}
+.ai-cite:hover{text-decoration:underline}
+.ai-src{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line2)}
+.ai-src span{font:600 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);align-self:center;margin-right:2px}
+.ai-src a{font:11px var(--font);color:var(--soft);border:1px solid var(--line2);border-radius:999px;padding:2px 8px;text-decoration:none;cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-src a:hover{border-color:var(--accent);color:var(--accent)}
+.ai-meta{font:10.5px var(--mono);color:var(--faint);margin-top:6px}
+.ai-typing{display:inline-flex;gap:3px;padding:3px 0}
+.ai-typing i{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:aiDot 1s infinite ease-in-out}
+.ai-typing i:nth-child(2){animation-delay:.15s}.ai-typing i:nth-child(3){animation-delay:.3s}
+@keyframes aiDot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.ws-ai-quick .ai-scope{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--line2) 60%,var(--bg));margin-right:4px}
+.ws-ai-quick .ai-scope button{border:0;background:transparent;padding:4px 9px;border-radius:12px}
+.ws-ai-quick .ai-scope button.on{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.ws-msg.assistant.ai-rich{max-width:92%}
+/* keep the Intelligence button clear of an open bottom panel and the right panel */
+body.ws-on .intel-indicator{bottom:calc(var(--ws-db) + 18px);right:calc(var(--ws-dr) + 18px)}
+@media (max-width:560px){.ai-step{grid-template-columns:22px minmax(0,1fr)}.ai-step .dt,.ai-step .fx{grid-column:2}}
+</style>
+<script id="ai-studio">
+(function(){'use strict';
+var $=function(x){return document.getElementById(x)};
+function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function cfg(){return window.__relayConfig||null}
+function relayAI(){var c=cfg();return c&&c.ai?c.ai:null}
+
+/* ================================================================= retrieval */
+var STOP=new Set('the a an and or of to in on for with at by from is are was were be been being it its this that these those i me my mine we our you your what which who whom how when where why do did does done have has had not no can could would should will shall may might about into over after before than then so as if just also very more most some any all there their they them he she his her up out off again once here only own same such too s t don now get got make made use used using want like one two'.split(' '));
+function stem(w){return w.length>4?w.replace(/(ies|ing|ed|es|s)$/,''):w}
+function toks(s){return (String(s||'').toLowerCase().match(/[a-z0-9][a-z0-9_\-]+/g)||[]).filter(function(w){return w.length>1&&!STOP.has(w)}).map(stem)}
+function entries(){try{return (typeof allEntries==='function'?allEntries():[]).filter(function(e){return String(e.text||'').trim()})}catch(_){return[]}}
+function titleOf(e){if(e.title)return e.title;var m=String(e.text||'').match(/^#{1,3}\s+(.+)$/m);return m?m[1].trim():(String(e.text||'').trim().split('\n')[0]||'Untitled').slice(0,80)}
+function chunksOf(e){var paras=String(e.text||'').replace(/!\[[^\]]*\]\([^)]*\)/g,'[image]').split(/\n{2,}/),out=[],cur='';paras.forEach(function(p){if((cur+'\n\n'+p).length>1100&&cur){out.push(cur);cur=p}else cur=cur?cur+'\n\n'+p:p});if(cur)out.push(cur);return out.map(function(t){return {date:e.date,id:e.id,title:titleOf(e),text:t}})}
+function daysAgo(d){var t=Date.parse(d);return isNaN(t)?9999:(Date.now()-t)/864e5}
+function retrieve(query,k){
+  k=k||6;var es=entries();if(!es.length)return[];
+  var q=String(query||'').toLowerCase(),win=null;
+  if(/\b(today)\b/.test(q))win=1;else if(/\b(this|last|past)\s+week\b|\b7 days\b|\brecent(ly)?\b|\blately\b/.test(q))win=7.5;else if(/\b(this|last|past)\s+month\b|\b30 days\b/.test(q))win=31;
+  var chunks=[];es.forEach(function(e){chunksOf(e).forEach(function(c){chunks.push(c)})});
+  var docs=chunks.map(function(c){return toks(c.title+' '+c.text)}),N=docs.length,avg=docs.reduce(function(n,d){return n+d.length},0)/Math.max(1,N),df={};
+  docs.forEach(function(d){new Set(d).forEach(function(w){df[w]=(df[w]||0)+1})});
+  var qt=Array.from(new Set(toks(query)));
+  var scored=chunks.map(function(c,i){var d=docs[i],tf={};d.forEach(function(w){tf[w]=(tf[w]||0)+1});var s=0;qt.forEach(function(w){if(!tf[w])return;var idf=Math.log(1+(N-df[w]+.5)/(df[w]+.5));s+=idf*(tf[w]*2.2)/(tf[w]+1.2*(.25+.75*d.length/avg))});var age=daysAgo(c.date);if(win&&age<=win)s+=3;s*=1+.12*Math.max(0,1-age/365);return {c:c,s:s}});
+  scored.sort(function(a,b){return b.s-a.s});
+  var pick=[],per={};
+  scored.forEach(function(x){if(pick.length>=k||x.s<=0)return;var key=x.c.id||x.c.date;if((per[key]||0)>=2)return;per[key]=(per[key]||0)+1;pick.push(x.c)});
+  if(!pick.length)pick=es.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))}).slice(0,4).map(function(e){return chunksOf(e)[0]});
+  return pick.sort(function(a,b){return String(a.date).localeCompare(String(b.date))});
+}
+function contextBlock(hits){var out='Journal excerpts (oldest first):\n',left=14000;hits.forEach(function(c){var t='\n['+c.date+'] '+c.title+'\n'+c.text.slice(0,Math.min(2200,left))+'\n';if(left>200){out+=t;left-=t.length}});return out}
+
+/* ================================================================= answer rendering */
+function inline(s,src){
+  s=h(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<i>$2</i>');
+  return s.replace(/\[(\d{4}-\d{2}-\d{2})((?:\s*[,;]\s*\d{4}-\d{2}-\d{2})*)\]/g,function(_,a,rest){var ds=[a].concat((rest.match(/\d{4}-\d{2}-\d{2}/g)||[]));return ds.map(function(d){var m=(src||[]).find(function(x){return x.date===d});return '<a href="#" class="ai-cite" data-cite="'+d+'" data-id="'+h(m?m.id:'')+'" title="Open '+d+(m?' · '+h(m.title):'')+'">'+d+'</a>'}).join('')});
+}
+function renderAnswer(md,src){
+  var lines=String(md||'').replace(/\r/g,'').split('\n'),html='',list=null,code=null,para=[];
+  function flush(){if(para.length){html+='<p>'+inline(para.join(' '),src)+'</p>';para=[]}}
+  function close(){if(list){html+='</'+list+'>';list=null}}
+  lines.forEach(function(l){
+    if(code!==null){if(/^```/.test(l)){html+='<pre><code>'+h(code)+'</code></pre>';code=null}else code+=(code?'\n':'')+l;return}
+    if(/^```/.test(l)){flush();close();code='';return}
+    var m;
+    if((m=l.match(/^\s*[-*•]\s+(.*)/))){flush();if(list!=='ul'){close();html+='<ul>';list='ul'}html+='<li>'+inline(m[1],src)+'</li>';return}
+    if((m=l.match(/^\s*\d+[.)]\s+(.*)/))){flush();if(list!=='ol'){close();html+='<ol>';list='ol'}html+='<li>'+inline(m[1],src)+'</li>';return}
+    if((m=l.match(/^#{1,4}\s+(.*)/))){flush();close();html+='<h4>'+inline(m[1],src)+'</h4>';return}
+    if(!l.trim()){flush();close();return}
+    close();para.push(l.trim());
+  });
+  if(code!==null)html+='<pre><code>'+h(code)+'</code></pre>';flush();close();
+  if(src&&src.length){var seen={};html+='<div class="ai-src"><span>Sources</span>'+src.filter(function(x){var k=x.id||x.date;if(seen[k])return false;return seen[k]=true}).map(function(x){return '<a href="#" data-cite="'+h(x.date)+'" data-id="'+h(x.id||'')+'" title="'+h(x.title)+'">'+h(x.date)+' · '+h(x.title)+'</a>'}).join('')+'</div>'}
+  return html;
+}
+function openEntryAt(date,id){try{if(typeof openEntry==='function')openEntry(date,id||undefined)}catch(_){}}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.ws-ai-log [data-cite]');if(a){e.preventDefault();openEntryAt(a.dataset.cite,a.dataset.id)}});
+
+/* ================================================================= Studio: connection, diagnostics, setup */
+var ENVMAP={openai:'openai',azure:'azure',anthropic:'anthropic',gemini:'gemini',openrouter:'openrouter',groq:'groq',mistral:'mistral',deepseek:'deepseek',xai:'xai',together:'custom',ollama:'ollama',lmstudio:'lmstudio',compatible:'custom'};
+function provFromRelay(a){if(!a)return'azure';if(a.kind==='anthropic'&&/azure\.com$/.test(a.host||''))return'foundryclaude';return ENVMAP[a.provider]||'custom'}
+function label(p){return (PROV[p]||{}).label||p}
+function renderState(){
+  var el=$('aiState');if(!el)return;var c=getAI(),ra=relayAI(),r=cfg(),dot='',text='',sub='';
+  if(r&&ra&&ra.configured&&aiIsRelay(c)){dot='ok';text='Connected through the relay — '+ra.label+' · '+ra.model;sub=(ra.auth==='entra'?'Microsoft Entra ID':'key in .env')+' · '+ra.host+(ra.reasoning?' · reasoning model':'')}
+  else if(aiReady()){dot=r?'warn':'ok';text=(r?'Using settings stored in this browser':'Connected from this browser')+' — '+label(aiProvKey(c))+' · '+(c.model||'');sub=aiHost(aiResolve(c).url)+(r&&ra&&!ra.configured?' · the relay has no AI set up in .env':'')}
+  else{text='Not connected';sub=r?'Set it up with the relay below — the recommended way.':'Choose a provider under “Browser connection”.'}
+  var L=window.__aiLast,last=L&&L.ms?'<div class="ai-last">Last answer · '+(L.ms/1000).toFixed(1)+' s'+(L.usage&&L.usage.total_tokens?' · '+L.usage.total_tokens+' tokens':'')+(L.model?' · '+h(L.model):'')+(L.adapted?' · adjusted: '+h(L.adapted):'')+'</div>':'';
+  el.innerHTML='<i class="'+dot+'"></i><div>'+h(text)+'<small>'+h(sub)+'</small>'+last+'</div>';
+}
+function step(s){return '<div class="ai-step '+(s.ok===null?'run':s.ok?'ok':'fail')+'"><span class="ic">'+(s.ok===null?'…':s.ok?'✓':'✕')+'</span><b>'+h(s.label)+'</b><span class="dt">'+h(s.detail||'')+'</span>'+(s.fix?'<div class="fx">'+h(s.fix)+'</div>':'')+'</div>'}
+async function runDoctor(){
+  var out=$('aiDoctor');if(!out)return;var c=getAI(),r=cfg();
+  out.innerHTML=step({label:'Checking',ok:null,detail:'Running connection checks…'});
+  setSt('aiStatus','','');
+  if(r&&(aiIsRelay(c)||!aiReady())){
+    try{var res=await fetch('/api/ai/doctor',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});var j=await res.json();
+      if(!res.ok)throw new Error((j.error&&j.error.message)||('HTTP '+res.status));
+      out.innerHTML=j.steps.map(step).join('');if(j.ok)window.__aiLast={ms:j.latencyMs,usage:j.usage,model:j.ai&&j.ai.model,adapted:'',at:Date.now()};
+      if(!j.ai.configured&&!aiReady())out.innerHTML+=step({label:'Next',ok:false,detail:'',fix:'Fill in “Set up with the relay” below, paste the lines into .env, restart the relay, and run diagnostics again.'});}
+    catch(e){out.innerHTML=step({label:'Relay',ok:false,detail:location.origin,fix:'The relay didn’t answer: '+e.message+'. Is python relay.py running?'})}
+    renderState();return;
+  }
+  var p=aiProvKey(c),d=PROV[p]||{},R=aiResolve(c),steps=[];
+  var missing=[];if(!c.base)missing.push('Base URL');if(!c.model)missing.push('Model');
+  steps.push({label:'Configuration',ok:!missing.length,detail:label(p)+' · '+(c.model||'no model'),fix:missing.length?'Add: '+missing.join(', ')+', then Save.':''});
+  if(missing.length){out.innerHTML=steps.map(step).join('');return}
+  if(d.relayOnly||R.kind==='azure'){steps.push({label:'Browser access',ok:false,detail:aiHost(R.url),fix:label(p)+' doesn’t accept calls straight from a web page. '+(r?'Use “Set up with the relay” below — it writes the .env lines from these settings.':'Run the relay (python relay.py) and set this provider up in .env.')});out.innerHTML=steps.map(step).join('');prefillSetupFromBrowser();return}
+  steps.push({label:'Endpoint',ok:true,detail:R.url.replace(/\?.*$/,'')});
+  out.innerHTML=steps.map(step).join('')+step({label:'Test request',ok:null,detail:'Sending a one-word test…'});
+  var t0=performance.now();
+  try{var reply=await aiChat([{role:'user',content:'Reply with exactly one word: connected'}],{max:16,temp:0});var ms=Math.round(performance.now()-t0);steps.push({label:'Test request',ok:true,detail:ms+' ms · replied “'+reply.slice(0,40)+'”'})}
+  catch(e){steps.push({label:'Test request',ok:false,detail:aiHost(R.url),fix:e.message})}
+  out.innerHTML=steps.map(step).join('');renderState();
+}
+async function listModels(){
+  var box=$('aiModels');if(!box)return;var c=getAI(),r=cfg();box.innerHTML='<p class="note">Loading models…</p>';
+  var ids=[],note='',cur='';
+  try{
+    if(r&&(aiIsRelay(c)||!aiReady())){var j=await (await fetch('/api/ai/models')).json();ids=j.models||[];note=j.note||'';cur=j.current||''}
+    else{var R=aiResolve(c),u;if(R.kind==='anthropic')u=R.url.replace(/\/messages$/,'/models');else u=R.url.replace(/\/chat\/completions(\?.*)?$/,'/models');var hd=Object.assign({},R.h);delete hd['Content-Type'];var res=await fetch(u,{headers:hd});if(!res.ok)throw new Error('HTTP '+res.status);var jj=await res.json();ids=(jj.data||jj.models||[]).map(function(m){return m.id||m.name}).filter(Boolean).sort();cur=c.model}
+  }catch(e){note='Couldn’t list models: '+e.message}
+  box.innerHTML=(note?'<p class="note">'+h(note)+'</p>':'')+(ids.length?'<div class="chips">'+ids.slice(0,300).map(function(m){return '<button type="button" data-model="'+h(m)+'" class="'+(m===cur?'cur':'')+'">'+h(m)+'</button>'}).join('')+'</div>':(note?'':'<p class="note">The provider returned no models.</p>'));
+  box.querySelectorAll('[data-model]').forEach(function(b){b.onclick=function(){var m=b.dataset.model;if($('evModel')&&$('aiSetup')&&!$('aiSetup').hidden){$('evModel').value=m;renderEnv()}if($('aiModel')&&!aiIsRelay(getAI())){$('aiModel').value=m}toast('Model: '+m+(r?' — copy the updated .env lines':' — Save to keep it'))}});
+}
+/* .env assistant */
+function normBase(p,v,model){
+  v=String(v||'').trim().replace(/\/+$/,'');var d=PROV[p]||{};
+  if(p==='azure'){
+    if(/^[a-z0-9][a-z0-9-]{1,62}$/i.test(v))return {base:'https://'+v.toLowerCase()+'.openai.azure.com/openai/v1'};
+    var m=v.match(/^(https?:\/\/[^/]+)(\/.*)?$/i);if(!m)return {base:v};var root=m[1],path=(m[2]||'');
+    var dep=(path.match(/\/openai\/deployments\/([^/?]+)/)||[])[1];
+    if(/\/anthropic/.test(path))return {base:v};
+    if(/\/models(\/|$)/.test(path))return {base:root+'/models'};
+    return {base:root+'/openai/v1',model:dep?decodeURIComponent(dep):''};
+  }
+  if(p==='foundryclaude'){
+    if(/^[a-z0-9][a-z0-9-]{1,62}$/i.test(v))return {base:'https://'+v.toLowerCase()+'.services.ai.azure.com/anthropic'};
+    return {base:v.replace(/\/v1(\/messages)?$/,'')};
+  }
+  return {base:v||d.base||''};
+}
+function envLines(){
+  var p=$('evProv').value,d=PROV[p]||{},nb=normBase(p,$('evBase').value),model=$('evModel').value.trim()||nb.model||'',auth=($('evAuth')&&$('evAuth').querySelector('.on'))?$('evAuth').querySelector('.on').dataset.v:'key';
+  if(nb.model&&!$('evModel').value.trim())$('evModel').value=nb.model;
+  var env=d.env||'compatible',L=['# AI — paste into .env (next to relay.py), then restart the relay','DAILY_AI_PROVIDER='+env];
+  var base=nb.base;if(base&&(base!==d.base||env==='compatible'||d.relayOnly))L.push('DAILY_AI_BASE_URL='+base);else if(!base&&(env==='compatible'||d.relayOnly))L.push('DAILY_AI_BASE_URL=<endpoint URL>');
+  L.push('DAILY_AI_MODEL='+(model||(d.kind==='azure'||p==='foundryclaude'?'<your deployment name>':'<model id>')));
+  if(d.entra&&auth==='entra'){L.push('DAILY_AI_AUTH=entra');L.push('# keyless: sign in once with  az login  (role: Cognitive Services OpenAI User or Foundry User)')}
+  else if(d.key!==false)L.push('DAILY_AI_API_KEY=<paste your key here>');
+  if(/^(o\d|gpt-5)/i.test(model)===false&&d.kind!=='anthropic'&&/reason|think|r1/i.test(model))L.push('DAILY_AI_REASONING=on');
+  return L;
+}
+function renderEnv(){var out=$('evOut');if(!out)return;var L=envLines();out.innerHTML=L.map(function(l){return l.charAt(0)==='#'?'<span class="c">'+h(l)+'</span>':h(l)}).join('\n');var p=$('evProv').value,d=PROV[p]||{};var a=$('evAuthRow');if(a)a.hidden=!d.entra;var bh=$('evBaseHint');if(bh)bh.textContent=d.kind==='azure'?'Paste the endpoint or Target URI from Foundry, or just the resource name.':p==='foundryclaude'?'The resource name, or https://<resource>.services.ai.azure.com/anthropic':(d.base?'Default: '+d.base:'The server’s base URL, e.g. http://localhost:8080/v1');var mh=$('evModel');if(mh)mh.placeholder=d.ph||'model'}
+function prefillSetupFromBrowser(){var c=getAI(),p=aiProvKey(c);if(!$('evProv')||p==='relay')return;$('evProv').value=PROV[p]?p:'custom';$('evBase').value=c.base||'';$('evModel').value=c.model||'';renderEnv();var det=$('aiSetupDetails');if(det)det.open=true;var s=$('aiSetup');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function renderSetup(){
+  var box=$('aiSetup');if(!box)return;var r=cfg();box.hidden=!r;if(!r)return;var ra=relayAI()||{};
+  var opts=Object.keys(PROV).filter(function(k){return k!=='relay'}),groups={};opts.forEach(function(k){(groups[PROV[k].group]=groups[PROV[k].group]||[]).push(k)});
+  var sel='<select class="f" id="evProv" aria-label="Provider">'+Object.keys(groups).map(function(g){return '<optgroup label="'+h(g)+'">'+groups[g].map(function(k){return '<option value="'+k+'">'+h(PROV[k].label)+'</option>'}).join('')+'</optgroup>'}).join('')+'</select>';
+  box.innerHTML='<details class="ai-details" id="aiSetupDetails"'+(ra.configured?'':' open')+'><summary>'+(ra.configured?'Change the AI provider in .env':'Set up with the relay')+' <small>'+(ra.configured?'currently '+h(ra.label):'recommended · keys stay in .env')+'</small></summary>'+
+    '<p class="muted">Fill in your provider’s details. Copy the lines into <code>.env</code> next to <code>relay.py</code>, add your key there, restart the relay, then choose <b>Run diagnostics</b>. The key never reaches this page.</p>'+
+    '<div class="st-row"><div class="lb"><b>Provider</b></div><div class="ct">'+sel+'</div></div>'+
+    '<div class="st-row"><div class="lb"><b>Endpoint</b><small id="evBaseHint"></small></div><div class="ct"><input class="f" id="evBase" autocomplete="off" spellcheck="false" placeholder="https://…"></div></div>'+
+    '<div class="st-row"><div class="lb"><b>Model or deployment</b><small>For Azure and Foundry this is the deployment name.</small></div><div class="ct"><input class="f" id="evModel" autocomplete="off" spellcheck="false"></div></div>'+
+    '<div class="st-row" id="evAuthRow"><div class="lb"><b>Sign-in</b><small>Use Entra ID when the resource has keys turned off.</small></div><div class="ct"><div class="seg" id="evAuth"><button type="button" data-v="key" class="on">API key</button><button type="button" data-v="entra">Entra ID (keyless)</button></div></div></div>'+
+    '<div class="ai-env"><pre id="evOut"></pre><button class="btn" type="button" id="evCopy">Copy</button></div></details>';
+  var p0=ra.configured?provFromRelay(ra):(function(){var c=getAI(),p=aiProvKey(c);return p!=='relay'&&PROV[p]?p:'azure'})();
+  $('evProv').value=p0;
+  if(ra.configured){$('evBase').value=ra.endpoint?ra.endpoint.replace(/\/chat\/completions$/,'').replace(/\/v1\/messages$/,''):'';$('evModel').value=ra.model||'';if(ra.auth==='entra')$('evAuth').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.v==='entra')})}
+  else{var c=getAI();if(aiProvKey(c)===p0){$('evBase').value=c.base||'';$('evModel').value=c.model||''}}
+  $('evProv').onchange=function(){$('evBase').value='';$('evModel').value='';renderEnv()};
+  $('evBase').oninput=$('evModel').oninput=renderEnv;
+  $('evAuth').querySelectorAll('button').forEach(function(b){b.onclick=function(){$('evAuth').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});renderEnv()}});
+  $('evCopy').onclick=function(){var t=envLines().join('\n')+'\n';(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('Copied — paste into .env and restart the relay')},function(){var r2=document.createRange();r2.selectNodeContents($('evOut'));var s=getSelection();s.removeAllRanges();s.addRange(r2);toast('Selected — press Ctrl+C to copy')})};
+  renderEnv();
+}
+var built=false;
+function buildAIStudio(){
+  if(built)return true;var sec=document.querySelector('#studioModal .studio-section[data-s="models"]'),base=$('aiBase');if(!sec||!base)return false;
+  var old=base.closest('.studio-card');if(!old)return false;built=true;
+  var conn=document.createElement('div');conn.className='studio-card ai-conn';
+  conn.innerHTML='<h5>Connection</h5><div class="ai-state" id="aiState"></div>'+
+    '<div class="st-row"><div class="lb"><b>Stream answers</b><small>Show text as it’s written.</small></div><div class="ct" id="aiStreamSlot"></div></div>'+
+    '<div class="bar"><button class="btn primary" type="button" data-ai="doctor">Run diagnostics</button><button class="btn" type="button" data-ai="models">List models</button></div>'+
+    '<div class="ai-doctor" id="aiDoctor" aria-live="polite"></div><div class="ai-models" id="aiModels"></div>';
+  var setup=document.createElement('div');setup.className='studio-card ai-setup';setup.id='aiSetup';
+  sec.insertBefore(conn,old);sec.insertBefore(setup,old);
+  var st=$('streamToggle');if(st){var lab=st.closest('label');if(lab){lab.textContent='';lab.appendChild(st);lab.appendChild(document.createTextNode(' On'));$('aiStreamSlot').appendChild(lab)}}
+  /* old form → "Browser connection", collapsible when the relay is present */
+  var head=old.querySelector('h5');var det=document.createElement('details');det.className='ai-details';det.id='aiBrowserDetails';
+  det.innerHTML='<summary>Browser connection <small id="aiBrowserSum"></small></summary>';
+  [].slice.call(old.childNodes).forEach(function(n){if(n!==head)det.appendChild(n)});if(head)head.remove();old.appendChild(det);
+  var diag=$('aiDiag');if(diag)diag.remove();
+  var warn=old.querySelector('.warn');if(warn)warn.textContent='Keys entered here are stored in this browser. For Azure, Foundry and anything sensitive, prefer the relay — keys then stay in .env. AI is review-first: it never rewrites your journal on its own.';
+  conn.addEventListener('click',function(e){var b=e.target.closest('[data-ai]');if(!b)return;if(b.dataset.ai==='doctor')runDoctor();else listModels()});
+  refresh();return true;
+}
+function refresh(){
+  if(!built)return;renderState();renderSetup();
+  var det=$('aiBrowserDetails'),r=cfg();if(det){det.open=!r||(!aiIsRelay(getAI())&&aiReady()&&!(relayAI()||{}).configured);var s=$('aiBrowserSum');if(s)s.textContent=r?'use a key stored in this browser instead':'keys are stored in this browser'}
+  try{fillAI()}catch(_){}
+}
+window.dailyAI={retrieve:retrieve,contextBlock:contextBlock,renderAnswer:renderAnswer,openEntry:openEntryAt,runDoctor:function(){var d=$('aiDoctor');if(d)return runDoctor();},listModels:listModels,refresh:refresh};
+
+/* Ask-your-journal entry points */
+window.openAskJournal=function(q){try{dailyWorkspace.open('bottom',true);setTimeout(function(){var t=document.querySelector('#wsBottomTabs [data-t="ai"]');if(t)t.click();var i=$('wsAiInput');if(i){if(q)i.value=q;i.focus()}},60)}catch(_){}};
+
+var tries=0;(function wait(){if(!buildAIStudio()&&tries++<80)setTimeout(wait,120)})();
+document.addEventListener('daily:relay',function(){setTimeout(refresh,30)});
+document.addEventListener('daily:ai',function(){if(built)renderState()});
 })();
 </script>
 
